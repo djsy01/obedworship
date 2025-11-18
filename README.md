@@ -30,6 +30,7 @@
 | ----- | ----- |
 | [Front-End](./client/README.md) |  |
 | [Back-End](./server/README.md) | NodeJS |
+| [Plans](./docs/plans.md) | 월별 계획 |
 
 ---
 
