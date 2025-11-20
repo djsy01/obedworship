@@ -28,11 +28,11 @@
         <article class="card">
           <h3 class="card-title">집회 일정 안내</h3>
           <p class="card-text">
-            다가오는 집회와 지난 집회 정보를 한눈에 확인하고, 티켓 페이지로
+            다가오는 집회와 지난 집회 정보를 한눈에 확인하고, 집회신청 페이지로
             바로 이동할 수 있습니다.
           </p>
           <RouterLink to="/tickets" class="card-link">
-            집회티켓 페이지로 이동
+            집회신청 페이지로 이동
           </RouterLink>
         </article>
 

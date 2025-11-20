@@ -25,7 +25,7 @@
           <RouterLink to="/vision" class="nav-link">비전</RouterLink>
           <RouterLink to="/worship-log" class="nav-link">집회안내</RouterLink>
           <RouterLink to="/scores" class="nav-link">악보</RouterLink>
-          <RouterLink to="/tickets" class="nav-link">집회티켓</RouterLink>
+          <RouterLink to="/tickets" class="nav-link">집회신청</RouterLink>
           <RouterLink to="/map" class="nav-link">오시는길</RouterLink>
           <RouterLink to="/qna" class="nav-link">Q&amp;A</RouterLink>
         </nav>
