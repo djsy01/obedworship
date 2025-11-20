@@ -1,18 +1,10 @@
-/* client/src/styles/Map.css */
-
-/* ===========================
-   지도 컨텐츠 레이아웃
-   =========================== */
 .map-content {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem; /* 지도, 주소, 링크 사이의 간격 */
+  gap: 1.5rem;
   margin-top: 1rem;
 }
 
-/* ===========================
-   지도 컨테이너 (iframe 감싸는 박스)
-   =========================== */
 .map-container {
   width: 100%;
   border-radius: 0.75rem;
@@ -29,9 +21,6 @@
   border: 0;
 }
 
-/* ===========================
-   주소 정보 텍스트
-   =========================== */
 .map-address-info {
   display: flex;
   flex-direction: column;
@@ -51,9 +40,6 @@
   color: #4a1f2f;
 }
 
-/* ===========================
-   길찾기 링크 버튼 영역
-   =========================== */
 .map-links {
   display: flex;
   flex-wrap: wrap;
@@ -84,12 +70,9 @@
   box-shadow: 0 4px 12px rgba(74, 31, 47, 0.15);
 }
 
-/* ===========================
-   반응형
-   =========================== */
 @media (max-width: 720px) {
   .map-container iframe {
-    height: 300px; /* 모바일에서는 지도 높이를 줄임 */
+    height: 300px;
   }
 
   .map-address-label {

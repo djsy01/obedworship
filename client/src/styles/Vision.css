@@ -1,22 +1,12 @@
-/* Vision.css */
-/* ===========================
-   Team Section 전체 레이아웃
-   =========================== */
-
 .team-section {
   margin-top: 2rem;
   padding: 1.5rem 0 2.5rem;
   border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-/* 섹션 내부 간격 */
 .team-member-section > * + * {
   margin-top: 1.5rem;
 }
-
-/* ===========================
-   말씀 / 비전 문단
-   =========================== */
 
 .bible-verse {
   text-align: center;
@@ -44,8 +34,6 @@
   color: #8a4b4b;
 }
 
-/* 팀 설명 */
-
 .team-description {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -62,10 +50,6 @@
   line-height: 1.5;
   color: #4a1f2f;
 }
-
-/* ===========================
-   팀원 섹션 헤더 / 필터
-   =========================== */
 
 .team-member-section {
   margin-top: 1.5rem;
@@ -109,10 +93,6 @@
   color: #fff;
 }
 
-/* ===========================
-   팀원 카드 그리드
-   =========================== */
-
 .member-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -136,10 +116,6 @@
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.06);
 }
 
-/* ===========================
-   프로필 사진
-   =========================== */
-
 .member-photo {
   width: 100%;
   height: 220px;
@@ -148,10 +124,6 @@
   margin-bottom: 0.75rem;
   background: #f9eef2;
 }
-
-/* ===========================
-   텍스트 정보
-   =========================== */
 
 .member-info {
   flex: 1;
@@ -165,7 +137,6 @@
   font-weight: 600;
 }
 
-/* 모든 p 태그가 3줄 공간을 확보하도록 설정 (각각 한 줄씩 차지) */
 .member-info p {
   font-size: 0.85rem;
   color: #4a1f2f;
@@ -175,7 +146,6 @@
   min-height: 1.5em;
 }
 
-/* acount(역할): 텍스트 크기에 맞게 표시 (inline-block) */
 .acount {
   display: block;
   width: fit-content;
@@ -188,7 +158,6 @@
   border-radius: 999px;
 }
 
-/* 소속(affiliation): 텍스트 크기에 맞게 표시 (inline-block) */
 .affiliation {
   display: block;
   width: fit-content;
@@ -201,7 +170,6 @@
   font-size: 0.78rem;
 }
 
-/* 포지션(악기, 역할): 텍스트 크기에 맞게 표시 (inline-block) */
 .position {
   display: block;
   width: fit-content;
@@ -213,10 +181,6 @@
   margin: 0;
   font-size: 0.8rem;
 }
-
-/* ===========================
-   SNS 아이콘
-   =========================== */
 
 .social-links {
   display: flex;
@@ -248,10 +212,6 @@
   font-weight: 600;
 }
 
-/* ===========================
-   Empty 상태
-   =========================== */
-
 .empty-text {
   grid-column: 1 / -1;
   text-align: center;
@@ -259,10 +219,6 @@
   color: #999;
   padding: 0.75rem 0.3rem;
 }
-
-/* ===========================
-   반응형
-   =========================== */
 
 @media (max-width: 720px) {
   .team-section {
@@ -274,7 +230,12 @@
   }
 
   .member-photo {
-    height: 200px;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    object-position: top;
+    margin-bottom: 0.5rem;
   }
 
   .team-description {

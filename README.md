@@ -14,8 +14,8 @@
 ## 🧑‍💻 팀 구성
 | 이름 | 역활 | GITHUB | 비고 |
 | ----- | ----- | ----- | ----- |
-| 김승훈 | 미정 | [Siya](https://github.com/SIya45) |  |
-| 엄인호 | 미정 | [Inho](https://github.com/djsy01) |  |
+| 김승훈 | Back-End | [Siya](https://github.com/SIya45) |  |
+| 엄인호 | Front-End | [Inho](https://github.com/djsy01) | 리뉴얼 이전 페이지 Front-End 담당 |
 
 ---
 

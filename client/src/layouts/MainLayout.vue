@@ -1,11 +1,23 @@
-<!-- src/layouts/MainLayout.vue -->
 <template>
   <div class="app-root">
     <header class="app-header">
       <div class="header-inner">
-        <div class="logo">
-          <span class="logo-main">OBED</span>
-          <span class="logo-sub">Worship</span>
+        <RouterLink to="/" class="logo">
+          <img :src="logo" alt="OBED Logo" class="logo-img" />
+          <div class="logo-text">
+            <span class="logo-main">OBED</span>
+            <span class="logo-sub">Worship</span>
+          </div>
+        </RouterLink>
+
+        <div class="header-player">
+          <audio
+            ref="audioPlayer"
+            controls
+            :src="playlist[currentTrackIndex]"
+            @ended="handleEnded"
+            class="mini-audio"
+          ></audio>
         </div>
 
         <nav class="nav">
@@ -43,7 +55,25 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useAuth } from '@/composables/useAuth'
+import logo from '@/assets/image/logo.png'
+import light from '@/assets/music/빛의사자들이여(inst).mp3'
+import celevrate from '@/assets/music/CelebratetheLight(inst).mp3'
 
 const { isLoggedIn, isAdmin } = useAuth()
+
+const playlist = [celevrate, light]
+const currentTrackIndex = ref(0)
+const audioPlayer = ref<HTMLAudioElement | null>(null)
+
+const handleEnded = () => {
+  currentTrackIndex.value = (currentTrackIndex.value + 1) % playlist.length
+  
+  setTimeout(() => {
+    if (audioPlayer.value) {
+      audioPlayer.value.play()
+    }
+  }, 50)
+}
 </script>

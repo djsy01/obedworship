@@ -1,4 +1,3 @@
-/* src/assets/main.css */
 *,
 *::before,
 *::after {
@@ -42,6 +41,20 @@ a {
 
 .logo {
   display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.logo-img {
+  height: 38px;
+  width: auto;
+  display: block;
+}
+
+.logo-text {
+  display: flex;
   flex-direction: column;
   line-height: 1.1;
 }
@@ -55,6 +68,19 @@ a {
 .logo-sub {
   font-size: 0.7rem;
   opacity: 0.7;
+}
+
+.header-player {
+  display: flex;
+  align-items: center;
+  margin-left: 1rem;
+  margin-right: auto;
+}
+
+.mini-audio {
+  height: 32px;
+  width: 220px;
+  border-radius: 999px;
 }
 
 .nav {
@@ -100,7 +126,6 @@ a {
   color: #777;
 }
 
-/* 공통 레이아웃 */
 .page {
   max-width: 1080px;
   margin: 0 auto;
@@ -141,7 +166,6 @@ a {
   margin-bottom: 1rem;
 }
 
-/* 버튼 */
 .btn {
   border-radius: 999px;
   border: 1px solid rgba(0, 0, 0, 0.12);
@@ -171,7 +195,6 @@ a {
   pointer-events: none;
 }
 
-/* 카드/테이블 공통 */
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -235,7 +258,6 @@ a {
   margin-top: 0.5rem;
 }
 
-/* 히어로 */
 .hero {
   margin-bottom: 2rem;
 }
@@ -264,7 +286,6 @@ a {
   gap: 0.5rem;
 }
 
-/* 폼/패널 */
 .panel {
   background: #fff7f9;
   border-radius: 0.75rem;
@@ -339,7 +360,6 @@ textarea {
   gap: 0.5rem;
 }
 
-/* 테이블 */
 .table-wrapper {
   background: #fff;
   border-radius: 0.75rem;
@@ -365,7 +385,6 @@ textarea {
   font-weight: 600;
 }
 
-/* 로그 카드 */
 .log-list {
   display: flex;
   flex-direction: column;
@@ -401,7 +420,6 @@ textarea {
   font-size: 0.9rem;
 }
 
-/* Q&A */
 .qna-list {
   display: flex;
   flex-direction: column;
@@ -479,7 +497,6 @@ textarea {
   margin-top: 0.4rem;
 }
 
-/* 기타 */
 .empty-text {
   font-size: 0.85rem;
   text-align: center;
@@ -487,8 +504,18 @@ textarea {
   padding: 0.75rem;
 }
 
-/* 반응형 */
-@media (max-width: 720px) {
+@media (max-width: 900px) {
+  .header-player {
+    order: 4;
+    width: 100%;
+    margin: 0.5rem 0;
+    justify-content: center;
+  }
+  
+  .mini-audio {
+    width: 90%;
+  }
+  
   .header-inner {
     flex-wrap: wrap;
   }
