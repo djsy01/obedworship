@@ -6,11 +6,11 @@
 .team-section {
   margin-top: 2rem;
   padding: 1.5rem 0 2.5rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.06); /* 기존 섹션들과 비슷한 느낌 */
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 /* 섹션 내부 간격 */
-.team-section > * + * {
+.team-member-section > * + * {
   margin-top: 1.5rem;
 }
 
@@ -20,10 +20,11 @@
 
 .bible-verse {
   text-align: center;
-  padding: 1.25rem 1rem;
+  padding: 2rem 1.5rem;
   border-radius: 0.85rem;
-  background: #faf2f5; /* main.css의 연핑크 계열 */
+  background: #faf2f5;
   border: 1px solid rgba(148, 81, 105, 0.16);
+  margin-bottom: 2rem;
 }
 
 .bible-verse blockquote {
@@ -32,14 +33,14 @@
 
 .bible-verse p {
   margin: 0 0 0.5rem;
-  font-size: 0.95rem;
+  font-size: 1.45rem;
   line-height: 1.6;
   color: #4a1f2f;
   font-weight: 500;
 }
 
 .bible-verse cite {
-  font-size: 0.8rem;
+  font-size: 1rem;
   color: #8a4b4b;
 }
 
@@ -48,15 +49,16 @@
 .team-description {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 0.6rem;
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
 }
 
 .highlight-box {
   padding: 0.75rem 0.9rem;
   border-radius: 0.75rem;
-  background: #faf2f5;
+  background: #fff7f9;
   border: 1px solid rgba(148, 81, 105, 0.15);
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   line-height: 1.5;
   color: #4a1f2f;
 }
@@ -75,8 +77,6 @@
   font-weight: 700;
   color: #2b1a20;
 }
-
-/* main.css의 버튼 스타일과 어울리게 */
 
 .position-filter,
 .worship-filters,
@@ -104,7 +104,7 @@
 }
 
 .filter-btn.active {
-  background: #4a1f2f;        /* main.css .btn.primary 색상 */
+  background: #4a1f2f;
   border-color: #4a1f2f;
   color: #fff;
 }
@@ -119,8 +119,6 @@
   gap: 1rem;
   margin-top: 1rem;
 }
-
-/* main.css의 .card 스타일을 참고해서 맞춤 */
 
 .member-card {
   background: #fff;
@@ -167,18 +165,20 @@
   font-weight: 600;
 }
 
+/* 각 <p> 태그가 한 줄을 차지하도록 block을 유지하고, 마진을 조정하여 분리 */
 .member-info p {
   font-size: 0.85rem;
   color: #4a1f2f;
-  margin: 0.15rem 0;
-  line-height: 1.5;
+  margin: 0.4rem 0; /* 각 줄 사이에 여백을 확보 */
+  line-height: 1; /* inline-block 콘텐츠의 불필요한 공백을 줄임 */
+  display: block;
+  min-height: 1.5em; /* 빈 줄도 최소 높이 확보 */
 }
 
-/* acount(역할) */
-
+/* acount(역할): 텍스트 크기에 맞게 필/라운드 스타일 (inline-block) */
 .acount {
   display: inline-block;
-  margin: 0.1rem 0 0.2rem;
+  margin: 0; /* 부모 <p>가 여백을 담당 */
   padding: 0.2rem 0.5rem;
   font-size: 0.78rem;
   color: #8a4b4b;
@@ -187,8 +187,7 @@
   border-radius: 999px;
 }
 
-/* 소속(affiliation) */
-
+/* 소속(affiliation): 텍스트 크기에 맞게 필/라운드 스타일 (inline-block) */
 .member-info .affiliation {
   display: inline-block;
   font-style: normal;
@@ -196,12 +195,11 @@
   background-color: #f8e6ed;
   padding: 0.18rem 0.5rem;
   border-radius: 999px;
-  margin-bottom: 0.2rem;
+  margin: 0; /* 부모 <p>가 여백을 담당 */
   font-size: 0.78rem;
 }
 
-/* 포지션(악기, 역할) */
-
+/* 포지션(악기, 역할): 텍스트 크기에 맞게 필/라운드 스타일 (inline-block) */
 .member-info .position {
   display: inline-block;
   font-weight: 500;
@@ -209,8 +207,7 @@
   background-color: #f9e8ef;
   padding: 0.2rem 0.5rem;
   border-radius: 0.6rem;
-  margin-top: 0.2rem;
-  margin-bottom: 0.3rem;
+  margin: 0; /* 부모 <p>가 여백을 담당 */
   font-size: 0.8rem;
 }
 
@@ -221,7 +218,7 @@
 .social-links {
   display: flex;
   gap: 0.4rem;
-  margin-top: 0.25rem;
+  margin-top: 0.75rem;
 }
 
 .icon-link {

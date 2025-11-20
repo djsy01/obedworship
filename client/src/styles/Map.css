@@ -1,58 +1,104 @@
+/* Map.css */
+/* ===========================
+   찾아오시는 길 섹션
+   =========================== */
+
 .map-section {
-  padding: 10px;
-  background-color: #f9f9f9;
-  text-align: center;
+  margin-top: 2rem;
+  padding: 1.5rem 0 2.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-.map-address-label{
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 5px;
+.map-section h2 {
+  font-size: 1.5rem;
+  margin: 0 0 0.5rem;
+  font-weight: 700;
+  color: #2b1a20;
 }
+
+.map-section p {
+  margin: 0 0 0.8rem;
+  font-size: 1.5rem;
+  color: #4a1f2f;
+  line-height: 1.5;
+}
+
+map-address-label{
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  color: #666;
+}
+
+/* "본관 지하 2층" 강조 텍스트 */
+
 .map-mapping {
-  padding: 10px;
-  padding-bottom: 10px;
-  text-align: conter;
-  font-weight: bold;
+  font-size: 0,9rem;
+  margin: 0 0 0.5rem;
+  font-weight: 700;
+  color: #2b1a20;
 }
+
+/* ===========================
+   지도 컨테이너
+   =========================== */
 
 .map-container {
-  width: 100%;
-  max-width: 100%;
-  height: 450px;
-  margin: 20px 0;
-  position: relative;
+  margin-top: 1rem;
+  border-radius: 0.9rem;
+  overflow: hidden;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 .map-container iframe {
+  display: block;
   width: 100%;
-  height: 100%;
-  border: none;
+  height: 380px;
+  border: 0;
 }
 
-/* 길찾기 버튼 영역 */
+/* ===========================
+   길찾기 링크
+   =========================== */
+
 .map-links {
+  margin-top: 1rem;
   display: flex;
-  justify-content: center;
   flex-wrap: wrap;
-  gap: 15px; /* 버튼 간 간격 */
-  margin-top: 20px;
+  gap: 0.5rem;
 }
 
-/* 버튼 스타일 */
 .map-links a {
-  display: inline-block;
-  padding: 12px 24px;
-  background-color: #4CAF50;
-  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
   text-decoration: none;
-  border-radius: 6px;
-  font-size: 16px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #faf2f5;
+  color: #8a4b4b;
+  transition: all 0.18s ease-out;
 }
 
 .map-links a:hover {
-  background-color: #45a049;
-  transform: translateY(-2px);
+  background: #4a1f2f;
+  color: #fff;
+  border-color: #4a1f2f;
+}
+
+/* ===========================
+   반응형
+   =========================== */
+
+@media (max-width: 720px) {
+  .map-section {
+    padding: 1.25rem 0 2rem;
+  }
+
+  .map-container iframe {
+    height: 320px;
+  }
 }
