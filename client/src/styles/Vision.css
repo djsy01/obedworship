@@ -165,20 +165,21 @@
   font-weight: 600;
 }
 
-/* 각 <p> 태그가 한 줄을 차지하도록 block을 유지하고, 마진을 조정하여 분리 */
+/* 모든 p 태그가 3줄 공간을 확보하도록 설정 (각각 한 줄씩 차지) */
 .member-info p {
   font-size: 0.85rem;
   color: #4a1f2f;
-  margin: 0.4rem 0; /* 각 줄 사이에 여백을 확보 */
-  line-height: 1; /* inline-block 콘텐츠의 불필요한 공백을 줄임 */
+  margin: 0.4rem 0;
+  line-height: 1.5;
   display: block;
-  min-height: 1.5em; /* 빈 줄도 최소 높이 확보 */
+  min-height: 1.5em;
 }
 
-/* acount(역할): 텍스트 크기에 맞게 필/라운드 스타일 (inline-block) */
+/* acount(역할): 텍스트 크기에 맞게 표시 (inline-block) */
 .acount {
-  display: inline-block;
-  margin: 0; /* 부모 <p>가 여백을 담당 */
+  display: block;
+  width: fit-content;
+  margin: 0;
   padding: 0.2rem 0.5rem;
   font-size: 0.78rem;
   color: #8a4b4b;
@@ -187,27 +188,29 @@
   border-radius: 999px;
 }
 
-/* 소속(affiliation): 텍스트 크기에 맞게 필/라운드 스타일 (inline-block) */
-.member-info .affiliation {
-  display: inline-block;
+/* 소속(affiliation): 텍스트 크기에 맞게 표시 (inline-block) */
+.affiliation {
+  display: block;
+  width: fit-content;
   font-style: normal;
   color: #4a1f2f;
   background-color: #f8e6ed;
   padding: 0.18rem 0.5rem;
   border-radius: 999px;
-  margin: 0; /* 부모 <p>가 여백을 담당 */
+  margin: 0;
   font-size: 0.78rem;
 }
 
-/* 포지션(악기, 역할): 텍스트 크기에 맞게 필/라운드 스타일 (inline-block) */
-.member-info .position {
-  display: inline-block;
+/* 포지션(악기, 역할): 텍스트 크기에 맞게 표시 (inline-block) */
+.position {
+  display: block;
+  width: fit-content;
   font-weight: 500;
   color: #4a1f2f;
   background-color: #f9e8ef;
   padding: 0.2rem 0.5rem;
   border-radius: 0.6rem;
-  margin: 0; /* 부모 <p>가 여백을 담당 */
+  margin: 0;
   font-size: 0.8rem;
 }
 
