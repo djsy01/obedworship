@@ -7,6 +7,7 @@ import WorshipLogView from '@/views/WorshipLogView.vue'
 import ScoresView from '@/views/ScoresView.vue'
 import TicketsView from '@/views/TicketsView.vue'
 import QnaView from '@/views/QnaView.vue'
+import MapView from '@/views/MapView.vue'
 
 const routes: RouteRecordRaw[] = [
   { path: '/', name: 'home', component: HomeView },
@@ -15,6 +16,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/scores', name: 'scores', component: ScoresView },
   { path: '/tickets', name: 'tickets', component: TicketsView },
   { path: '/qna', name: 'qna', component: QnaView },
+  { path: '/map', name: 'map', component: MapView },
 ]
 
 const router = createRouter({
