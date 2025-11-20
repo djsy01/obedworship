@@ -1,0 +1,507 @@
+/* src/assets/main.css */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    sans-serif;
+  background: #faf7f7;
+  color: #222;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.app-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background: #ffffffdd;
+  backdrop-filter: blur(8px);
+}
+
+.header-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.logo {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.logo-main {
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  font-size: 0.95rem;
+}
+
+.logo-sub {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+.nav {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.nav-link {
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  opacity: 0.85;
+}
+
+.nav-link.router-link-exact-active {
+  background: #4a1f2f;
+  color: #fff;
+  opacity: 1;
+}
+
+.auth-area {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-chip {
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: #f1e0e4;
+  font-size: 0.8rem;
+}
+
+.app-main {
+  flex: 1;
+}
+
+.app-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  text-align: center;
+  padding: 0.75rem;
+  font-size: 0.75rem;
+  color: #777;
+}
+
+/* 공통 레이아웃 */
+.page {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 0.3rem;
+}
+
+.section-subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.section-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.section-controls--inline {
+  margin-bottom: 1rem;
+}
+
+/* 버튼 */
+.btn {
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 0.35rem 0.9rem;
+  font-size: 0.85rem;
+  background: #fff;
+  cursor: pointer;
+}
+
+.btn.primary {
+  background: #4a1f2f;
+  border-color: #4a1f2f;
+  color: #fff;
+}
+
+.btn.ghost {
+  background: transparent;
+}
+
+.btn.small {
+  padding: 0.25rem 0.7rem;
+  font-size: 0.8rem;
+}
+
+.btn.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* 카드/테이블 공통 */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  background: #fff;
+  border-radius: 0.75rem;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+}
+
+.card-title {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.card-text {
+  margin: 0 0 0.6rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.card-link {
+  font-size: 0.85rem;
+  color: #4a1f2f;
+}
+
+.card-label {
+  font-size: 0.75rem;
+  color: #777;
+  margin-bottom: 0.3rem;
+}
+
+.card-meta {
+  font-size: 0.8rem;
+  color: #777;
+  margin-bottom: 0.4rem;
+}
+
+.card-status {
+  font-size: 0.8rem;
+  margin: 0.3rem 0;
+}
+
+.card-status[data-status='OPEN'] {
+  color: #146c43;
+}
+
+.card-status[data-status='CLOSED'] {
+  color: #a15c00;
+}
+
+.card-status[data-status='CANCELED'] {
+  color: #a30000;
+}
+
+.card-actions {
+  margin-top: 0.5rem;
+}
+
+/* 히어로 */
+.hero {
+  margin-bottom: 2rem;
+}
+
+.hero-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #8a4b4b;
+}
+
+.hero-title {
+  font-size: 2rem;
+  margin: 0.4rem 0;
+}
+
+.hero-subtitle {
+  margin: 0.4rem 0 0.8rem;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* 폼/패널 */
+.panel {
+  background: #fff7f9;
+  border-radius: 0.75rem;
+  padding: 1rem 1.1rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #f0d4e0;
+}
+
+.panel--inline {
+  margin-top: 0.6rem;
+}
+
+.panel-title {
+  margin: 0 0 0.8rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.panel-hint {
+  font-size: 0.8rem;
+  color: #777;
+  margin-top: 0.5rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+}
+
+.field--inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.field--full {
+  grid-column: 1 / -1;
+}
+
+.field-label {
+  margin-bottom: 0.2rem;
+  color: #555;
+}
+
+input[type='text'],
+input[type='number'],
+input[type='file'],
+select,
+textarea {
+  font: inherit;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.45rem;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  outline: none;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+/* 테이블 */
+.table-wrapper {
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.table th,
+.table td {
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.table th {
+  text-align: left;
+  background: #faf2f5;
+  font-weight: 600;
+}
+
+/* 로그 카드 */
+.log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.log-card {
+  background: #fff;
+  border-radius: 0.75rem;
+  padding: 0.9rem 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+}
+
+.log-date {
+  font-size: 0.8rem;
+  color: #777;
+  margin-bottom: 0.2rem;
+}
+
+.log-title {
+  margin: 0 0 0.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.log-meta {
+  font-size: 0.8rem;
+  color: #888;
+  margin: 0 0 0.4rem;
+}
+
+.log-desc {
+  font-size: 0.9rem;
+}
+
+/* Q&A */
+.qna-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.qna-card {
+  background: #fff;
+  border-radius: 0.75rem;
+  padding: 0.9rem 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+}
+
+.qna-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.qna-category {
+  font-size: 0.8rem;
+  color: #8a4b4b;
+}
+
+.qna-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.qna-meta {
+  font-size: 0.8rem;
+  color: #777;
+  margin: 0.2rem 0 0.4rem;
+}
+
+.qna-status[data-status='WAITING'] {
+  color: #a15c00;
+}
+
+.qna-status[data-status='ANSWERED'] {
+  color: #146c43;
+}
+
+.qna-question {
+  font-size: 0.9rem;
+  margin: 0 0 0.5rem;
+}
+
+.qna-answer {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+.qna-answer-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #4a1f2f;
+  margin-bottom: 0.2rem;
+}
+
+.qna-answer-content {
+  font-size: 0.9rem;
+  margin: 0 0 0.2rem;
+}
+
+.qna-answer-meta {
+  font-size: 0.75rem;
+  color: #777;
+}
+
+.qna-admin-actions {
+  margin-top: 0.4rem;
+}
+
+/* 기타 */
+.empty-text {
+  font-size: 0.85rem;
+  text-align: center;
+  color: #888;
+  padding: 0.75rem;
+}
+
+/* 반응형 */
+@media (max-width: 720px) {
+  .header-inner {
+    flex-wrap: wrap;
+  }
+
+  .nav {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

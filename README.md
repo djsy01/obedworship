@@ -28,7 +28,7 @@
 
 | 항목 | 기술 |
 | ----- | ----- |
-| [Front-End](./client/README.md) |  |
+| [Front-End](./client/README.md) | Vue + Vite |
 | [Back-End](./server/README.md) | NodeJS |
 | [Plans](./docs/plans.md) | 월별 계획 |
 
