@@ -4,9 +4,9 @@
     <section class="section">
       <div class="section-header">
         <div>
-          <h1 class="section-title">집회 티켓</h1>
+          <h1 class="section-title">집회 신청</h1>
           <p class="section-subtitle">
-            다가오는 집회의 정보를 확인하고, 티켓을 신청할 수 있습니다.
+            다가오는 집회의 정보를 확인하고, 신청할 수 있습니다.
           </p>
         </div>
 
@@ -17,7 +17,7 @@
             type="button"
             @click="showAddForm = !showAddForm"
           >
-            {{ showAddForm ? '추가 취소' : '집회티켓 추가' }}
+            {{ showAddForm ? '추가 취소' : '집회 추가' }}
           </button>
         </div>
       </div>
@@ -26,7 +26,7 @@
         v-if="showAddForm && isAdmin"
         class="panel"
       >
-        <h2 class="panel-title">새 집회티켓 추가</h2>
+        <h2 class="panel-title">새 집회 추가</h2>
         <form class="form-grid" @submit.prevent>
           <label class="field">
             <span class="field-label">집회명</span>
@@ -96,7 +96,7 @@
               class="btn small primary"
               :class="{ disabled: t.status !== 'OPEN' }"
             >
-              {{ t.status === 'OPEN' ? '티켓 신청하기' : '신청 불가' }}
+              {{ t.status === 'OPEN' ? '집회 신청하기' : '신청 불가' }}
             </a>
           </div>
         </article>
@@ -128,20 +128,20 @@ const showAddForm = ref(false)
 const tickets = ref<Ticket[]>([
   {
     id: 1,
-    title: '보혈 찬양집회',
-    dateTime: '2025-03-15 (토) 19:00',
-    place: '본관 지하 2층',
-    status: 'OPEN',
-    description: '보혈과 십자가를 주제로 드려지는 찬양집회입니다.',
+    title: '하나됨',
+    dateTime: '2025-03-22 (토) 19:00',
+    place: '예수인교회 본관 지하 2층',
+    status: 'CLOSED',
+    description: '호흡있는 모든 자들은 찬양하라',
     link: 'https://obed-ticket.vercel.app',
   },
   {
     id: 2,
     title: '평안을 너희에게 - 연말 집회',
-    dateTime: '2024-12-06 (금) 19:30',
-    place: '신관 2층 다목적홀',
-    status: 'CLOSED',
-    description: '요한복음 14:27 말씀을 붙잡고 드려진 집회입니다.',
+    dateTime: '2024-12-06 (금) 18:30',
+    place: '예수인교회 본관 지하 2층',
+    status: 'OPEN',
+    description: '너희는 마음에 근심하지도 말고 두려워하지도 말라',
     link: 'https://obed-ticket.vercel.app',
   },
 ])

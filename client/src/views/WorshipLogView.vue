@@ -63,21 +63,21 @@ type WorshipLog = {
 const logs = ref<WorshipLog[]>([
   {
     id: 1,
-    date: '2025-03-15',
+    date: '2025-03-22',
     year: 2025,
-    title: '보혈 찬양집회',
-    preacher: 'OOO 목사',
+    title: '하나됨',
+    preacher: '민찬기 목사',
     leader: 'OBED Worship',
-    description: '보혈과 십자가를 주제로 드려진 찬양집회입니다.',
+    description: '호흡있는 모든 자들은 찬양하라',
   },
   {
     id: 2,
-    date: '2024-12-06',
-    year: 2024,
-    title: '평안을 너희에게',
-    preacher: 'OOO 목사',
+    date: '2025-12-06',
+    year: 2025,
+    title: '샬롬',
+    preacher: '박훈 목사',
     leader: 'OBED Worship',
-    description: '요한복음 14:27 말씀을 나누며 평안을 선포하는 집회입니다.',
+    description: '너희는 마음에 근심하지도 말고 두려워하지도 말라',
   },
 ])
 
