@@ -198,7 +198,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import '../styles/Vision.css'
-
+import logo from  '@/assets/image/LOGO.JPG'
 import photoGiin from '@/assets/people/Giin.jpeg'
 import photoMijung from '@/assets/people/mijung.jpeg'
 import photoInho from '@/assets/people/inho.JPG'
@@ -229,7 +229,7 @@ const members = ref<Member[]>([
     acount: ['Pastor'],
     positions: ['Pastor'],
     instagram: 'https://www.instagram.com/holyforest.jpg',
-    photo: '',
+    photo: logo,
   },
   {
     name: '이기인 장로',
@@ -273,28 +273,28 @@ const members = ref<Member[]>([
     acount: ['Planning team leader', 'Worship'],
     positions: ['Vocal'],
     instagram: 'https://www.instagram.com/winnie_the_ron_02',
-    photo: '',
+    photo: logo,
   },
   {
     name: '지용민 집사',
     affiliation: '장년부',
     acount: ['Worwhip'],
     positions: ['Vocal'],
-    photo: '',
+    photo: logo,
   },
   {
     name: '최영 집사',
     affiliation: '장년부',
     acount: ['Worship'],
     positions: ['Vocal'],
-    photo: '',
+    photo: logo,
   },
   {
     name: '박소라 집사',
     affiliation: '장년부',
     acount: ['Worship'],
     positions: ['Synthesizer'],
-    photo: '',
+    photo: logo,
   },
   {
     name: '오현명 집사',
@@ -302,14 +302,14 @@ const members = ref<Member[]>([
     acount: ['Worship'],
     positions: ['Piano'],
     instagram: 'https://www.instagram.com/5hyunmy/',
-    photo: '',
+    photo: logo,
   },
   {
     name: '유근서',
     affiliation: '청년부',
     acount: ['Worship'],
     positions: ['Acoustic Guitar', 'Electric Guitar'],
-    photo: '',
+    photo: logo,
   },
   {
     name: '김정석',
@@ -342,7 +342,7 @@ const members = ref<Member[]>([
     acount: ['Worship', 'Planning Team'],
     positions: ['Piano', 'Synthesizer'],
     instagram: 'https://www.instagram.com/_wldms.3',
-    photo: '',
+    photo: logo,
   },
   {
     name: '마승빈',
@@ -350,7 +350,7 @@ const members = ref<Member[]>([
     acount: ['Worship'],
     positions: ['Drum'],
     instagram: 'https://www.instagram.com/z.sbbxn_',
-    photo: '',
+    photo: logo,
   },
   {
     name: '신예솔',
