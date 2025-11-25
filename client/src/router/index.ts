@@ -1,4 +1,3 @@
-// src/router/index.ts
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 
 import HomeView from '@/views/HomeView.vue'
@@ -8,6 +7,10 @@ import ScoresView from '@/views/ScoresView.vue'
 import TicketsView from '@/views/TicketsView.vue'
 import QnaView from '@/views/QnaView.vue'
 import MapView from '@/views/MapView.vue'
+import login from '@/components/Login.vue'
+import register from '@/components/Register.vue'
+import FindId from '@/components/FindId.vue'
+import ResetPassword from '@/components/ResetPassword.vue'
 
 const routes: RouteRecordRaw[] = [
   { path: '/', name: 'home', component: HomeView },
@@ -17,6 +20,10 @@ const routes: RouteRecordRaw[] = [
   { path: '/tickets', name: 'tickets', component: TicketsView },
   { path: '/qna', name: 'qna', component: QnaView },
   { path: '/map', name: 'map', component: MapView },
+  { path: '/login', name: 'login', component: login },
+  { path: '/register', name: 'register', component: register },
+  { path: '/find-id', name: 'find-id', component: FindId },
+  { path: '/reset-password', name: 'reset-password', component: ResetPassword },
 ]
 
 const router = createRouter({

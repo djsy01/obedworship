@@ -1,4 +1,3 @@
-<!-- src/views/ScoresView.vue -->
 <template>
   <div class="page">
     <section class="section">

@@ -1,4 +1,3 @@
-<!-- src/views/TicketsView.vue -->
 <template>
   <div class="page">
     <section class="section">

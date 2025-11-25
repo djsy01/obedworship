@@ -343,7 +343,7 @@ input[type='file'],
 select,
 textarea {
   font: inherit;
-  padding: 0.35rem 0.5rem;
+  padding: 1rem 0.5rem;
   border-radius: 0.45rem;
   border: 1px solid rgba(0, 0, 0, 0.16);
   outline: none;

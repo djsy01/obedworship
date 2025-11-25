@@ -1,4 +1,3 @@
-<!-- src/views/WorshipLogView.vue -->
 <template>
   <div class="page">
     <section class="section">

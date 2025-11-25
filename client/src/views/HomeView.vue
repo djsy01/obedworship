@@ -1,4 +1,3 @@
-<!-- src/views/HomeView.vue -->
 <template>
   <div class="page">
     <section class="hero">

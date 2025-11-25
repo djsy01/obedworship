@@ -1,4 +1,3 @@
-<!-- src/views/QnaView.vue -->
 <template>
   <div class="page">
     <section class="section">

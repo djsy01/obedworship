@@ -1,4 +1,3 @@
-<!-- src/App.vue -->
 <template>
   <MainLayout>
     <RouterView />
