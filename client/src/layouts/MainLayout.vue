@@ -31,9 +31,9 @@
         </nav>
 
         <div class="auth-area">
-          <button v-if="!isLoggedIn" class="btn primary" type="button">
+          <RouterLink v-if="!isLoggedIn" to="/login" class="btn primary" role="button">
             로그인
-          </button>
+          </RouterLink>
 
           <div v-else class="user-chip">
             <span class="user-name">
