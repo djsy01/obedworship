@@ -17,6 +17,10 @@
 ## 현재 완료 사항
 - Vision 페이지
 - Map 페이지
+- login 페이지
+- register 페이지
+- findid 페이지
+- resetpassword 페이지
 
 ---
 
