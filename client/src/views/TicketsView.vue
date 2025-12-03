@@ -73,7 +73,7 @@
 
       <div class="card-grid">
         <article
-          v-for="t in tickets"
+          v-for="t in sortedTickets"
           :key="t.id"
           class="card"
         >
@@ -82,6 +82,9 @@
           <p class="card-meta">장소: {{ t.place }}</p>
           <p class="card-text">
             {{ t.description }}
+          </p>
+          <p class="card-speaker">
+            {{ t.precher }}
           </p>
           <p class="card-status" :data-status="t.status">
             {{ statusText(t.status) }}
@@ -105,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useAuth } from '@/composables/useAuth'
 
 type TicketStatus = 'OPEN' | 'CLOSED' | 'CANCELED'
@@ -117,6 +120,7 @@ type Ticket = {
   place: string
   status: TicketStatus
   description: string
+  precher: string
   link: string
 }
 
@@ -132,18 +136,24 @@ const tickets = ref<Ticket[]>([
     place: '예수인교회 본관 지하 2층',
     status: 'CLOSED',
     description: '호흡있는 모든 자들은 찬양하라',
+    precher: '민찬기 목사',
     link: 'https://obed-ticket.vercel.app',
   },
   {
     id: 2,
-    title: '평안을 너희에게 - 연말 집회',
-    dateTime: '2024-12-06 (금) 18:30',
+    title: '샬롬',
+    dateTime: '2025-12-06 (금) 18:30',
     place: '예수인교회 본관 지하 2층',
     status: 'OPEN',
-    description: '너희는 마음에 근심하지도 말고 두려워하지도 말라',
+    description: '샬롬인생',
+    precher: '박훈 목사',
     link: 'https://obed-ticket.vercel.app',
   },
 ])
+
+const sortedTickets = computed(() => {
+  return [...tickets.value].sort((a, b) => b.id - a.id)
+})
 
 const statusText = (status: TicketStatus) => {
   switch (status) {

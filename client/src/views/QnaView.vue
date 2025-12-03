@@ -197,7 +197,7 @@ const answerDraft = ref('')
 
 const handleAskClick = () => {
   if (!isLoggedIn.value) {
-    alert('로그인 후 질문을 남길 수 있습니다. (현재는 mock 상태)')
+    alert('로그인 후 질문을 남길 수 있습니다.')
     // 실제 구현에서는 로그인 페이지로 라우팅
     // router.push({ name: 'login', query: { redirect: '/qna' } })
     return
