@@ -253,7 +253,7 @@ const members = ref<Member[]>([
     affiliation: '청년부',
     acount: ['Worship Team Leader'],
     positions: ['Vocal', 'Acoustic Guitar', 'Electric Guitar', 'Engineer'],
-    instagram: 'https://www.instagram.com/inho010804',
+    instagram: 'https://www.instagram.com/djsy_01',
     youtube: 'https://www.youtube.com/@djsy-r2c',
     photo: photoInho,
   },
