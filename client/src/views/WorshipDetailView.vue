@@ -60,6 +60,11 @@
           <!-- 안내 탭 내용 -->
           <div v-show="activeTab === 'info'" class="tab-content">
             <div class="detail-content">
+              <!-- 예배 안내 -->
+              <div v-if="worship.coments" class="info-section">
+                <h2 class="section-subtitle">🙏 예배 안내</h2>
+                <p class="worship-info-text">{{ worship.coments }}</p>
+              </div>
               <!-- 시간 안내 -->
               <div v-if="worship.entryTime || worship.startTime" class="time-section">
                 <h2 class="section-subtitle">⏰ 시간 안내</h2>
