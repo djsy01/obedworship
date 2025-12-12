@@ -30,7 +30,7 @@
 | ----- | ----- |
 | [Front-End](./client/README.md) | Vue + Vite |
 | [Back-End](./server/README.md) | NodeJS |
-| [DataBases](./database.md) | Redis, MySQL |
+| [DataBase](./database/database.md) | Redis, MySQL |
 | [Plans](./docs/plans.md) | 월별 계획 |
 
 ---
@@ -41,9 +41,9 @@ WorshipLog/
 ├── client/         #프론트엔드
 ├── server/         #백엔드
 ├── app/            #어플리케이션(미정)
-├── docs/
-│   └── plan.md
-└── README.md
+├── docs/           #계획
+├── README.md       #프로젝트 설명문
+└── database/       #데이터베이스
 ```
 
 ---
