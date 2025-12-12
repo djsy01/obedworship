@@ -9,6 +9,7 @@ USE obed_worship;
 
 ## DB 테이블 구성
 ### 1. worship_logs (집회 기본 정보)
+```sql
 CREATE TABLE worship_logs (
   id INT PRIMARY KEY AUTO_INCREMENT,
   title VARCHAR(200) NOT NULL,
@@ -34,8 +35,10 @@ CREATE TABLE worship_logs (
   INDEX idx_year (year),
   INDEX idx_date (date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
 
 ### 2. worship_songs (집회 곡 목록)
+```sql
 CREATE TABLE worship_songs (
   id INT PRIMARY KEY AUTO_INCREMENT,
   worship_id INT NOT NULL,
@@ -46,8 +49,10 @@ CREATE TABLE worship_songs (
   INDEX idx_worship (worship_id),
   FOREIGN KEY (worship_id) REFERENCES worship_logs(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
 
 ### 3. worship_videos (집회 영상)
+```sql
 CREATE TABLE worship_videos (
   id INT PRIMARY KEY AUTO_INCREMENT,
   worship_id INT NOT NULL,
@@ -58,8 +63,10 @@ CREATE TABLE worship_videos (
   INDEX idx_worship (worship_id),
   FOREIGN KEY (worship_id) REFERENCES worship_logs(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
 
 ### 4. worship_photos (집회 사진)
+```sql
 CREATE TABLE worship_photos (
   id INT PRIMARY KEY AUTO_INCREMENT,
   worship_id INT NOT NULL,
@@ -73,16 +80,21 @@ CREATE TABLE worship_photos (
   INDEX idx_worship (worship_id),
   FOREIGN KEY (worship_id) REFERENCES worship_logs(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
 
 ---
 
 ## 테이블 생성 확인
+```sql
 SHOW TABLES;
+```
 
 ---
 
 ## 각 테이블 구조 확인
+```sql
 DESCRIBE worship_logs;
 DESCRIBE worship_songs;
 DESCRIBE worship_videos;
 DESCRIBE worship_photos;
+```
