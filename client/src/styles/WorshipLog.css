@@ -1,0 +1,152 @@
+/* WorshipLog.css - 집회 안내 페이지 전용 스타일 */
+
+.log-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.2rem;
+}
+
+.log-card {
+  background: #fff;
+  border-radius: 0.75rem;
+  padding: 1.2rem 1.3rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+  cursor: pointer;
+  transition: all 0.25s ease-out;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  position: relative;
+  overflow: hidden;
+}
+
+.log-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(74, 31, 47, 0.12);
+  border-color: rgba(74, 31, 47, 0.2);
+}
+
+.log-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #4a1f2f, #8a4b4b);
+  transform: scaleX(0);
+  transition: transform 0.3s ease-out;
+}
+
+.log-card:hover::after {
+  transform: scaleX(1);
+}
+
+.log-date {
+  font-size: 0.85rem;
+  color: #8a4b4b;
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+}
+
+.log-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #2b1a20;
+}
+
+.log-meta {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0 0 0.8rem;
+  line-height: 1.5;
+}
+
+.log-desc {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #444;
+  margin-bottom: 1rem;
+}
+
+.log-arrow {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+}
+
+.log-arrow span {
+  font-size: 0.85rem;
+  color: #4a1f2f;
+  font-weight: 600;
+  transition: transform 0.2s ease-out;
+  display: inline-block;
+}
+
+.log-card:hover .log-arrow span {
+  transform: translateX(4px);
+}
+
+/* 관리자 카드 액션 버튼 */
+.admin-card-actions {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+  z-index: 10;
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-out;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-icon.edit {
+  background: #fff;
+}
+
+.btn-icon.edit:hover {
+  background: #4a90e2;
+  transform: scale(1.1);
+}
+
+.btn-icon.delete {
+  background: #fff;
+}
+
+.btn-icon.delete:hover {
+  background: #e74c3c;
+  transform: scale(1.1);
+}
+
+.log-grid .empty-text {
+  grid-column: 1 / -1;
+  font-size: 0.9rem;
+  text-align: center;
+  color: #888;
+  padding: 2rem;
+}
+
+@media (max-width: 768px) {
+  .log-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .log-card {
+    padding: 1rem 1.1rem;
+  }
+  
+  .log-title {
+    font-size: 1.1rem;
+  }
+}

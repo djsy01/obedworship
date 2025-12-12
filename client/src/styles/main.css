@@ -385,10 +385,18 @@ textarea {
   font-weight: 600;
 }
 
+/* log-list는 기존 스타일 유지 (하위 호환성) */
 .log-list {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
+}
+
+/* 새로운 log-grid 스타일 */
+.log-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.2rem;
 }
 
 .log-card {
@@ -396,6 +404,13 @@ textarea {
   border-radius: 0.75rem;
   padding: 0.9rem 1rem;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+  cursor: pointer;
+  transition: all 0.25s ease-out;
+}
+
+.log-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 35px rgba(74, 31, 47, 0.12);
 }
 
 .log-date {
@@ -530,5 +545,11 @@ textarea {
   .section-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .log-grid {
+    grid-template-columns: 1fr;
   }
 }

@@ -21,11 +21,12 @@
         </div>
       </div>
 
-      <div class="log-list">
+      <div class="log-grid">
         <article
           v-for="w in filteredLogs"
           :key="w.id"
           class="log-card"
+          @click="goToDetail(w.id)"
         >
           <p class="log-date">{{ w.date }}</p>
           <h2 class="log-title">{{ w.title }}</h2>
@@ -38,6 +39,20 @@
           <p class="log-desc">
             {{ w.description }}
           </p>
+          
+          <!-- 관리자 전용 액션 버튼 -->
+          <div v-if="isAdmin" class="admin-card-actions" @click.stop>
+            <button class="btn-icon edit" @click="editWorship(w.id)" title="편집">
+              ✏️
+            </button>
+            <button class="btn-icon delete" @click="deleteWorship(w.id)" title="삭제">
+              🗑️
+            </button>
+          </div>
+          
+          <div class="log-arrow">
+            <span>자세히 보기 →</span>
+          </div>
         </article>
 
         <p v-if="filteredLogs.length === 0" class="empty-text">
@@ -50,6 +65,10 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import '../styles/WorshipLog.css'
+
+const router = useRouter()
 
 type WorshipLog = {
   id: number
@@ -83,6 +102,25 @@ const logs = ref<WorshipLog[]>([
     guest: '찬양사역자 오은',
     description: '너희는 마음에 근심하지도 말고 두려워하지도 말라',
   },
+  {
+    id: 3,
+    date: '2026-02-15',
+    year: 2026,
+    title: '은혜',
+    preacher: '김철수 목사',
+    worship: 'OBED Worship',
+    description: '주님의 은혜가 충만한 예배',
+  },
+  {
+    id: 4,
+    date: '2027-01-20',
+    year: 2027,
+    title: '새로운 시작',
+    preacher: '이영희 목사',
+    worship: 'OBED Worship',
+    guest: '찬양사역자 김준',
+    description: '새해 첫 집회, 주님과 함께 새롭게 시작하는 시간',
+  },
 ])
 
 const selectedYear = ref<string>('')
@@ -100,4 +138,22 @@ const filteredLogs = computed(() => {
 
   return filtered.sort((a, b) => b.id - a.id);
 });
+
+const goToDetail = (id: number) => {
+  router.push({ name: 'worship-detail', params: { id: id.toString() } })
+}
+
+const editWorship = (id: number) => {
+  // TODO: 편집 모달 또는 편집 페이지로 이동
+  console.log('편집:', id)
+  alert(`집회 ${id} 편집 기능 구현 예정`)
+}
+
+const deleteWorship = (id: number) => {
+  if (confirm('정말 이 집회를 삭제하시겠습니까?')) {
+    // TODO: API 호출하여 삭제
+    console.log('삭제:', id)
+    alert(`집회 ${id} 삭제 기능 구현 예정`)
+  }
+}
 </script>

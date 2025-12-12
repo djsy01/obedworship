@@ -15,7 +15,7 @@
 | 이름 | 역활 | GITHUB | 비고 |
 | ----- | ----- | ----- | ----- |
 | 김승훈 | Back-End | [Siya](https://github.com/SIya45) |  |
-| 엄인호 | Front-End | [Inho](https://github.com/djsy01) | 리뉴얼 이전 페이지 Front-End 담당 |
+| 엄인호 | Front-End, DB | [Inho](https://github.com/djsy01) | 리뉴얼 이전 페이지 Front-End 담당 |
 
 ---
 
@@ -30,6 +30,7 @@
 | ----- | ----- |
 | [Front-End](./client/README.md) | Vue + Vite |
 | [Back-End](./server/README.md) | NodeJS |
+| [DataBases](./database.md) | Redis, MySQL |
 | [Plans](./docs/plans.md) | 월별 계획 |
 
 ---
