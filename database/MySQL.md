@@ -1,9 +1,11 @@
 # MySQL 테이블
 > MySQL DB테이블 상세 설명문입니다.
 
--- 데이터베이스 생성 및 선택
+## 데이터베이스 생성 및 선택
+```sql
 CREATE DATABASE IF NOT EXISTS obed_worship CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE obed_worship;
+```
 
 ---
 
