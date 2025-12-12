@@ -27,6 +27,8 @@ a {
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   background: #ffffffdd;
   backdrop-filter: blur(8px);
+  position: relative;
+  z-index: 100;
 }
 
 .header-inner {
@@ -93,6 +95,12 @@ a {
   padding: 0.3rem 0.6rem;
   border-radius: 999px;
   opacity: 0.85;
+  transition: all 0.2s ease-out;
+}
+
+.nav-link:hover {
+  opacity: 1;
+  background: #faf2f5;
 }
 
 .nav-link.router-link-exact-active {
@@ -107,11 +115,94 @@ a {
   gap: 0.5rem;
 }
 
+/* 사용자 메뉴 래퍼 */
+.user-menu-wrapper {
+  position: relative;
+}
+
 .user-chip {
-  padding: 0.3rem 0.7rem;
+  padding: 0.4rem 0.8rem;
   border-radius: 999px;
   background: #f1e0e4;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease-out;
+  user-select: none;
+}
+
+.user-chip:hover {
+  background: #e8d1d7;
+}
+
+.user-name {
+  font-weight: 600;
+}
+
+.dropdown-arrow {
+  font-size: 0.65rem;
+  opacity: 0.7;
+  transition: transform 0.2s ease-out;
+}
+
+.user-chip:hover .dropdown-arrow {
+  transform: translateY(2px);
+}
+
+/* 드롭다운 메뉴 */
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  min-width: 160px;
+  z-index: 1000;
+  animation: dropdownFadeIn 0.2s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease-out;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #333;
+  font-family: inherit;
+}
+
+.dropdown-item:hover {
+  background: #faf2f5;
+}
+
+.dropdown-item.logout {
+  color: #c0392b;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.dropdown-item.logout:hover {
+  background: #fef0ee;
 }
 
 .app-main {
@@ -173,12 +264,23 @@ a {
   font-size: 0.85rem;
   background: #fff;
   cursor: pointer;
+  transition: all 0.2s ease-out;
+  font-family: inherit;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .btn.primary {
   background: #4a1f2f;
   border-color: #4a1f2f;
   color: #fff;
+}
+
+.btn.primary:hover {
+  background: #5a2f3f;
 }
 
 .btn.ghost {
@@ -343,10 +445,19 @@ input[type='file'],
 select,
 textarea {
   font: inherit;
-  padding: 1rem 0.5rem;
-  border-radius: 0.45rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: 0.5rem;
   border: 1px solid rgba(0, 0, 0, 0.16);
   outline: none;
+  transition: border-color 0.2s ease-out;
+}
+
+input[type='text']:focus,
+input[type='number']:focus,
+select:focus,
+textarea:focus {
+  border-color: #4a1f2f;
+  box-shadow: 0 0 0 3px rgba(74, 31, 47, 0.1);
 }
 
 textarea {
@@ -385,133 +496,6 @@ textarea {
   font-weight: 600;
 }
 
-/* log-list는 기존 스타일 유지 (하위 호환성) */
-.log-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-}
-
-/* 새로운 log-grid 스타일 */
-.log-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.2rem;
-}
-
-.log-card {
-  background: #fff;
-  border-radius: 0.75rem;
-  padding: 0.9rem 1rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
-  cursor: pointer;
-  transition: all 0.25s ease-out;
-}
-
-.log-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 15px 35px rgba(74, 31, 47, 0.12);
-}
-
-.log-date {
-  font-size: 0.8rem;
-  color: #777;
-  margin-bottom: 0.2rem;
-}
-
-.log-title {
-  margin: 0 0 0.2rem;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.log-meta {
-  font-size: 0.8rem;
-  color: #888;
-  margin: 0 0 0.4rem;
-}
-
-.log-desc {
-  font-size: 0.9rem;
-}
-
-.qna-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.qna-card {
-  background: #fff;
-  border-radius: 0.75rem;
-  padding: 0.9rem 1rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
-}
-
-.qna-header {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.qna-category {
-  font-size: 0.8rem;
-  color: #8a4b4b;
-}
-
-.qna-title {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.qna-meta {
-  font-size: 0.8rem;
-  color: #777;
-  margin: 0.2rem 0 0.4rem;
-}
-
-.qna-status[data-status='WAITING'] {
-  color: #a15c00;
-}
-
-.qna-status[data-status='ANSWERED'] {
-  color: #146c43;
-}
-
-.qna-question {
-  font-size: 0.9rem;
-  margin: 0 0 0.5rem;
-}
-
-.qna-answer {
-  margin-top: 0.5rem;
-  padding-top: 0.5rem;
-  border-top: 1px dashed rgba(0, 0, 0, 0.1);
-}
-
-.qna-answer-label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #4a1f2f;
-  margin-bottom: 0.2rem;
-}
-
-.qna-answer-content {
-  font-size: 0.9rem;
-  margin: 0 0 0.2rem;
-}
-
-.qna-answer-meta {
-  font-size: 0.75rem;
-  color: #777;
-}
-
-.qna-admin-actions {
-  margin-top: 0.4rem;
-}
-
 .empty-text {
   font-size: 0.85rem;
   text-align: center;
@@ -545,11 +529,5 @@ textarea {
   .section-header {
     flex-direction: column;
     align-items: flex-start;
-  }
-}
-
-@media (max-width: 768px) {
-  .log-grid {
-    grid-template-columns: 1fr;
   }
 }

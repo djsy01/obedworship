@@ -18,7 +18,65 @@
               </option>
             </select>
           </label>
+          
+          <!-- 관리자 전용 집회 추가 버튼 -->
+          <button v-if="isAdmin" class="btn primary" @click="openAddWorshipModal">
+            + 집회 추가
+          </button>
         </div>
+      </div>
+
+      <!-- 관리자 전용 집회 추가 모달 -->
+      <div v-if="showAddModal && isAdmin" class="panel">
+        <h2 class="panel-title">새 집회 추가</h2>
+        <form class="form-grid" @submit.prevent="handleAddWorship">
+          <label class="field">
+            <span class="field-label">집회명</span>
+            <input v-model="newWorship.title" type="text" placeholder="예: 샬롬" required />
+          </label>
+
+          <label class="field">
+            <span class="field-label">날짜</span>
+            <input v-model="newWorship.date" type="text" placeholder="예: 2025-12-06 (금)" required />
+          </label>
+
+          <label class="field">
+            <span class="field-label">연도</span>
+            <input v-model.number="newWorship.year" type="number" placeholder="예: 2025" required />
+          </label>
+
+          <label class="field">
+            <span class="field-label">설교자</span>
+            <input v-model="newWorship.preacher" type="text" placeholder="예: 박훈 목사" required />
+          </label>
+
+          <label class="field">
+            <span class="field-label">찬양팀</span>
+            <input v-model="newWorship.worship" type="text" placeholder="예: OBED Worship" required />
+          </label>
+
+          <label class="field">
+            <span class="field-label">초청 간사 (선택)</span>
+            <input v-model="newWorship.guest" type="text" placeholder="예: 찬양사역자 오은" />
+          </label>
+
+          <label class="field field--full">
+            <span class="field-label">집회 설명</span>
+            <textarea v-model="newWorship.description" rows="3" placeholder="집회에 대한 간단한 설명을 입력하세요" required></textarea>
+          </label>
+
+          <div class="form-actions">
+            <button class="btn" type="button" @click="closeAddModal">
+              취소
+            </button>
+            <button class="btn primary" type="submit">
+              추가
+            </button>
+          </div>
+        </form>
+        <p class="panel-hint">
+          ※ 집회 추가 후 상세 페이지에서 추가 정보를 입력할 수 있습니다.
+        </p>
       </div>
 
       <div class="log-grid">
@@ -66,9 +124,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuth } from '@/composables/useAuth'
 import '../styles/WorshipLog.css'
 
 const router = useRouter()
+const { isAdmin } = useAuth()
 
 type WorshipLog = {
   id: number
@@ -124,6 +184,18 @@ const logs = ref<WorshipLog[]>([
 ])
 
 const selectedYear = ref<string>('')
+const showAddModal = ref(false)
+
+// 새 집회 데이터
+const newWorship = ref<Omit<WorshipLog, 'id'>>({
+  date: '',
+  year: new Date().getFullYear(),
+  title: '',
+  preacher: '',
+  worship: 'OBED Worship',
+  guest: '',
+  description: '',
+})
 
 const years = computed(() =>
   Array.from(new Set(logs.value.map((l) => l.year))).sort((a, b) => b - a),
@@ -154,6 +226,54 @@ const deleteWorship = (id: number) => {
     // TODO: API 호출하여 삭제
     console.log('삭제:', id)
     alert(`집회 ${id} 삭제 기능 구현 예정`)
+  }
+}
+
+// 집회 추가 모달 열기
+const openAddWorshipModal = () => {
+  showAddModal.value = true
+  // 폼 초기화
+  newWorship.value = {
+    date: '',
+    year: new Date().getFullYear(),
+    title: '',
+    preacher: '',
+    worship: 'OBED Worship',
+    guest: '',
+    description: '',
+  }
+}
+
+// 집회 추가 모달 닫기
+const closeAddModal = () => {
+  showAddModal.value = false
+}
+
+// 집회 추가 처리
+const handleAddWorship = async () => {
+  try {
+    // 새 ID 생성 (실제로는 서버에서 생성)
+    const newId = Math.max(...logs.value.map(l => l.id)) + 1
+    
+    const worshipToAdd: WorshipLog = {
+      id: newId,
+      ...newWorship.value
+    }
+    
+    // TODO: API 호출하여 서버에 저장
+    // await apiClient.post('/api/worship', worshipToAdd)
+    
+    // Mock: 로컬 배열에 추가
+    logs.value.unshift(worshipToAdd)
+    
+    alert('집회가 추가되었습니다!')
+    closeAddModal()
+    
+    // 상세 페이지로 이동 (선택사항)
+    // router.push({ name: 'worship-detail', params: { id: newId.toString() } })
+  } catch (error) {
+    console.error('집회 추가 실패:', error)
+    alert('집회 추가에 실패했습니다.')
   }
 }
 </script>

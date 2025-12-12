@@ -31,14 +31,29 @@
         </nav>
 
         <div class="auth-area">
+          <!-- 로그인 전 -->
           <RouterLink v-if="!isLoggedIn" to="/login" class="btn primary" role="button">
             로그인
           </RouterLink>
 
-          <div v-else class="user-chip">
-            <span class="user-name">
-              {{ isAdmin ? '관리자' : '사용자' }}
-            </span>
+          <!-- 로그인 후 -->
+          <div v-else class="user-menu-wrapper">
+            <div class="user-chip" @click="toggleDropdown">
+              <span class="user-name">
+                {{ isAdmin ? '관리자' : '사용자' }}
+              </span>
+              <span class="dropdown-arrow">▼</span>
+            </div>
+
+            <!-- 드롭다운 메뉴 -->
+            <div v-if="showDropdown" class="dropdown-menu">
+              <button @click="goToMyPage" class="dropdown-item">
+                👤 마이페이지
+              </button>
+              <button @click="handleLogout" class="dropdown-item logout">
+                🚪 로그아웃
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -56,16 +71,19 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import logo from '@/assets/image/logo.png'
 import light from '@/assets/music/빛의사자들이여(inst).mp3'
 import celevrate from '@/assets/music/CelebratetheLight(inst).mp3'
 
-const { isLoggedIn, isAdmin } = useAuth()
+const router = useRouter()
+const { isLoggedIn, isAdmin, logout } = useAuth()
 
 const playlist = [celevrate, light]
 const currentTrackIndex = ref(0)
 const audioPlayer = ref<HTMLAudioElement | null>(null)
+const showDropdown = ref(false)
 
 const handleEnded = () => {
   currentTrackIndex.value = (currentTrackIndex.value + 1) % playlist.length
@@ -76,4 +94,44 @@ const handleEnded = () => {
     }
   }, 50)
 }
+
+// 드롭다운 토글
+const toggleDropdown = () => {
+  showDropdown.value = !showDropdown.value
+}
+
+// 마이페이지 이동
+const goToMyPage = () => {
+  showDropdown.value = false
+  router.push('/mypage')
+  // TODO: 마이페이지 라우트 추가 필요
+}
+
+// 로그아웃
+const handleLogout = () => {
+  if (confirm('로그아웃 하시겠습니까?')) {
+    logout()
+    showDropdown.value = false
+    router.push('/')
+  }
+}
+
+// 외부 클릭 시 드롭다운 닫기
+const handleClickOutside = (event: MouseEvent) => {
+  const target = event.target as HTMLElement
+  if (!target.closest('.user-menu-wrapper')) {
+    showDropdown.value = false
+  }
+}
+
+// 마운트 시 이벤트 리스너 추가
+import { onMounted, onUnmounted } from 'vue'
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>

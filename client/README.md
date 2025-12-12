@@ -21,6 +21,33 @@
 - register 페이지
 - findid 페이지
 - resetpassword 페이지
+- WorshipLog 페이지 (집회 목록)
+- WorshipDetail 페이지 (집회 상세)
+- **관리자 전용 기능** (편집/삭제 버튼)
+
+---
+
+## 🔐 관리자 기능 테스트 방법
+
+### 1. 관리자 계정으로 로그인
+```
+이메일: admin@obed.com
+비밀번호: admin123
+```
+
+### 2. 일반 사용자 계정
+```
+이메일: user@obed.com
+비밀번호: user123
+```
+
+### 3. 관리자만 보이는 기능
+- **집회 목록 페이지**: 각 카드에 ✏️ 편집, 🗑️ 삭제 버튼
+- **집회 상세 페이지**: 
+  - 우측 상단 `✏️ 편집 모드` 버튼
+  - 편집 모드 ON 시:
+    - 영상 섹션: `+ 영상 추가` 버튼, 각 영상에 🗑️ 삭제 버튼
+    - 사진 섹션: `+ 사진 추가` 버튼, 각 사진에 ✕ 삭제 버튼
 
 ---
 
@@ -37,3 +64,11 @@ npm install vue-router@4
 ```bash
 npm run dev
 ```
+
+---
+
+## 📁 파일 위치
+- **인증**: `src/composables/useAuth.ts`
+- **로그인**: `src/components/Login.vue`
+- **집회 목록**: `src/views/WorshipLogView.vue`
+- **집회 상세**: `src/views/WorshipDetailView.vue`

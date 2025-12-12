@@ -29,42 +29,25 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-// import apiClient from "@/api/axiosConfig"; // 실제 통신 시 필요
+import { useAuth } from '@/composables/useAuth'
 import '../styles/Login.css'
 
 const router = useRouter()
+const { login } = useAuth()
+
 const email = ref('')
 const password = ref('')
 
-// Mock API 통신 함수
-const mockLoginApi = async (email: string, password: string) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (email === 'admin@obed.com' && password === 'admin123') {
-        // Mock 성공
-        resolve({ token: 'mock-token-admin' })
-      } else if (email && password) {
-        // Mock 일반 사용자 성공
-        resolve({ token: 'mock-token-user' })
-      } else {
-        // Mock 실패
-        reject(new Error('아이디 또는 비밀번호를 확인해주세요.'))
-      }
-    }, 500)
-  })
-}
-
 const handleSubmit = async () => {
   try {
-    // 실제 구현에서는 apiClient.post('/auth/login', { email: email.value, password: password.value }); 사용
-    await mockLoginApi(email.value, password.value) 
+    // useAuth의 login 함수 호출
+    login(email.value, password.value)
     
-    // 성공 시 로그인 상태 처리 (useAuth 등)
-    alert("로그인에 성공했습니다! (프론트엔드 테스트)");
-    // handleLogin(); // useAuth 업데이트
-    router.push("/");
+    // 성공 시
+    alert("로그인에 성공했습니다!")
+    router.push("/")
   } catch (error: any) {
-    alert(`로그인에 실패했습니다. ${error.message || '다시 시도해주세요.'}`);
+    alert(`로그인에 실패했습니다. ${error.message || '다시 시도해주세요.'}`)
   }
 }
 </script>

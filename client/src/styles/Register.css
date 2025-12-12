@@ -48,19 +48,32 @@
   right: 0;
 }
 
+/* 통일된 입력 그룹 스타일 */
 .register-form .input-group {
   margin-bottom: 1rem;
 }
 
 .register-form .input-group label {
   display: block;
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #555;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.4rem;
+  font-weight: 500;
 }
 
 .register-form .input-group input {
   width: 100%;
+  font-size: 0.95rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  border-radius: 0.5rem;
+  outline: none;
+  transition: border-color 0.2s ease-out;
+}
+
+.register-form .input-group input:focus {
+  border-color: #4a1f2f;
+  box-shadow: 0 0 0 3px rgba(74, 31, 47, 0.1);
 }
 
 .input-with-button {
@@ -73,7 +86,7 @@
 }
 
 .input-with-button button {
-  padding: 0.45rem 0.8rem;
+  padding: 0.7rem 0.8rem;
   font-size: 0.85rem;
   white-space: nowrap;
 }
@@ -81,7 +94,7 @@
 .register-btn {
   width: 100%;
   font-size: 1rem;
-  padding: 0.6rem 1rem;
+  padding: 0.7rem 1rem;
   margin-top: 1rem;
 }
 
