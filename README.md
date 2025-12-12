@@ -42,8 +42,8 @@ WorshipLog/
 ├── server/         #백엔드
 ├── app/            #어플리케이션(미정)
 ├── docs/           #계획
-├── README.md       #프로젝트 설명문
-└── database/       #데이터베이스
+├── database/       #데이터베이스
+└── README.md       #프로젝트 설명문
 ```
 
 ---
