@@ -55,6 +55,15 @@
             >
               영상/사진
             </button>
+            <!-- 집회 날짜 이후에만 악보 탭 표시 -->
+            <button
+              v-if="isWorshipDatePassed"
+              class="tab-button"
+              :class="{ active: activeTab === 'scores' }"
+              @click="activeTab = 'scores'"
+            >
+              악보
+            </button>
           </div>
 
           <!-- 안내 탭 내용 -->
@@ -100,16 +109,13 @@
                   <p class="location-text">{{ worship.location }}</p>
                   <div v-if="worship.locationLink" class="map-embed">
                     <iframe
-                      src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1580.1564111497155!2d126.8361455337295!3d37.61832881652992!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x357c9a4552397f0b%3A0xc99a963ed07b51d8!2z7JiI7IiY7J246rWQ7ZqM!5e0!3m2!1sko!2sus!4v1746049290723!5m2!1sko!2sus"
+                      src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1580.1564111497155!2d126.8361455337295!3d37.61832881652992!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x357c9a4552397f0b%3A0xc99a963ed07b51d8!2z7JeI7IiY7J246rWQ7ZqM!5e0!3m2!1sko!2sus!4v1746049290723!5m2!1sko!2sus"
                       frameborder="0"
                       allowfullscreen
                       loading="lazy"
                       referrerpolicy="no-referrer-when-downgrade"
                     ></iframe>
                   </div>
-                  <a v-if="worship.locationLink" :href="worship.locationLink" target="_blank" rel="noopener noreferrer" class="btn primary map-link-btn">
-                    🗺️ 길찾기
-                  </a>
                 </div>
               </div>
 
@@ -238,6 +244,96 @@
               </div>
             </div>
           </div>
+
+          <!-- 악보 탭 내용 (집회 날짜 이후에만 표시) -->
+          <div v-show="activeTab === 'scores'" class="tab-content">
+            <div class="detail-content">
+              <div class="scores-section">
+                <div class="section-header-with-action">
+                  <h2 class="section-subtitle">🎼 집회 악보</h2>
+                  <button v-if="isAdmin && editMode" @click="openScoreUpload" class="btn small primary">
+                    악보 업로드
+                  </button>
+                </div>
+
+                <p class="scores-intro">
+                  이 집회의 <strong>송폼(세트리스트)</strong>과 <strong>전체 악보</strong>가 포함된 PDF 파일입니다.<br>
+                  로그인 후 다운로드하여 사용하실 수 있습니다.
+                </p>
+
+                <div v-if="worship.worshipScore" class="score-single-container">
+                  <div class="score-single-card">
+                    <!-- 관리자 전용 삭제 버튼 -->
+                    <button 
+                      v-if="isAdmin && editMode" 
+                      @click="deleteWorshipScore" 
+                      class="btn-delete-score"
+                      title="악보 삭제"
+                    >
+                      🗑️
+                    </button>
+
+                    <!-- PDF 미리보기 -->
+                    <div class="score-preview-large" @click="previewScore(worship.worshipScore)">
+                      <div v-if="worship.worshipScore.thumbnailUrl" class="score-thumbnail">
+                        <img :src="worship.worshipScore.thumbnailUrl" :alt="worship.worshipScore.filename" />
+                      </div>
+                      <div v-else class="score-placeholder-large">
+                        <div class="pdf-icon-large">📋</div>
+                        <p class="placeholder-title">송폼 + 악보</p>
+                        <p class="placeholder-subtitle">PDF 미리보기</p>
+                      </div>
+                      <div class="preview-overlay">
+                        <div class="preview-icon">🔍</div>
+                        <p>클릭하여 크게 보기</p>
+                      </div>
+                    </div>
+
+                    <!-- 악보 정보 -->
+                    <div class="score-info-large">
+                      <h3 class="score-title-main">{{ worship.title }} 집회 악보</h3>
+                      <p class="score-description">{{ worship.worshipScore.description }}</p>
+                      <div class="score-details">
+                        <div class="score-detail-item">
+                          <span class="detail-label">파일명:</span>
+                          <span class="detail-value">{{ worship.worshipScore.filename }}</span>
+                        </div>
+                        <div class="score-detail-item">
+                          <span class="detail-label">업로드:</span>
+                          <span class="detail-value">{{ formatDate(worship.worshipScore.uploadDate) }}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- 다운로드 버튼 -->
+                    <div class="score-download-section">
+                      <button
+                        class="btn primary download-btn-large"
+                        type="button"
+                        @click="downloadWorshipScore"
+                        :disabled="!isLoggedIn"
+                      >
+                        <span class="download-icon">📥</span>
+                        {{ isLoggedIn ? '송폼 + 악보 다운로드' : '🔒 로그인이 필요합니다' }}
+                      </button>
+                      <p class="download-note">
+                        {{ isLoggedIn ? 'PDF 파일에 송폼과 모든 악보가 포함되어 있습니다.' : '로그인 후 다운로드할 수 있습니다.' }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-else class="score-empty-state">
+                  <div class="empty-icon">📋</div>
+                  <h3>아직 업로드된 악보가 없습니다</h3>
+                  <p>집회 후 송폼과 악보가 업데이트 예정입니다.</p>
+                  <button v-if="isAdmin && editMode" @click="openScoreUpload" class="btn primary">
+                    + 악보 업로드
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -255,6 +351,14 @@
         <button class="lightbox-next" @click.stop="nextPhoto">›</button>
         <img :src="currentPhoto" alt="집회 사진" @click.stop />
       </div>
+
+      <!-- PDF 미리보기 모달 -->
+      <div v-if="pdfPreviewOpen" class="pdf-preview-modal" @click="closePdfPreview">
+        <div class="pdf-preview-content" @click.stop>
+          <button class="pdf-preview-close" @click="closePdfPreview">×</button>
+          <iframe :src="currentPdfUrl" class="pdf-preview-iframe"></iframe>
+        </div>
+      </div>
     </section>
   </div>
 </template>
@@ -267,12 +371,23 @@ import '../styles/WorshipDetail.css'
 
 const router = useRouter()
 const route = useRoute()
-const { isAdmin } = useAuth()
+const { isAdmin, isLoggedIn } = useAuth()
 
 const activeTab = ref('info')
 const lightboxOpen = ref(false)
 const currentPhotoIndex = ref(0)
 const editMode = ref(false)
+const pdfPreviewOpen = ref(false)
+const currentPdfUrl = ref('')
+
+type WorshipScore = {
+  id: number
+  filename: string
+  fileUrl: string
+  uploadDate: string
+  thumbnailUrl?: string
+  description?: string
+}
 
 type WorshipLog = {
   id: number
@@ -296,6 +411,7 @@ type WorshipLog = {
   celebrationSongs?: string[]
   worshipVideos?: string[]
   photos?: string[]
+  worshipScore?: WorshipScore
 }
 
 // 더미 데이터 (실제로는 API에서 가져옴)
@@ -308,11 +424,44 @@ const logs = ref<WorshipLog[]>([
     preacher: '민찬기 목사',
     worship: 'OBED Worship',
     description: '호흡있는 모든 자들은 찬양하라.',
-    coments: '이번 집회에서는 성도들이 하나되어 주님을 찬양하는 시간을 가집니다.',
+    coments: '하나님께서 함께 하시고 주관하시는 집회입니다. 온 마음과 정성을 다해 예배에 임해주시기 바랍니다.',
+    entryTime: '18시 30분',
+    startTime: '19시 00분',
+    location: '예수인교회 본관(구건물) 지하 2층',
+    locationLink: 'https://maps.app.goo.gl/tcfoy5SRcpqZ4gDx8',
+    parking: '예수인교회 지하주차장 이용 가능합니다.',
+    seating: '자리는 좌석입니다. 셀러브레이션 찬양 시간에는 앞에서 스탠딩으로 찬양하실 수 있습니다. 모든 자리는 선착순 입니다.',
+    openingSongs: [
+      '축복송',
+      'Build up',
+      '나로부터 시작되리',
+      '부르신 곳에서',
+      '기대',
+      '그의 안에서'
+    ],
+    celebrationSongs: [
+      '우린 물러서지 않으리',
+      '우리의 눈을 열어',
+      'Turn it up',
+      '내 안에 부어주소서',
+      'I will run to you',
+      '주님의 임재 앞에서',
+      '생명 주께 있네',
+      '오직 예수',
+      'Praise'
+    ],
+    worshipScore: {
+      id: 1, 
+      filename: '하나됨_집회_송폼_악보.pdf', 
+      fileUrl: '/pdf/oneness.pdf',
+      uploadDate: '2025-01-11T10:00:00Z',
+      thumbnailUrl: '/thumbnails/worship-1-thumb.jpg',
+      description: '송폼 + 오프닝 & 셀러브레이션 전체 악보 포함'
+    }
   },
   {
     id: 2,
-    date: '2025-12-06 (금)',
+    date: '2025-12-06',
     year: 2025,
     title: '샬롬',
     preacher: '박훈 목사',
@@ -320,8 +469,8 @@ const logs = ref<WorshipLog[]>([
     guest: '찬양사역자 오은',
     description: '너희는 마음에 근심하지도 말고 두려워하지도 말라',
     coments: '구입한 굿즈 티셔츠를 입고오세요. 끝까지 함께해주세요. 이벤트 추첨이 있습니다.',
-    entryTime: '6시',
-    startTime: '6시 30분',
+    entryTime: '18시 00분',
+    startTime: '18시 30분',
     location: '예수인교회 본관(구건물) 지하 2층',
     locationLink: 'https://maps.app.goo.gl/tcfoy5SRcpqZ4gDx8',
     parking: '예수인교회 지하주차장 이용 가능합니다.',
@@ -347,13 +496,23 @@ const logs = ref<WorshipLog[]>([
     ],
     worshipVideos: [
       'https://youtu.be/802nlbwkFAc?si=0ok9Ysu8-GBa6j5j'
-    ],
-    // photos: ['photo1.jpg', 'photo2.jpg'], // 집회 후 추가
+    ]
   },
 ])
 
 const worshipId = computed(() => Number(route.params.id))
 const worship = computed(() => logs.value.find(w => w.id === worshipId.value))
+
+// 집회 날짜가 지났는지 확인
+const isWorshipDatePassed = computed(() => {
+  if (!worship.value) return false
+  
+  const worshipDate = new Date(worship.value.date)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  
+  return worshipDate < today
+})
 
 const currentPhoto = computed(() => {
   if (worship.value?.photos && worship.value.photos.length > 0) {
@@ -378,6 +537,21 @@ const getYouTubeEmbedUrl = (url: string) => {
   return `https://www.youtube.com/embed/${videoId}`
 }
 
+// 유틸리티 함수들
+const getFilenameWithoutExtension = (filename: string) => {
+  return filename.replace(/\.[^/.]+$/, '')
+}
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
+
+// 라이트박스 관련
 const openLightbox = (index: number) => {
   currentPhotoIndex.value = index
   lightboxOpen.value = true
@@ -397,6 +571,17 @@ const prevPhoto = () => {
   if (worship.value?.photos) {
     currentPhotoIndex.value = (currentPhotoIndex.value - 1 + worship.value.photos.length) % worship.value.photos.length
   }
+}
+
+// PDF 미리보기 관련
+const previewScore = (score: WorshipScore) => {
+  currentPdfUrl.value = score.fileUrl
+  pdfPreviewOpen.value = true
+}
+
+const closePdfPreview = () => {
+  pdfPreviewOpen.value = false
+  currentPdfUrl.value = ''
 }
 
 // 관리자 함수들
@@ -442,6 +627,43 @@ const deletePhoto = (index: number) => {
     // TODO: API 호출하여 사진 삭제
     console.log('사진 삭제:', index)
     alert(`사진 삭제 기능 구현 예정`)
+  }
+}
+
+// 악보 관련 함수들
+const downloadWorshipScore = () => {
+  if (!isLoggedIn.value) {
+    alert('로그인이 필요합니다.')
+    return
+  }
+  
+  if (!worship.value?.worshipScore) {
+    alert('다운로드할 악보가 없습니다.')
+    return
+  }
+  
+  // TODO: 실제 파일 다운로드 구현
+  console.log('악보 다운로드:', worship.value.worshipScore)
+  alert(`악보 다운로드 기능 구현 예정\n파일: ${worship.value.worshipScore.filename}`)
+  
+  // 실제 구현 시:
+  // const link = document.createElement('a')
+  // link.href = worship.value.worshipScore.fileUrl
+  // link.download = worship.value.worshipScore.filename
+  // link.click()
+}
+
+const openScoreUpload = () => {
+  // TODO: 파일 업로드 모달 열기
+  console.log('악보 업로드 모달 열기')
+  alert('악보 업로드 기능 구현 예정\n송폼과 전체 악보가 포함된 PDF 파일을 선택해주세요.')
+}
+
+const deleteWorshipScore = () => {
+  if (confirm('집회 악보를 삭제하시겠습니까?')) {
+    // TODO: API 호출하여 악보 삭제
+    console.log('집회 악보 삭제')
+    alert('집회 악보 삭제 기능 구현 예정')
   }
 }
 </script>
