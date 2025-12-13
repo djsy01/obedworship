@@ -424,7 +424,7 @@ type WorshipLog = {
 const logs = ref<WorshipLog[]>([
   {
     id: 1,
-    date: '2025-03-22',
+    date: '2025-03-22(Sat)',
     year: 2025,
     title: '하나됨',
     preacher: '민찬기 목사',
@@ -470,7 +470,7 @@ const logs = ref<WorshipLog[]>([
   },
   {
     id: 2,
-    date: '2025-12-06',
+    date: '2025-12-06(Sat)',
     year: 2025,
     title: '샬롬',
     preacher: '박훈 목사',

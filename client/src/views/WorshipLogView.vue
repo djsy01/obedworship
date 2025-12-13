@@ -145,7 +145,7 @@ type WorshipLog = {
 const logs = ref<WorshipLog[]>([
   {
     id: 1,
-    date: '2025-03-22',
+    date: '2025-03-22(Sat)',
     year: 2025,
     title: '하나됨',
     preacher: '민찬기 목사',
@@ -154,32 +154,13 @@ const logs = ref<WorshipLog[]>([
   },
   {
     id: 2,
-    date: '2025-12-06',
+    date: '2025-12-06(Sat)',
     year: 2025,
     title: '샬롬',
     preacher: '박훈 목사',
     worship: 'OBED Worship',
     guest: '찬양사역자 오은',
     description: '너희는 마음에 근심하지도 말고 두려워하지도 말라',
-  },
-  {
-    id: 3,
-    date: '2026-02-15',
-    year: 2026,
-    title: '은혜',
-    preacher: '김철수 목사',
-    worship: 'OBED Worship',
-    description: '주님의 은혜가 충만한 예배',
-  },
-  {
-    id: 4,
-    date: '2027-01-20',
-    year: 2027,
-    title: '새로운 시작',
-    preacher: '이영희 목사',
-    worship: 'OBED Worship',
-    guest: '찬양사역자 김준',
-    description: '새해 첫 집회, 주님과 함께 새롭게 시작하는 시간',
   },
 ])
 
