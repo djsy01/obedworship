@@ -1,5 +1,5 @@
 # 📘 – OBED worship 웹사이트
-> OBED워십 웹사이트
+> OBED worship 웹사이트
 
 ---
 

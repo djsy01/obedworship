@@ -37,7 +37,7 @@
 
           <label class="field">
             <span class="field-label">날짜</span>
-            <input v-model="newWorship.date" type="text" placeholder="예: 2025-12-06 (금)" required />
+            <input v-model="newWorship.date" type="text" placeholder="예: 2025-12-06 (Sat)" required />
           </label>
 
           <label class="field">
@@ -145,7 +145,7 @@ type WorshipLog = {
 const logs = ref<WorshipLog[]>([
   {
     id: 1,
-    date: '2025-03-22(Sat)',
+    date: '2025-03-22 (Sat)',
     year: 2025,
     title: '하나됨',
     preacher: '민찬기 목사',
@@ -154,7 +154,7 @@ const logs = ref<WorshipLog[]>([
   },
   {
     id: 2,
-    date: '2025-12-06(Sat)',
+    date: '2025-12-06 (Sat)',
     year: 2025,
     title: '샬롬',
     preacher: '박훈 목사',
