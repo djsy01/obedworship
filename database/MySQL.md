@@ -145,7 +145,7 @@ CREATE TABLE scores (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### score_download (악보 다운로드 기록)
+### 7.score_download (악보 다운로드 기록)
 ```sql
 CREATE TABLE score_downloads (
   id INT PRIMARY KEY AUTO_INCREMENT,
