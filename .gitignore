@@ -58,6 +58,7 @@ client/build/
 client/.env
 client/.next/
 client/.cache/
+client/src/assets/
 
 # ================================
 # 📁 server (Node.js + Express)
@@ -101,3 +102,8 @@ local.properties
 *.zip
 docs/*.pdf
 docs/*.hwp
+*.mp3
+*.wav
+*.mp4
+*.mov
+*.avi
