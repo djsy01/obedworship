@@ -84,6 +84,24 @@ CREATE TABLE worship_photos (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
+### 5. worship_scores (집회 악보)
+```sql
+CREATE TABLE worship_scores (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  worship_id INT NOT NULL,
+  filename VARCHAR(255) NOT NULL,
+  file_url VARCHAR(500) NOT NULL,
+  file_size INT DEFAULT NULL,
+  thumbnail_url VARCHAR(500) DEFAULT NULL,
+  description TEXT DEFAULT NULL,
+  uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  uploaded_by VARCHAR(50) DEFAULT NULL,
+  
+  INDEX idx_worship (worship_id),
+  FOREIGN KEY (worship_id) REFERENCES worship_logs(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
 ---
 
 ## 테이블 생성 확인
@@ -99,4 +117,5 @@ DESCRIBE worship_logs;
 DESCRIBE worship_songs;
 DESCRIBE worship_videos;
 DESCRIBE worship_photos;
+DESCRIBE worship_scores;
 ```
