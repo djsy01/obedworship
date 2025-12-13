@@ -261,6 +261,11 @@
                   로그인 후 다운로드하여 사용하실 수 있습니다.
                 </p>
 
+                <span class="warning-song">
+  ⚠               저작권 문제로 인해, 다음 곡들은 악보에 포함되어 있지 않습니다: 
+                  {{worship.warning ? worship.warning.join(', ') : '해당 없음'}}
+                </span>
+
                 <div v-if="worship.worshipScore" class="score-single-container">
                   <div class="score-single-card">
                     <!-- 관리자 전용 삭제 버튼 -->
@@ -411,6 +416,7 @@ type WorshipLog = {
   celebrationSongs?: string[]
   worshipVideos?: string[]
   photos?: string[]
+  warning?: string[]
   worshipScore?: WorshipScore
 }
 
@@ -449,6 +455,9 @@ const logs = ref<WorshipLog[]>([
       '생명 주께 있네',
       '오직 예수',
       'Praise'
+    ],
+    warning: [
+      '오직 예수 - 어노인팅 예배캠프2024',
     ],
     worshipScore: {
       id: 1, 
@@ -496,6 +505,9 @@ const logs = ref<WorshipLog[]>([
     ],
     worshipVideos: [
       'https://youtu.be/802nlbwkFAc?si=0ok9Ysu8-GBa6j5j'
+    ],
+    warning: [
+      '주 이름 찬양 - 어노인팅 예배캠프2024',
     ]
   },
 ])

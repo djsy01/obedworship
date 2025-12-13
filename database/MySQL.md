@@ -30,9 +30,9 @@ CREATE TABLE worship_logs (
   seating TEXT DEFAULT NULL,
   promo_video VARCHAR(500) DEFAULT NULL,
   prelisten_video VARCHAR(500) DEFAULT NULL,
+  excluded_songs JSON DEFAULT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  created_by VARCHAR(50) DEFAULT NULL,
   
   INDEX idx_year (year),
   INDEX idx_date (date)

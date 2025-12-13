@@ -430,6 +430,23 @@
   margin: 0 0 1.5rem;
 }
 
+.warning-song {
+  display: block;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+  color: #856404;
+  line-height: 1.5;
+}
+
+.warning-song::before {
+  content: "⚠️ ";
+  font-weight: bold;
+}
+
 .score-single-container {
   display: flex;
   justify-content: center;
