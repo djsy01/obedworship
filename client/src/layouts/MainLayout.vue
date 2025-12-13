@@ -64,18 +64,44 @@
     </main>
 
     <footer class="app-footer">
-      © {{ new Date().getFullYear() }} OBED Worship. All rights reserved.
+      <div class="footer-content">
+        <p class="footer-text">
+          © {{ new Date().getFullYear() }} OBED Worship. All rights reserved.
+        </p>
+        <div class="footer-social">
+          <a
+            href="https://www.instagram.com/obed_worship"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="social-link"
+            title="OBED Worship Instagram"
+          >
+            <img :src="instagramIcon" alt="Instagram" class="social-icon-footer" />
+          </a>
+          <a
+            href="https://www.youtube.com/@obed_worship"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="social-link"
+            title="OBED Worship YouTube"
+          >
+            <img :src="youtubeIcon" alt="YouTube" class="social-icon-footer" />
+          </a>
+        </div>
+      </div>
     </footer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import logo from '@/assets/image/logo.png'
 import light from '@/assets/music/빛의사자들이여(inst).mp3'
 import celevrate from '@/assets/music/CelebratetheLight(inst).mp3'
+import instagramIcon from '@/assets/icons/Instargram.png'
+import youtubeIcon from '@/assets/icons/youtube.png'
 
 const router = useRouter()
 const { isLoggedIn, isAdmin, logout } = useAuth()
@@ -125,8 +151,6 @@ const handleClickOutside = (event: MouseEvent) => {
 }
 
 // 마운트 시 이벤트 리스너 추가
-import { onMounted, onUnmounted } from 'vue'
-
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
 })

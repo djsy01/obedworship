@@ -10,7 +10,10 @@ USE obed_worship;
 ---
 
 ## DB 테이블 구성
-### 1. worship_logs (집회 기본 정보)
+
+### 1. 집회 정보 테이블
+
+#### 1.1 worship_logs (집회 기본 정보)
 ```sql
 CREATE TABLE worship_logs (
   id INT PRIMARY KEY AUTO_INCREMENT,
@@ -39,7 +42,7 @@ CREATE TABLE worship_logs (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### 2. worship_songs (집회 곡 목록)
+#### 1.2 worship_songs (집회 곡 목록)
 ```sql
 CREATE TABLE worship_songs (
   id INT PRIMARY KEY AUTO_INCREMENT,
@@ -53,7 +56,7 @@ CREATE TABLE worship_songs (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### 3. worship_videos (집회 영상)
+#### 1.3 worship_videos (집회 영상)
 ```sql
 CREATE TABLE worship_videos (
   id INT PRIMARY KEY AUTO_INCREMENT,
@@ -67,7 +70,7 @@ CREATE TABLE worship_videos (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### 4. worship_photos (집회 사진)
+#### 1.4 worship_photos (집회 사진)
 ```sql
 CREATE TABLE worship_photos (
   id INT PRIMARY KEY AUTO_INCREMENT,
@@ -84,7 +87,7 @@ CREATE TABLE worship_photos (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### 5. worship_scores (집회 악보)
+#### 1.5 worship_scores (집회 악보)
 ```sql
 CREATE TABLE worship_scores (
   id INT PRIMARY KEY AUTO_INCREMENT,
@@ -102,16 +105,20 @@ CREATE TABLE worship_scores (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### 6. scores (자작곡 & 편곡 악보)
+---
+
+### 2. 악보 정보 테이블
+
+#### 2.1 scores (자작곡 & 편곡 악보)
 ```sql
 CREATE TABLE scores (
   id INT PRIMARY KEY AUTO_INCREMENT,
   
   -- 기본 정보
   title VARCHAR(200) NOT NULL COMMENT '곡 제목',
-  song_key VARCHAR(10) NOT NULL COMMENT '조(Key): C, D, E, F, G, A, B 및 b',
+  song_key VARCHAR(10) NOT NULL COMMENT '조(Key): C, D, E, F, G, A, B 및 #, b',
   bpm INT NOT NULL COMMENT '템포(분당 박자수)',
-  category VARCHAR(100) NOT NULL COMMENT '카테고리/집회명 (예: 하나됨집회 2025-03-22)',
+  category VARCHAR(100) NOT NULL COMMENT '카테고리/집회명',
   
   -- 파일 정보
   file_url VARCHAR(500) NOT NULL COMMENT '악보 파일 URL (PDF)',
@@ -124,7 +131,7 @@ CREATE TABLE scores (
   composer VARCHAR(100) DEFAULT NULL COMMENT '작곡가',
   arranger VARCHAR(100) DEFAULT NULL COMMENT '편곡자',
   original_song VARCHAR(200) DEFAULT NULL COMMENT '원곡명 (편곡인 경우)',
-  is_original BOOLEAN DEFAULT TRUE COMMENT '자작곡 여부 (TRUE: 자작곡, FALSE: 편곡)',
+  is_original BOOLEAN DEFAULT TRUE COMMENT '자작곡 여부',
   copyright_info TEXT DEFAULT NULL COMMENT '저작권 정보',
   
   -- 메타데이터
@@ -145,7 +152,7 @@ CREATE TABLE scores (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### 7.score_download (악보 다운로드 기록)
+#### 2.2 score_downloads (악보 다운로드 기록)
 ```sql
 CREATE TABLE score_downloads (
   id INT PRIMARY KEY AUTO_INCREMENT,
@@ -164,6 +171,121 @@ CREATE TABLE score_downloads (
 
 ---
 
+### 3. 멤버 정보 테이블
+
+#### 3.1 members (팀원 기본 정보)
+```sql
+CREATE TABLE members (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(100) NOT NULL COMMENT '이름',
+  affiliation ENUM('목사', '장로', '집사', '장년부', '청년부', '고등부', '중등부') NOT NULL COMMENT '소속',
+  photo_url VARCHAR(500) DEFAULT NULL COMMENT '프로필 사진 URL',
+  instagram_url VARCHAR(255) DEFAULT NULL COMMENT '인스타그램 URL',
+  youtube_url VARCHAR(255) DEFAULT NULL COMMENT '유튜브 URL',
+  is_active BOOLEAN DEFAULT TRUE COMMENT '활동 여부',
+  display_order INT DEFAULT 0 COMMENT '표시 순서',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  
+  INDEX idx_affiliation (affiliation),
+  INDEX idx_is_active (is_active),
+  INDEX idx_display_order (display_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+#### 3.2 member_roles (리더 역할)
+```sql
+CREATE TABLE member_roles (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  member_id INT NOT NULL,
+  role_type ENUM(
+    'Pastor',
+    'Elder', 
+    'Accounting',
+    'Worship Team Leader',
+    'Session Leader',
+    'Planning Team Leader'
+  ) NOT NULL COMMENT '리더 역할',
+  
+  INDEX idx_member (member_id),
+  INDEX idx_role (role_type),
+  UNIQUE KEY unique_member_role (member_id, role_type),
+  FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+#### 3.3 member_worship_positions (Worship 포지션)
+```sql
+CREATE TABLE member_worship_positions (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  member_id INT NOT NULL,
+  position_type ENUM(
+    'Vocal',
+    'Piano',
+    'Synthesizer',
+    'Acoustic Guitar',
+    'Lead Guitar',
+    'Backing Guitar',
+    'Bass Guitar',
+    'Drum'
+  ) NOT NULL COMMENT 'Worship 포지션',
+  
+  INDEX idx_member (member_id),
+  INDEX idx_position (position_type),
+  UNIQUE KEY unique_member_worship_position (member_id, position_type),
+  FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+#### 3.4 member_step_positions (Step 포지션)
+```sql
+CREATE TABLE member_step_positions (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  member_id INT NOT NULL,
+  position_type ENUM(
+    'Planning Team',
+    'Live Engineer',
+    'Camera Operator',
+    'Presentation Operator',
+    'Mix Engineer',
+    'Master Engineer',
+    'Video Editor',
+    'Audio Setup',
+    'Lighting Operator',
+    'Stage Manager',
+    'Music Producer',
+    'Recording Engineer'
+  ) NOT NULL COMMENT 'Step 포지션',
+  
+  INDEX idx_member (member_id),
+  INDEX idx_position (position_type),
+  UNIQUE KEY unique_member_step_position (member_id, position_type),
+  FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+---
+
+## 테이블 관계도
+
+```
+worship_logs (집회)
+  ├─ worship_songs
+  ├─ worship_videos
+  ├─ worship_photos
+  └─ worship_scores
+
+scores (악보)
+  └─ score_downloads
+
+members (멤버)
+  ├─ member_roles
+  ├─ member_worship_positions
+  └─ member_step_positions
+```
+
+---
+
 ## 테이블 생성 확인
 ```sql
 SHOW TABLES;
@@ -178,4 +300,10 @@ DESCRIBE worship_songs;
 DESCRIBE worship_videos;
 DESCRIBE worship_photos;
 DESCRIBE worship_scores;
+DESCRIBE scores;
+DESCRIBE score_downloads;
+DESCRIBE members;
+DESCRIBE member_roles;
+DESCRIBE member_worship_positions;
+DESCRIBE member_step_positions;
 ```
