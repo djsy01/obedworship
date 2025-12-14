@@ -264,6 +264,26 @@ CREATE TABLE member_step_positions (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
+### 4. Q&A 정보 테이블
+#### 4.1 Q&A 테이블 설계 (단일 테이블 구조)
+```sql
+CREATE TABLE qna (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id VARCHAR(50) NOT NULL COMMENT 'Redis userId (질문자)',
+  category ENUM('집회', '악보', '기타') NOT NULL,
+  title VARCHAR(200) NOT NULL,
+  content TEXT NOT NULL,
+  answer TEXT DEFAULT NULL COMMENT '관리자 답변',
+  answer_date DATETIME DEFAULT NULL COMMENT '답변 작성 날짜',
+  status ENUM('WAITING', 'ANSWERED') DEFAULT 'WAITING',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   
+  INDEX idx_status (status),
+  INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
 ---
 
 ## 테이블 관계도
@@ -282,6 +302,8 @@ members (멤버)
   ├─ member_roles
   ├─ member_worship_positions
   └─ member_step_positions
+
+qna (Q&A)
 ```
 
 ---
@@ -306,4 +328,5 @@ DESCRIBE members;
 DESCRIBE member_roles;
 DESCRIBE member_worship_positions;
 DESCRIBE member_step_positions;
+DESCRIBE qna
 ```
