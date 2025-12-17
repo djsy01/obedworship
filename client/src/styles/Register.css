@@ -12,7 +12,7 @@
   padding: 2rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   width: 100%;
-  max-width: 440px; /* 약간 더 넓게 */
+  max-width: 440px;
 }
 
 .register-box h3 {
@@ -48,7 +48,6 @@
   right: 0;
 }
 
-/* 통일된 입력 그룹 스타일 */
 .register-form .input-group {
   margin-bottom: 1rem;
 }

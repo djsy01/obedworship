@@ -1,5 +1,39 @@
 /* WorshipLog.css - 집회 안내 페이지 전용 스타일 */
 
+/* 섹션 헤더 스타일 - Vision 페이지처럼 */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.section-header > div:first-child {
+  flex: 1;
+}
+
+.section-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  color: #2b1a20;
+}
+
+.section-subtitle {
+  font-size: 0.95rem;
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.section-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 .log-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

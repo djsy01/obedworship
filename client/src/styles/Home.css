@@ -24,7 +24,6 @@
   padding: 0 2rem;
 }
 
-/* Hero Text */
 .hero-text {
   display: flex;
   flex-direction: column;
@@ -99,7 +98,6 @@
   box-shadow: 0 12px 30px rgba(74, 31, 47, 0.2);
 }
 
-/* Hero Image (단체 사진) */
 .hero-image {
   position: relative;
   width: 100%;
@@ -245,7 +243,7 @@
   }
 
   .hero-image {
-    order: -1; /* 이미지를 위로 */
+    order: -1;
     min-height: 300px;
   }
 

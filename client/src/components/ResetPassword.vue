@@ -140,7 +140,6 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
-/* ResetPasswordView 고유 스타일 */
 .panel-hint {
   font-size: 0.8rem;
   color: #4a1f2f;

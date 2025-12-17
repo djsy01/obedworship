@@ -91,13 +91,13 @@ import { useRouter } from 'vue-router'
 import '../styles/Register.css'
 
 const router = useRouter()
-const isVerified = ref(false) // 이메일 인증 완료 여부 상태
+const isVerified = ref(false)
 
 const formData = reactive({
   email: "",
   verificationCode: "",
   name: "",
-  phoneNumber: "", // 사용자 요청에 따라 추가
+  phoneNumber: "",
   password: "",
   confirmPassword: ""
 })

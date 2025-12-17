@@ -20,7 +20,7 @@
           ></audio>
         </div>
 
-        <nav class="nav">
+        <nav class="nav desktop-nav">
           <RouterLink to="/" class="nav-link">홈</RouterLink>
           <RouterLink to="/vision" class="nav-link">비전</RouterLink>
           <RouterLink to="/worship-log" class="nav-link">집회안내</RouterLink>
@@ -30,13 +30,11 @@
           <RouterLink to="/qna" class="nav-link">Q&amp;A</RouterLink>
         </nav>
 
-        <div class="auth-area">
-          <!-- 로그인 전 -->
+        <div class="auth-area desktop-auth">
           <RouterLink v-if="!isLoggedIn" to="/login" class="btn primary" role="button">
             로그인
           </RouterLink>
 
-          <!-- 로그인 후 -->
           <div v-else class="user-menu-wrapper">
             <div class="user-chip" @click="toggleDropdown">
               <span class="user-name">
@@ -45,7 +43,6 @@
               <span class="dropdown-arrow">▼</span>
             </div>
 
-            <!-- 드롭다운 메뉴 -->
             <div v-if="showDropdown" class="dropdown-menu">
               <button @click="goToMyPage" class="dropdown-item">
                 👤 마이페이지
@@ -56,8 +53,52 @@
             </div>
           </div>
         </div>
+
+        <button class="mobile-menu-btn" @click="toggleMobileMenu" aria-label="메뉴">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button>
       </div>
     </header>
+
+    <transition name="mobile-menu">
+      <div v-if="showMobileMenu" class="mobile-menu-overlay" @click="closeMobileMenu">
+        <nav class="mobile-nav" @click.stop>
+          <div class="mobile-nav-header">
+            <span class="mobile-nav-title">메뉴</span>
+            <button class="mobile-nav-close" @click="closeMobileMenu">✕</button>
+          </div>
+          <div class="mobile-nav-links">
+            <RouterLink to="/" class="mobile-nav-link" @click="closeMobileMenu">홈</RouterLink>
+            <RouterLink to="/vision" class="mobile-nav-link" @click="closeMobileMenu">비전</RouterLink>
+            <RouterLink to="/worship-log" class="mobile-nav-link" @click="closeMobileMenu">집회안내</RouterLink>
+            <RouterLink to="/scores" class="mobile-nav-link" @click="closeMobileMenu">악보</RouterLink>
+            <RouterLink to="/tickets" class="mobile-nav-link" @click="closeMobileMenu">집회신청</RouterLink>
+            <RouterLink to="/map" class="mobile-nav-link" @click="closeMobileMenu">오시는길</RouterLink>
+            <RouterLink to="/qna" class="mobile-nav-link" @click="closeMobileMenu">Q&amp;A</RouterLink>
+            
+            <div class="mobile-nav-divider"></div>
+            
+            <RouterLink v-if="!isLoggedIn" to="/login" class="mobile-nav-link login-link" @click="closeMobileMenu">
+              로그인
+            </RouterLink>
+            
+            <template v-else>
+              <div class="mobile-user-info">
+                {{ isAdmin ? '관리자' : '사용자' }}
+              </div>
+              <button @click="goToMyPage" class="mobile-nav-link">
+                👤 마이페이지
+              </button>
+              <button @click="handleLogout" class="mobile-nav-link logout-link">
+                🚪 로그아웃
+              </button>
+            </template>
+          </div>
+        </nav>
+      </div>
+    </transition>
 
     <main class="app-main">
       <slot />
@@ -69,7 +110,7 @@
           © {{ new Date().getFullYear() }} OBED Worship. All rights reserved.
         </p>
         <div class="footer-social">
-          <a
+          <a 
             href="https://www.instagram.com/obed_worship"
             target="_blank"
             rel="noopener noreferrer"
@@ -78,7 +119,8 @@
           >
             <img :src="instagramIcon" alt="Instagram" class="social-icon-footer" />
           </a>
-          <a
+          
+          <a 
             href="https://www.youtube.com/@obed_worship"
             target="_blank"
             rel="noopener noreferrer"
@@ -100,7 +142,7 @@ import { useAuth } from '@/composables/useAuth'
 import logo from '@/assets/image/logo.png'
 import light from '@/assets/music/빛의사자들이여(inst).mp3'
 import celevrate from '@/assets/music/CelebratetheLight(inst).mp3'
-import instagramIcon from '@/assets/icons/Instargram.png'
+import instagramIcon from '@/assets/icons/Instargram.png' 
 import youtubeIcon from '@/assets/icons/youtube.png'
 
 const router = useRouter()
@@ -110,10 +152,10 @@ const playlist = [celevrate, light]
 const currentTrackIndex = ref(0)
 const audioPlayer = ref<HTMLAudioElement | null>(null)
 const showDropdown = ref(false)
+const showMobileMenu = ref(false)
 
 const handleEnded = () => {
   currentTrackIndex.value = (currentTrackIndex.value + 1) % playlist.length
-  
   setTimeout(() => {
     if (audioPlayer.value) {
       audioPlayer.value.play()
@@ -121,28 +163,35 @@ const handleEnded = () => {
   }, 50)
 }
 
-// 드롭다운 토글
 const toggleDropdown = () => {
   showDropdown.value = !showDropdown.value
 }
 
-// 마이페이지 이동
-const goToMyPage = () => {
-  showDropdown.value = false
-  router.push('/mypage')
-  // TODO: 마이페이지 라우트 추가 필요
+const toggleMobileMenu = () => {
+  showMobileMenu.value = !showMobileMenu.value
+  document.body.style.overflow = showMobileMenu.value ? 'hidden' : ''
 }
 
-// 로그아웃
+const closeMobileMenu = () => {
+  showMobileMenu.value = false
+  document.body.style.overflow = ''
+}
+
+const goToMyPage = () => {
+  showDropdown.value = false
+  showMobileMenu.value = false
+  router.push('/mypage')
+}
+
 const handleLogout = () => {
   if (confirm('로그아웃 하시겠습니까?')) {
     logout()
     showDropdown.value = false
+    showMobileMenu.value = false
     router.push('/')
   }
 }
 
-// 외부 클릭 시 드롭다운 닫기
 const handleClickOutside = (event: MouseEvent) => {
   const target = event.target as HTMLElement
   if (!target.closest('.user-menu-wrapper')) {
@@ -150,12 +199,12 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 }
 
-// 마운트 시 이벤트 리스너 추가
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
+  document.body.style.overflow = ''
 })
 </script>

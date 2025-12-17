@@ -3,7 +3,7 @@
   justify-content: center;
   align-items: center;
   padding: 3rem 1.25rem;
-  min-height: calc(100vh - 120px); /* 헤더, 푸터 제외 높이 가정 */
+  min-height: calc(100vh - 120px);
 }
 
 .login-box {
@@ -48,7 +48,6 @@
   right: 0;
 }
 
-/* 통일된 입력 그룹 스타일 */
 .login-form .input-group {
   margin-bottom: 1rem;
 }

@@ -2,7 +2,12 @@
   <div class="page">
     <section class="section">
       <div class="section-header">
-        <h1 class="section-title">집회안내</h1>
+        <div>
+          <h1 class="section-title">집회안내</h1>
+          <p class="section-subtitle">
+            OBED Worship의 지난 집회 기록을 확인하세요. 각 집회에 대한 상세 정보와 설교 영상, 찬양 영상도 함께 제공합니다.
+          </p>
+        </div>
 
         <div class="section-controls">
           <label class="field">
@@ -25,6 +30,7 @@
           </button>
         </div>
       </div>
+      
 
       <!-- 관리자 전용 집회 추가 모달 -->
       <div v-if="showAddModal && isAdmin" class="panel">

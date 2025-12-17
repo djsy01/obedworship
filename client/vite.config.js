@@ -16,14 +16,15 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
 
-    // 🔥 핵심
     allowedHosts: [
       'transurethral-frederic-elmy.ngrok-free.dev',
-      '.ngrok-free.dev', // ⭐ 이 줄 중요 (도메인 바뀌어도 대응)
+      '.ngrok-free.dev',
     ],
 
-    // ngrok + https 환경 안정화
     hmr: {
+      protocol: 'wss',  
+      host: 'transurethral-frederic-elmy.ngrok-free.dev',
+      port: 443,
       clientPort: 443,
     },
   },

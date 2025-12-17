@@ -73,7 +73,6 @@ const handleFindId = async () => {
 </script>
 
 <style scoped>
-/* FindIdView 고유 스타일 */
 .result-box {
   margin-top: 1.5rem;
   padding: 1rem;

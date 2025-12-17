@@ -82,6 +82,6 @@ import '../styles/Home.css'
 // 이미지 로드 실패 시 대체 이미지
 const handleImageError = (event: Event) => {
   const img = event.target as HTMLImageElement
-  img.src = '/placeholder-team.jpg' // 대체 이미지 경로
+  img.src = '/placeholder-team.jpg'
 }
 </script>
