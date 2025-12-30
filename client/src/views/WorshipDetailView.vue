@@ -515,15 +515,28 @@ const logs = ref<WorshipLog[]>([
 const worshipId = computed(() => Number(route.params.id))
 const worship = computed(() => logs.value.find(w => w.id === worshipId.value))
 
-// 집회 날짜가 지났는지 확인
+// 집회 날짜가 지났는지 확인 (개선된 버전)
 const isWorshipDatePassed = computed(() => {
   if (!worship.value) return false
   
-  const worshipDate = new Date(worship.value.date)
+  // "2025-03-22 (Sat)" 형식에서 날짜 부분만 추출
+  const dateMatch = worship.value.date.match(/^\d{4}-\d{2}-\d{2}/)
+  if (!dateMatch) {
+    console.warn('날짜 형식이 올바르지 않습니다:', worship.value.date)
+    return false
+  }
+  
+  const worshipDate = new Date(dateMatch[0])
   const today = new Date()
   today.setHours(0, 0, 0, 0)
+  worshipDate.setHours(0, 0, 0, 0)
   
-  return worshipDate < today
+  // 디버깅을 위한 콘솔 로그
+  console.log('집회 날짜:', dateMatch[0])
+  console.log('오늘 날짜:', today.toISOString().split('T')[0])
+  console.log('악보 탭 표시 여부:', worshipDate <= today)
+  
+  return worshipDate <= today // 당일도 포함하도록 <= 사용
 })
 
 const currentPhoto = computed(() => {

@@ -4,28 +4,11 @@ import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
 export default defineConfig({
-  plugins: [
-    vue(),
-    vueDevTools(),
-  ],
+  plugins: [vue(), vueDevTools()],
   resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
+    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
   server: {
     host: '0.0.0.0',
-
-    allowedHosts: [
-      'transurethral-frederic-elmy.ngrok-free.dev',
-      '.ngrok-free.dev',
-    ],
-
-    hmr: {
-      protocol: 'wss',  
-      host: 'transurethral-frederic-elmy.ngrok-free.dev',
-      port: 443,
-      clientPort: 443,
-    },
   },
 })

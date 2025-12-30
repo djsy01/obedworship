@@ -144,7 +144,7 @@ const tickets = ref<Ticket[]>([
     title: '샬롬',
     dateTime: '2025-12-06 (금) 18:30',
     place: '예수인교회 본관 지하 2층',
-    status: 'OPEN',
+    status: 'CLOSED',
     description: '샬롬인생',
     precher: '박훈 목사',
     link: 'https://obed-ticket.vercel.app',
