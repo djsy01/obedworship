@@ -29,15 +29,24 @@
 /* 테이블 스타일 개선 */
 .table-wrapper {
   margin-bottom: 1.5rem;
+  overflow-x: auto !important;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  display: block;
 }
 
 .table {
   table-layout: auto;
+  min-width: 100%;
+  display: table;
+  border-collapse: collapse;
 }
 
 .table th,
 .table td {
   padding: 0.75rem 1rem;
+  white-space: nowrap;
 }
 
 .title-cell {
@@ -148,21 +157,24 @@
   }
 
   .filter-group {
-    flex-direction: column;
-    gap: 0.75rem;
+    flex-direction: row;
+    gap: 0.5rem;
   }
 
   .field--inline {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
   }
 
-  .table-wrapper {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+  .field--inline .field-label {
+    font-size: 0.8rem;
+    min-width: auto;
   }
 
-  .table {
-    min-width: 600px;
+  .field--inline input,
+  .field--inline select {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.6rem;
   }
 
   .table th,
@@ -194,6 +206,39 @@
 }
 
 @media (max-width: 480px) {
+  .filter-group {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .field--inline {
+    width: 90%;
+  }
+
+  .table {
+    min-width: 650px;
+  }
+  
+  .table-wrapper {
+    border-radius: 0.75rem;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+    position: relative;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.5rem 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  .title-cell {
+    min-width: 120px;
+  }
+
+  .category-cell {
+    min-width: 150px;
+  }
+
   .pagination-btn {
     min-width: 28px;
     height: 28px;
@@ -201,9 +246,22 @@
     padding: 0.3rem 0.4rem;
   }
 
-  /* 모바일에서는 일부 페이지 번호 숨기기 */
   .pagination-btn:not(.active):nth-child(n+4):nth-last-child(n+4) {
     display: none;
+  }
+
+  .table-wrapper::after {
+    content: '← 좌우로 스크롤하세요 →';
+    display: block;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #999;
+    padding: 0.5rem;
+    background: linear-gradient(90deg, transparent, #fafafa 20%, #fafafa 80%, transparent);
+    position: sticky;
+    left: 0;
+    right: 0;
+    z-index: 1;
   }
 }
 
@@ -213,6 +271,7 @@
   text-align: center;
   color: #999;
   font-size: 0.95rem;
+  white-space: normal !important;
 }
 
 /* 다운로드 버튼 강조 */
