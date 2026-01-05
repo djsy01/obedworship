@@ -257,14 +257,14 @@ CREATE TABLE member_worship_positions (
   id INT PRIMARY KEY AUTO_INCREMENT,
   member_id INT NOT NULL,
   position_type ENUM(
-    'Vocal',
-    'Piano',
-    'Synthesizer',
-    'Acoustic Guitar',
-    'Lead Guitar',
-    'Backing Guitar',
-    'Bass Guitar',
-    'Drum'
+    'Vocal',               -- 보컬
+    'Piano',               -- 메인 건반
+    'Synthesizer',         -- 세컨 건반
+    'Acoustic Guitar',     -- 어쿠스틱 기타
+    'Lead Guitar',         -- 리드 기타
+    'Backing Guitar',      -- 백킹 기타
+    'Bass Guitar',         -- 베이스 기타
+    'Drum'                 -- 드
   ) NOT NULL COMMENT 'Worship 포지션',
   position_order INT DEFAULT 0 COMMENT '포지션 정렬 순서 (Vocal=1, Piano=2, ...)',
   
@@ -280,30 +280,31 @@ CREATE TABLE member_worship_positions (
 ```sql
 CREATE TABLE member_step_positions (
   id INT PRIMARY KEY AUTO_INCREMENT,
-  member_id INT NOT NULL,
+  member_id INT NOT NULL,럼
   position_type ENUM(
     -- 회계팀 (Accounting Team) - 회계팀
     'Accounting Team',
 
     -- 홍보팀 (Planning Team) - 인스타, 포스터 디자인, 예배안내지
     'Planning Team',
-    'Instagram Manager',
-    'Poster Designer',
-    'Guidebook Designer',
+    'Instagram Manager',   -- 인스타그램 관리자
+    'Poster Designer',     -- 포스터
+    'Guidebook Designer',  -- 예배안내 책자
     
     -- 미디어팀 (Media Team) - 촬영, 편집, 후반 작업
-    'Camera Operator',
-    'Video Editor',
-    'YouTube Manager',
-    'Mix Engineer',
-    'Master Engineer',
-    'Music Producer',
+    'Camera Operator',     -- 카메라 관리자
+    'Video Editor',        -- 영상 편집
+    'YouTube Manager',     -- 유튜브 관리자
+    'Mix Engineer',        -- 믹싱 엔지니어
+    'Master Engineer',     -- 마스터링믹싱
+    'Music Producer',      -- 음악 프로듀서
     
     -- 무대팀 (Stage Team) - 현장 음향, 조명, 무대
-    'Stage Designer',
-    'Live Engineer',
-    'Lighting Operator',
-    'Audio Setup',
+    'Stage Designer',      -- 무대 구상
+    'Live Engineer',       -- 라이브 엔지니어
+    'Lighting Operator',   -- 조명 관리자
+    'Audio Setup',         -- 음향 세팅
+    'PreProduction',       -- 프리프로덕션
 
     -- 기도팀(Prayer Team) - 기도팀
     'Prayer Team'
@@ -378,6 +379,7 @@ DESCRIBE worship_scores;
 DESCRIBE scores;
 DESCRIBE score_downloads;
 DESCRIBE members;
+DESCRIBE member_teams;
 DESCRIBE member_roles;
 DESCRIBE member_worship_positions;
 DESCRIBE member_step_positions;

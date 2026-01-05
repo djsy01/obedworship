@@ -117,24 +117,38 @@
           </button>
           <button
             class="filter-btn small"
-            :class="{ active: stepFilter === '홍보팀' }"
-            @click="stepFilter = '홍보팀'"
+            :class="{ active: stepFilter === 'Accounting Team' }"
+            @click="stepFilter = 'Accounting Team'"
           >
-            홍보팀
+            Accounting Team
           </button>
           <button
             class="filter-btn small"
-            :class="{ active: stepFilter === '영상팀' }"
-            @click="stepFilter = '영상팀'"
+            :class="{ active: stepFilter === 'Planning Team' }"
+            @click="stepFilter = 'Planning Team'"
           >
-            영상팀
+            Planning Team
           </button>
           <button
             class="filter-btn small"
-            :class="{ active: stepFilter === '무대팀' }"
-            @click="stepFilter = '무대팀'"
+            :class="{ active: stepFilter === 'Media Team' }"
+            @click="stepFilter = 'Media Team'"
           >
-            무대팀
+            Media Team
+          </button>
+          <button
+            class="filter-btn small"
+            :class="{ active: stepFilter === 'Stage Team' }"
+            @click="stepFilter = 'Stage Team'"
+          >
+            Stage Team
+          </button>
+          <button
+            class="filter-btn small"
+            :class="{ active: stepFilter === 'Prayer Team' }"
+            @click="stepFilter = 'Prayer Team'"
+          >
+            Prayer Team
           </button>
         </div>
 
@@ -281,9 +295,9 @@ const members = ref<Member[]>([
     photo_url: photoMijung,
     instagram_url: 'https://www.instagram.com/cat0925_',
     youtube_url: null,
-    roles: ['Accounting'],
+    roles: ['Accounting Leader'],
     worship_positions: [],
-    step_positions: [],
+    step_positions: ['Accounting Team'],
     description: '재정 담당, 예배 인력 섭외, 운영 지원'
   },
   {
@@ -294,9 +308,9 @@ const members = ref<Member[]>([
     instagram_url: 'https://www.instagram.com/djsy_01',
     youtube_url: 'https://www.youtube.com/@djsy01',
     roles: ['Worship Team Leader', 'Lead Singer'],
-    worship_positions: ['Vocal', 'Acoustic Guitar', 'Lead Guitar'],
-    step_positions: ['Video Editor', 'Live Engineer', 'Mix Engineer', 'Music Producer'],
-    description: 'OBED 팀장 + 현 인도자 + 어쿠스틱, 무대 구상, 프리프로덕션, 음향 설계, 후반 믹싱 → OBED 음악·예배·음향 디렉터'
+    worship_positions: ['Vocal', 'Acoustic Guitar', 'Lead Guitar', 'Backing Guitar'],
+    step_positions: ['Preproduction', 'Mix Engineer', 'Music Producer', 'Video Editor', 'Master Engineer'],
+    description: 'OBED Worship 팀장 + 인도자 + 기타 + 프리프로덕션 + 마스터링 + 믹싱 + 영상편집 + 음악 프로듀싱'
   },
   {
     id: 5,
@@ -307,8 +321,8 @@ const members = ref<Member[]>([
     youtube_url: 'https://youtube.com/channel/UC_vv_fm_8e3O8xTb5TbPKrg',
     roles: ['Media Leader'],
     worship_positions: ['Drum'],
-    step_positions: ['Camera Operator', 'Video Editor', 'Live Engineer', 'Mix Engineer'],
-    description: 'OBED 부팀장(세션팀장) + 드럼 or 영상팀(촬영/편집/믹싱) + 프리프로덕션 보조 + 유튜브 채널 관리 → Music + Media 테크 리더'
+    step_positions: ['Camera Operator', 'Video Editor', 'Mix Engineer', 'Music Producer'],
+    description: '드럼 + 영상팀장(촬영 및 편집) + 후반 믹싱'
   },
   {
     id: 6,
@@ -320,7 +334,7 @@ const members = ref<Member[]>([
     roles: [],
     worship_positions: ['Vocal'],
     step_positions: ['Prayer Team'],
-    description: '기도팀 + 싱어'
+    description: '싱어 + 기도팀'
   },
   {
     id: 7,
@@ -331,8 +345,8 @@ const members = ref<Member[]>([
     youtube_url: 'https://www.youtube.com/@onyourmusic',
     roles: [],
     worship_positions: ['Vocal'],
-    step_positions: ['Audio Setup'],
-    description: '무대팀 + 싱어'
+    step_positions: ['Stage Designer', 'Lighting Operator'],
+    description: '싱어'
   },
   {
     id: 8,
@@ -344,19 +358,19 @@ const members = ref<Member[]>([
     roles: [],
     worship_positions: ['Bass Guitar'],
     step_positions: ['Lighting Operator'],
-    description: '조명 + 베이스'
+    description: '베이스기타 + 조명팀'
   },
   {
     id: 9,
     name: '마승빈',
-    affiliation: '고등부',
+    affiliation: '청년부',
     photo_url: logo,
     instagram_url: 'https://www.instagram.com/z.sbbxn_',
     youtube_url: null,
     roles: [],
     worship_positions: ['Drum'],
     step_positions: ['Planning Team'],
-    description: '홍보팀 + 드럼'
+    description: '드럼 + 홍보팀'
   },
   {
     id: 10,
@@ -365,10 +379,10 @@ const members = ref<Member[]>([
     photo_url: logo,
     instagram_url: null,
     youtube_url: null,
-    roles: [],
+    roles: ['Session Leader'],
     worship_positions: ['Synthesizer'],
     step_positions: ['Planning Team'],
-    description: '홍보팀 + 세컨건반'
+    description: '세션팀장 + 세컨건반 + 홍보팀'
   },
   {
     id: 11,
@@ -380,7 +394,7 @@ const members = ref<Member[]>([
     roles: [],
     worship_positions: ['Vocal'],
     step_positions: ['Media Team'],
-    description: '홍보팀 + 싱어'
+    description: '싱어 + 미디어팀(유튜브 채널 관리)'
   },
   {
     id: 12,
@@ -392,7 +406,7 @@ const members = ref<Member[]>([
     roles: [],
     worship_positions: ['Piano', 'Synthesizer'],
     step_positions: ['Planning Team'],
-    description: '홍보팀 + 메인건반'
+    description: '메인건반 + 세컨건반 + 홍보팀'
   },
   {
     id: 13,
@@ -401,10 +415,10 @@ const members = ref<Member[]>([
     photo_url: photoJongeon,
     instagram_url: 'https://www.instagram.com/5_bells_05',
     youtube_url: null,
-    roles: [],
+    roles: ['Singer Leader', 'Lead Singer'],
     worship_positions: ['Vocal'],
-    step_positions: ['Live Engineer', 'Music Producer', 'Audio Setup'],
-    description: '무대구상 + 프리프로덕션 보조 + 싱어 + 음향 설계'
+    step_positions: ['Live Engineer', 'Audio Setup', 'Stage Designer'],
+    description: '인도자 + 싱어팀장+ 싱어 + 무대구상 + 음향 설계'
   },
   {
     id: 14,
@@ -415,8 +429,8 @@ const members = ref<Member[]>([
     youtube_url: null,
     roles: ['Stage Leader'],
     worship_positions: ['Piano'],
-    step_positions: ['Audio Setup'],
-    description: '메인건반 + 무대팀장'
+    step_positions: ['Audio Setup', 'Stage Designer'],
+    description: '메인건반 + 음향 설계 보조 + 무대구상'
   },
   {
     id: 15,
@@ -426,9 +440,9 @@ const members = ref<Member[]>([
     instagram_url: null,
     youtube_url: null,
     roles: [],
-    worship_positions: ['Lead Guitar'],
+    worship_positions: ['Lead Guitar', 'Bass Guitar'],
     step_positions: ['Prayer Team'],
-    description: '리드기타 + 기도팀'
+    description: '리드기타 + 베이스기타 + 기도팀'
   },
   {
     id: 16,
@@ -437,10 +451,10 @@ const members = ref<Member[]>([
     photo_url: logo,
     instagram_url: null,
     youtube_url: null,
-    roles: ["Lead Singer"],
+    roles: ['Lead Singer'],
     worship_positions: ['Vocal'],
     step_positions: ['Accounting Team'],
-    description: '인도자 + 회계'
+    description: '인도자 + 싱어 + 회계팀'
   },
   {
     id: 17,
@@ -449,9 +463,9 @@ const members = ref<Member[]>([
     photo_url: logo,
     instagram_url: 'https://www.instagram.com/breeze2174',
     youtube_url: null,
-    roles: ['Prayer leader'],
+    roles: ['Prayer Leader'],
     worship_positions: ['Vocal'],
-    step_positions: ['Audio Setup'],
+    step_positions: [],
     description: '싱어(화음) + 기도팀장'
   }
 ])
@@ -486,7 +500,12 @@ const filteredMembers = computed(() => {
   }
 
   if (filter.value === 'step' && stepFilter.value) {
-    if (stepFilter.value === '홍보팀') {
+    if (stepFilter.value === 'Accounting Team') {
+      filtered = filtered.filter(m =>
+        m.step_positions.includes('Accounting Team') ||
+        m.roles.includes('Accounting Leader')
+      )
+    } else if (stepFilter.value === 'Planning Team') {
       filtered = filtered.filter(m =>
         m.step_positions.includes('Planning Team') || 
         m.step_positions.includes('Instagram Manager') || 
@@ -494,17 +513,30 @@ const filteredMembers = computed(() => {
         m.step_positions.includes('Guidebook Designer') ||
         m.roles.includes('Planning Leader')
       )
-    } else if (stepFilter.value === '영상팀') {
+    } else if (stepFilter.value === 'Media Team') {
       filtered = filtered.filter(m =>
-        m.step_positions.some(p =>
-          ['Camera Operator', 'Video Editor', 'YouTube Manager', 'Mix Engineer', 'Master Engineer', 'Music Producer'].includes(p)
-        )
+        m.step_positions.includes('Media Team') ||
+        m.step_positions.includes('Camera Operator') ||
+        m.step_positions.includes('Video Editor') ||
+        m.step_positions.includes('Mix Engineer') ||
+        m.step_positions.includes('Master Engineer') ||
+        m.step_positions.includes('Music Producer') ||
+        m.roles.includes('Media Leader')
       )
-    } else if (stepFilter.value === '무대팀') {
+    } else if (stepFilter.value === 'Stage Team') {
       filtered = filtered.filter(m =>
-        m.step_positions.some(p =>
-          ['Stage Designer', 'Live Engineer', 'Lighting Operator', 'Audio Setup'].includes(p)
-        )
+        m.step_positions.includes('Stage Team') ||
+        m.step_positions.includes('Stage Designer') ||
+        m.step_positions.includes('Lighting Operator') ||
+        m.step_positions.includes('Audio Setup') ||
+        m.step_positions.includes('Live Engineer') ||
+        m.step_positions.includes('Preproduction') ||
+        m.roles.includes('Stage Leader')
+      )
+    } else if (stepFilter.value === 'Prayer Team') {
+      filtered = filtered.filter(m =>
+        m.step_positions.includes('Prayer Team') ||
+        m.roles.includes('Prayer Leader')
       )
     }
   }
@@ -515,14 +547,14 @@ const filteredMembers = computed(() => {
         'Pastor': 1,
         'Elder': 2,
         'Worship Team Leader': 3,
-        'Accounting': 4,
-        'Singer Leader': 5,
-        'Lead Singer': 6,
+        'Accounting Leader': 4,
+        'Lead Singer': 5,
+        'Singer Leader': 6,
         'Session Leader': 7,
         'Planning Leader': 8,
         'Media Leader': 9,
         'Stage Leader': 10,
-        'Prayer leader': 11
+        'Prayer Leader': 11
       }
 
       const getMinOrder = (roles: string[]) => {
@@ -545,11 +577,10 @@ const filteredMembers = computed(() => {
     filtered.sort((a, b) => {
       const getPriority = (member: Member) => {
         if (member.roles.includes('Worship Team Leader')) return 1
-        if (member.roles.includes('Singer Leader')) return 2
-        if (member.roles.includes('Lead Singer')) return 3
+        if (member.roles.includes('Lead Singer')) return 2
+        if (member.roles.includes('Singer Leader')) return 3
         if (member.roles.includes('Session Leader')) return 4
-        if (member.roles.includes('Elder')) return 5
-        return 6
+        return 5
       }
 
       const priorityA = getPriority(a)
