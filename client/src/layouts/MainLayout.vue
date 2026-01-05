@@ -63,8 +63,18 @@
     </header>
 
     <transition name="mobile-menu">
-      <div v-if="showMobileMenu" class="mobile-menu-overlay" @click="closeMobileMenu">
-        <nav class="mobile-nav" @click.stop>
+      <div 
+        v-if="showMobileMenu" 
+        class="mobile-menu-overlay" 
+        @click="closeMobileMenu"
+        @touchmove.prevent
+      >
+        <nav 
+          class="mobile-nav" 
+          @click.stop
+          @touchstart="handleTouchStart"
+          @touchmove="handleTouchMove"
+        >
           <div class="mobile-nav-header">
             <span class="mobile-nav-title">메뉴</span>
             <button class="mobile-nav-close" @click="closeMobileMenu">✕</button>
@@ -153,6 +163,7 @@ const currentTrackIndex = ref(0)
 const audioPlayer = ref<HTMLAudioElement | null>(null)
 const showDropdown = ref(false)
 const showMobileMenu = ref(false)
+const touchStartX = ref(0)
 
 const handleEnded = () => {
   currentTrackIndex.value = (currentTrackIndex.value + 1) % playlist.length
@@ -169,17 +180,30 @@ const toggleDropdown = () => {
 
 const toggleMobileMenu = () => {
   showMobileMenu.value = !showMobileMenu.value
-  document.body.style.overflow = showMobileMenu.value ? 'hidden' : ''
+  if (showMobileMenu.value) {
+    document.body.style.overflow = 'hidden'
+    document.body.style.position = 'fixed'
+    document.body.style.width = '100%'
+  } else {
+    document.body.style.overflow = ''
+    document.body.style.position = ''
+    document.body.style.width = ''
+  }
 }
 
 const closeMobileMenu = () => {
   showMobileMenu.value = false
   document.body.style.overflow = ''
+  document.body.style.position = ''
+  document.body.style.width = ''
 }
 
 const goToMyPage = () => {
   showDropdown.value = false
   showMobileMenu.value = false
+  document.body.style.overflow = ''
+  document.body.style.position = ''
+  document.body.style.width = ''
   router.push('/mypage')
 }
 
@@ -188,7 +212,25 @@ const handleLogout = () => {
     logout()
     showDropdown.value = false
     showMobileMenu.value = false
+    document.body.style.overflow = ''
+    document.body.style.position = ''
+    document.body.style.width = ''
     router.push('/')
+  }
+}
+
+// 터치 이벤트 핸들러 - 좌우 드래그 방지
+const handleTouchStart = (e: TouchEvent) => {
+  touchStartX.value = e.touches[0].clientX
+}
+
+const handleTouchMove = (e: TouchEvent) => {
+  const touchCurrentX = e.touches[0].clientX
+  const diff = touchCurrentX - touchStartX.value
+  
+  // 좌우 스크롤 감지 시 이벤트 차단
+  if (Math.abs(diff) > 10) {
+    e.preventDefault()
   }
 }
 
@@ -206,5 +248,7 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
   document.body.style.overflow = ''
+  document.body.style.position = ''
+  document.body.style.width = ''
 })
 </script>
