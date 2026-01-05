@@ -179,11 +179,16 @@ CREATE TABLE members (
   id INT PRIMARY KEY AUTO_INCREMENT,
   name VARCHAR(100) NOT NULL COMMENT '이름',
   affiliation ENUM('목사', '장로', '집사', '장년부', '청년부', '고등부', '중등부') NOT NULL COMMENT '소속',
+  
+  -- SNS 및 미디어
   photo_url VARCHAR(500) DEFAULT NULL COMMENT '프로필 사진 URL',
   instagram_url VARCHAR(255) DEFAULT NULL COMMENT '인스타그램 URL',
   youtube_url VARCHAR(255) DEFAULT NULL COMMENT '유튜브 URL',
+  
+  -- 메타데이터
   is_active BOOLEAN DEFAULT TRUE COMMENT '활동 여부',
   display_order INT DEFAULT 0 COMMENT '표시 순서',
+  description TEXT DEFAULT NULL COMMENT '팀원 설명',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   
@@ -193,28 +198,60 @@ CREATE TABLE members (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-#### 3.2 member_roles (리더 역할)
+#### 3.2 member_teams (멤버 팀)
+```sql
+CREATE TABLE member_teams (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  member_id INT NOT NULL,
+  team_type ENUM(
+    '총괄팀',
+    'Worship팀',     -- 싱어 + 세션 통합
+    '회계팀',
+    '홍보팀',
+    '영상팀',
+    '무대팀',
+    '기도팀'
+  ) NOT NULL COMMENT '팀 분류',
+  is_leader BOOLEAN DEFAULT FALSE COMMENT '팀장 여부',
+  priority INT DEFAULT 0 COMMENT '우선순위 (1=주팀, 2,3=부팀)',
+  
+  INDEX idx_member (member_id),
+  INDEX idx_team (team_type),
+  INDEX idx_leader (is_leader),
+  UNIQUE KEY unique_member_team_priority (member_id, team_type, priority),
+  FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+#### 3.3 member_roles (리더 역할 - Leader 필터용)
 ```sql
 CREATE TABLE member_roles (
   id INT PRIMARY KEY AUTO_INCREMENT,
   member_id INT NOT NULL,
   role_type ENUM(
-    'Pastor',
-    'Elder', 
-    'Accounting',
-    'Worship Team Leader',
-    'Session Leader',
-    'Planning Team Leader'
+    'Pastor',               -- 목사
+    'Elder',                -- 장로
+    'Worship Team Leader',  -- 팀 리더
+    'Accounting Leader',    -- 회계팀장
+    'Lead Singer',          -- 인도자 (Lead Singer로 확정)
+    'Singer Leader',        -- 싱어팀장
+    'Session Leader',       -- 세션팀장
+    'Planning Leader',      -- 홍보팀장
+    'Media Leader',         -- 미디어팀장
+    'Stage Leader',         -- 무대팀장
+    'Prayer Leader'         -- 기도팀
   ) NOT NULL COMMENT '리더 역할',
+  role_order INT DEFAULT 0 COMMENT '역할 표시 순서',
   
   INDEX idx_member (member_id),
   INDEX idx_role (role_type),
+  INDEX idx_order (role_order),
   UNIQUE KEY unique_member_role (member_id, role_type),
   FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-#### 3.3 member_worship_positions (Worship 포지션)
+#### 3.4 member_worship_positions (Worship 포지션 - 싱어 + 세션)
 ```sql
 CREATE TABLE member_worship_positions (
   id INT PRIMARY KEY AUTO_INCREMENT,
@@ -229,32 +266,47 @@ CREATE TABLE member_worship_positions (
     'Bass Guitar',
     'Drum'
   ) NOT NULL COMMENT 'Worship 포지션',
+  position_order INT DEFAULT 0 COMMENT '포지션 정렬 순서 (Vocal=1, Piano=2, ...)',
   
   INDEX idx_member (member_id),
   INDEX idx_position (position_type),
+  INDEX idx_position_order (position_order),
   UNIQUE KEY unique_member_worship_position (member_id, position_type),
   FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-#### 3.4 member_step_positions (Step 포지션)
+#### 3.5 member_step_positions (Step 포지션 - 홍보팀, 영상팀, 무대팀 세부 역할)
 ```sql
 CREATE TABLE member_step_positions (
   id INT PRIMARY KEY AUTO_INCREMENT,
   member_id INT NOT NULL,
   position_type ENUM(
+    -- 회계팀 (Accounting Team) - 회계팀
+    'Accounting Team',
+
+    -- 홍보팀 (Planning Team) - 인스타, 포스터 디자인, 예배안내지
     'Planning Team',
-    'Live Engineer',
+    'Instagram Manager',
+    'Poster Designer',
+    'Guidebook Designer',
+    
+    -- 미디어팀 (Media Team) - 촬영, 편집, 후반 작업
     'Camera Operator',
-    'Presentation Operator',
+    'Video Editor',
+    'YouTube Manager',
     'Mix Engineer',
     'Master Engineer',
-    'Video Editor',
-    'Audio Setup',
-    'Lighting Operator',
-    'Stage Manager',
     'Music Producer',
-    'Recording Engineer'
+    
+    -- 무대팀 (Stage Team) - 현장 음향, 조명, 무대
+    'Stage Designer',
+    'Live Engineer',
+    'Lighting Operator',
+    'Audio Setup',
+
+    -- 기도팀(Prayer Team) - 기도팀
+    'Prayer Team'
   ) NOT NULL COMMENT 'Step 포지션',
   
   INDEX idx_member (member_id),
@@ -299,6 +351,7 @@ scores (악보)
   └─ score_downloads
 
 members (멤버)
+  ├─ member_teams
   ├─ member_roles
   ├─ member_worship_positions
   └─ member_step_positions
