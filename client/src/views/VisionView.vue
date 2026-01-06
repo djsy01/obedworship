@@ -234,7 +234,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import '../styles/Vision.css'
-import logo from '@/assets/image/LOGO.png'
+import logo from '@/assets/image/LOGO.JPG'
 import photoGiin from '@/assets/people/Giin.jpeg'
 import photoMijung from '@/assets/people/mijung.jpeg'
 import photoInho from '@/assets/people/inho.JPG'
