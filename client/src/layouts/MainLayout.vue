@@ -153,7 +153,7 @@ import logo from '@/assets/image/Logo.png'
 import light from '@/assets/music/빛의사자들이여(inst).mp3'
 import celevrate from '@/assets/music/CelebratetheLight(inst).mp3'
 import instagramIcon from '@/assets/icons/Instargram.png' 
-import youtubeIcon from '@/assets/icons/youtube.png'
+import youtubeIcon from '@/assets/icons/Youtube.png'
 
 const router = useRouter()
 const { isLoggedIn, isAdmin, logout } = useAuth()
