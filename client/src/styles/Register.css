@@ -1,0 +1,111 @@
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem 1.25rem;
+  min-height: calc(100vh - 120px);
+}
+
+.register-box {
+  background: #fff;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 440px;
+}
+
+.register-box h3 {
+  text-align: center;
+  font-size: 1.5rem;
+  color: #2b1a20;
+  margin: 0 0 1.5rem;
+}
+
+.divider {
+  text-align: center;
+  margin: 1.5rem 0;
+  position: relative;
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 40%;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.divider::before {
+  left: 0;
+}
+
+.divider::after {
+  right: 0;
+}
+
+.register-form .input-group {
+  margin-bottom: 1rem;
+}
+
+.register-form .input-group label {
+  display: block;
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+}
+
+.register-form .input-group input {
+  width: 100%;
+  font-size: 0.95rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  border-radius: 0.5rem;
+  outline: none;
+  transition: border-color 0.2s ease-out;
+}
+
+.register-form .input-group input:focus {
+  border-color: #4a1f2f;
+  box-shadow: 0 0 0 3px rgba(74, 31, 47, 0.1);
+}
+
+.input-with-button {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.input-with-button input {
+  flex: 1;
+}
+
+.input-with-button button {
+  padding: 0.7rem 0.8rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.register-btn {
+  width: 100%;
+  font-size: 1rem;
+  padding: 0.7rem 1rem;
+  margin-top: 1rem;
+}
+
+.form-links {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  color: #777;
+}
+
+.form-links a {
+  color: #4a1f2f;
+  margin-left: 0.5rem;
+  font-weight: 500;
+}
