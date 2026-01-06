@@ -58,7 +58,6 @@ client/build/
 client/.env
 client/.next/
 client/.cache/
-client/src/assets/
 
 # ================================
 # 📁 server (Node.js + Express)
