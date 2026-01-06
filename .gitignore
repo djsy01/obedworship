@@ -92,18 +92,3 @@ app/expo-debug.log
 local.properties
 *.keystore
 
-# ================================
-# 📝 기타 문서, 출력물
-# ================================
-*.pdf
-*.hwp
-*.docx
-*.pptx
-*.zip
-docs/*.pdf
-docs/*.hwp
-*.mp3
-*.wav
-*.mp4
-*.mov
-*.avi
