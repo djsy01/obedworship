@@ -244,7 +244,7 @@ import photoOnnew from '@/assets/people/onnew.jpeg'
 import photoJongeon from '@/assets/people/Jongeon.jpeg'
 import photoYesol from '@/assets/people/yesol.jpeg'
 import instagramIcon from '@/assets/icons/Instargram.png'
-import youtubeIcon from '@/assets/icons/youtube.png'
+import youtubeIcon from '@/assets/icons/Youtube.png'
 
 type Member = {
   id: number
