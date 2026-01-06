@@ -11,8 +11,8 @@ import MapView from '@/views/MapView.vue'
 import MyPageView from '@/views/MyPageView.vue'
 import login from '@/components/Login.vue'
 import register from '@/components/Register.vue'
-import FindId from '@/components/FindId.vue'
-import ResetPassword from '@/components/ResetPassword.vue'
+import FindId from '@/components/Find-Id.vue'
+import ResetPassword from '@/components/Reset-Password.vue'
 
 const routes: RouteRecordRaw[] = [
   { path: '/', name: 'home', component: HomeView },
