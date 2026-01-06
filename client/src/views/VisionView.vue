@@ -234,7 +234,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import '../styles/Vision.css'
-import logo from '@/assets/image/LOGO.JPG'
+import logo from '@/assets/image/LOGO.png'
 import photoGiin from '@/assets/people/Giin.jpeg'
 import photoMijung from '@/assets/people/mijung.jpeg'
 import photoInho from '@/assets/people/inho.JPG'
@@ -244,7 +244,7 @@ import photoOnnew from '@/assets/people/onnew.jpeg'
 import photoJongeon from '@/assets/people/Jongeon.jpeg'
 import photoYesol from '@/assets/people/yesol.jpeg'
 import instagramIcon from '@/assets/icons/Instargram.png'
-import youtubeIcon from '@/assets/icons/youtube.png'
+import youtubeIcon from '@/assets/icons/Youtube.png'
 
 type Member = {
   id: number
