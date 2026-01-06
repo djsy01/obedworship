@@ -11,7 +11,7 @@ import MapView from '@/views/MapView.vue'
 import MyPageView from '@/views/MyPageView.vue'
 import login from '@/components/Login.vue'
 import register from '@/components/Register.vue'
-import FindId from '@/components/Find-Id.vue'
+import FindId from '@/components/Find-ID.vue'
 import ResetPassword from '@/components/Reset-Password.vue'
 
 const routes: RouteRecordRaw[] = [
