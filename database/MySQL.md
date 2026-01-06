@@ -233,13 +233,13 @@ CREATE TABLE member_roles (
     'Elder',                -- 장로
     'Worship Team Leader',  -- 팀 리더
     'Accounting Leader',    -- 회계팀장
-    'Lead Singer',          -- 인도자 (Lead Singer로 확정)
+    'Lead Singer',          -- 인도자
     'Singer Leader',        -- 싱어팀장
     'Session Leader',       -- 세션팀장
     'Planning Leader',      -- 홍보팀장
     'Media Leader',         -- 미디어팀장
     'Stage Leader',         -- 무대팀장
-    'Prayer Leader'         -- 기도팀
+    'Prayer Leader'         -- 기도팀장
   ) NOT NULL COMMENT '리더 역할',
   role_order INT DEFAULT 0 COMMENT '역할 표시 순서',
   
@@ -264,7 +264,7 @@ CREATE TABLE member_worship_positions (
     'Lead Guitar',         -- 리드 기타
     'Backing Guitar',      -- 백킹 기타
     'Bass Guitar',         -- 베이스 기타
-    'Drum'                 -- 드
+    'Drum'                 -- 드럼
   ) NOT NULL COMMENT 'Worship 포지션',
   position_order INT DEFAULT 0 COMMENT '포지션 정렬 순서 (Vocal=1, Piano=2, ...)',
   
@@ -280,9 +280,9 @@ CREATE TABLE member_worship_positions (
 ```sql
 CREATE TABLE member_step_positions (
   id INT PRIMARY KEY AUTO_INCREMENT,
-  member_id INT NOT NULL,럼
+  member_id INT NOT NULL,
   position_type ENUM(
-    -- 회계팀 (Accounting Team) - 회계팀
+    -- 회계팀 (Accounting Team)
     'Accounting Team',
 
     -- 홍보팀 (Planning Team) - 인스타, 포스터 디자인, 예배안내지
@@ -292,21 +292,23 @@ CREATE TABLE member_step_positions (
     'Guidebook Designer',  -- 예배안내 책자
     
     -- 미디어팀 (Media Team) - 촬영, 편집, 후반 작업
+    'Media Team',
     'Camera Operator',     -- 카메라 관리자
     'Video Editor',        -- 영상 편집
     'YouTube Manager',     -- 유튜브 관리자
     'Mix Engineer',        -- 믹싱 엔지니어
-    'Master Engineer',     -- 마스터링믹싱
+    'Master Engineer',     -- 마스터링
     'Music Producer',      -- 음악 프로듀서
     
     -- 무대팀 (Stage Team) - 현장 음향, 조명, 무대
+    'Stage Team',
     'Stage Designer',      -- 무대 구상
     'Live Engineer',       -- 라이브 엔지니어
     'Lighting Operator',   -- 조명 관리자
     'Audio Setup',         -- 음향 세팅
-    'PreProduction',       -- 프리프로덕션
+    'Preproduction',       -- 프리프로덕션
 
-    -- 기도팀(Prayer Team) - 기도팀
+    -- 기도팀 (Prayer Team)
     'Prayer Team'
   ) NOT NULL COMMENT 'Step 포지션',
   
@@ -317,8 +319,11 @@ CREATE TABLE member_step_positions (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
+---
+
 ### 4. Q&A 정보 테이블
-#### 4.1 Q&A 테이블 설계 (단일 테이블 구조)
+
+#### 4.1 qna (질문 및 답변)
 ```sql
 CREATE TABLE qna (
   id INT PRIMARY KEY AUTO_INCREMENT,
@@ -333,6 +338,7 @@ CREATE TABLE qna (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
    
   INDEX idx_status (status),
+  INDEX idx_category (category),
   INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
@@ -343,22 +349,63 @@ CREATE TABLE qna (
 
 ```
 worship_logs (집회)
-  ├─ worship_songs
-  ├─ worship_videos
-  ├─ worship_photos
-  └─ worship_scores
+  ├─ worship_songs        [ON DELETE CASCADE]
+  ├─ worship_videos       [ON DELETE CASCADE]
+  ├─ worship_photos       [ON DELETE CASCADE]
+  └─ worship_scores       [ON DELETE CASCADE]
 
 scores (악보)
-  └─ score_downloads
+  └─ score_downloads      [ON DELETE CASCADE]
 
 members (멤버)
-  ├─ member_teams
-  ├─ member_roles
-  ├─ member_worship_positions
-  └─ member_step_positions
+  ├─ member_teams         [ON DELETE CASCADE]
+  ├─ member_roles         [ON DELETE CASCADE]
+  ├─ member_worship_positions [ON DELETE CASCADE]
+  └─ member_step_positions    [ON DELETE CASCADE]
 
 qna (Q&A)
+  └─ (독립 테이블)
 ```
+
+---
+
+## Redis와의 연동
+
+### Redis → MySQL
+```
+Redis의 user:user_001
+        ↓
+MySQL의 worship_logs.created_by = "user_001"
+MySQL의 scores.uploaded_by = "user_001"
+MySQL의 qna.user_id = "user_001"
+```
+- Redis에 있는 `userId`를 MySQL의 관련 필드에 문자열로 저장
+- FK 제약조건은 없음 (Redis와 MySQL 분리)
+- Redis에서 사용자 정보 관리, MySQL에서 컨텐츠 관리
+
+---
+
+## 주요 특징
+
+### 1. 정규화된 구조
+- 집회 정보를 메인 테이블과 관련 테이블로 분리
+- 멤버 정보를 역할/팀/포지션별로 세분화
+- 다대다 관계를 중간 테이블로 처리
+
+### 2. CASCADE 설정
+- 집회 삭제 시 관련 곡/영상/사진/악보 자동 삭제
+- 멤버 삭제 시 관련 팀/역할/포지션 정보 자동 삭제
+- 데이터 정합성 보장
+
+### 3. 인덱스 최적화
+- 검색 빈도가 높은 컬럼에 INDEX 추가
+- FULLTEXT INDEX (ngram) 한글 검색 지원
+- 복합 UNIQUE KEY로 중복 방지
+
+### 4. 유연한 구조
+- ENUM 타입으로 카테고리 관리
+- JSON 타입으로 유연한 데이터 저장 (excluded_songs)
+- DEFAULT NULL로 선택적 필드 지원
 
 ---
 
@@ -383,5 +430,13 @@ DESCRIBE member_teams;
 DESCRIBE member_roles;
 DESCRIBE member_worship_positions;
 DESCRIBE member_step_positions;
-DESCRIBE qna
+DESCRIBE qna;
 ```
+
+---
+
+## 향후 확장 계획
+- [ ] 티켓팅 시스템 테이블 추가
+- [ ] 알림(notification) 테이블 추가
+- [ ] 파일 메타데이터 테이블 추가 (실제 파일 업로드 시)
+- [ ] 통계 및 분석 테이블 추가
