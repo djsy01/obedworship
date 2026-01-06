@@ -518,6 +518,7 @@ const filteredMembers = computed(() => {
         m.step_positions.includes('Media Team') ||
         m.step_positions.includes('Camera Operator') ||
         m.step_positions.includes('Video Editor') ||
+        m.step_positions.includes('YouTube Manager') ||
         m.step_positions.includes('Mix Engineer') ||
         m.step_positions.includes('Master Engineer') ||
         m.step_positions.includes('Music Producer') ||
@@ -526,10 +527,10 @@ const filteredMembers = computed(() => {
     } else if (stepFilter.value === 'Stage Team') {
       filtered = filtered.filter(m =>
         m.step_positions.includes('Stage Team') ||
+        m.step_positions.includes('Live Engineer') ||
         m.step_positions.includes('Stage Designer') ||
         m.step_positions.includes('Lighting Operator') ||
         m.step_positions.includes('Audio Setup') ||
-        m.step_positions.includes('Live Engineer') ||
         m.step_positions.includes('Preproduction') ||
         m.roles.includes('Stage Leader')
       )

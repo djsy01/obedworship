@@ -38,7 +38,7 @@
           <div v-else class="user-menu-wrapper">
             <div class="user-chip" @click="toggleDropdown">
               <span class="user-name">
-                {{ isAdmin ? '관리자' : '사용자' }}
+                {{ userName }}
               </span>
               <span class="dropdown-arrow">▼</span>
             </div>
@@ -96,7 +96,7 @@
             
             <template v-else>
               <div class="mobile-user-info">
-                {{ isAdmin ? '관리자' : '사용자' }}
+                {{ userName }}
               </div>
               <button @click="goToMyPage" class="mobile-nav-link">
                 👤 마이페이지
@@ -146,7 +146,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import logo from '@/assets/image/logo.png'
@@ -164,6 +164,16 @@ const audioPlayer = ref<HTMLAudioElement | null>(null)
 const showDropdown = ref(false)
 const showMobileMenu = ref(false)
 const touchStartX = ref(0)
+
+// 사용자 이름 (Mock - 실제로는 localStorage 또는 Redis에서 가져옴)
+const userName = computed(() => {
+  if (!isLoggedIn.value) return ''
+  
+  const storedName = localStorage.getItem('userName')
+  if (storedName) return storedName
+  
+  return isAdmin.value ? '관리자' : '사용자'
+})
 
 const handleEnded = () => {
   currentTrackIndex.value = (currentTrackIndex.value + 1) % playlist.length
@@ -219,7 +229,6 @@ const handleLogout = () => {
   }
 }
 
-// 터치 이벤트 핸들러 - 좌우 드래그 방지
 const handleTouchStart = (e: TouchEvent) => {
   touchStartX.value = e.touches[0].clientX
 }
@@ -228,7 +237,6 @@ const handleTouchMove = (e: TouchEvent) => {
   const touchCurrentX = e.touches[0].clientX
   const diff = touchCurrentX - touchStartX.value
   
-  // 좌우 스크롤 감지 시 이벤트 차단
   if (Math.abs(diff) > 10) {
     e.preventDefault()
   }
