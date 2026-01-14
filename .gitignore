@@ -91,3 +91,5 @@ app/expo-debug.log
 local.properties
 *.keystore
 
+#Test
+/test_server/

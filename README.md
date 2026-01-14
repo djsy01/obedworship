@@ -17,10 +17,10 @@
 
 ## 🧑‍💻 팀 구성
 
-| 이름   | 역할          | GitHub                            | 비고           |
-| ------ | ------------- | --------------------------------- | -------------- |
-| 김승훈 | Back-End      | [Siya](https://github.com/SIya45) | API 개발       |
-| 엄인호 | Front-End, DB | [Inho](https://github.com/djsy01) | UI/UX, DB 설계 |
+| 이름   | 역할               | GitHub                            | 비고           |
+| ------ | ------------------ | --------------------------------- | -------------- |
+| 김승훈 | Back-End, Security | [Siya](https://github.com/SIya45) | API 개발       |
+| 엄인호 | Front-End, DB      | [Inho](https://github.com/djsy01) | UI/UX, DB 설계 |
 
 ---
 
@@ -68,6 +68,7 @@
 | [Front-End](./client/README.md)    | Vue 3 + TypeScript + Vite |
 | [Back-End](./server/README.md)     | Node.js + Express         |
 | [Database](./database/database.md) | Redis + MySQL             |
+| [Security](./security/README.md)   |                           |
 | [Plans](./docs/plans.md)           | 월별 개발 계획            |
 
 ---
