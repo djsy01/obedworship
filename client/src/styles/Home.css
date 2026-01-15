@@ -1,8 +1,4 @@
 /* ========================================
-   Home.css - 홈페이지 전용 스타일
-   ======================================== */
-
-/* ========================================
    Hero Section
    ======================================== */
 
@@ -122,7 +118,7 @@
   box-shadow: 0 25px 70px rgba(0, 0, 0, 0.2);
 }
 
-/* 이미지 로딩 실패 시 플레이스홀더 */
+/* Placeholder when image loading fails */
 .team-photo[src*="placeholder"] {
   background: linear-gradient(135deg, #f0d4e0 0%, #fae8f0 100%);
   display: flex;
@@ -173,7 +169,7 @@
 }
 
 .feature-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -232,7 +228,7 @@
 }
 
 /* ========================================
-   반응형 디자인
+   Responsive Design
    ======================================== */
 
 @media (max-width: 968px) {
@@ -339,7 +335,7 @@
 }
 
 /* ========================================
-   애니메이션
+   animated movie
    ======================================== */
 
 @keyframes fadeInUp {

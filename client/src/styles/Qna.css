@@ -1,8 +1,8 @@
 /* ========================================
-   Q&A 페이지 전용 스타일
+   Q&A Page-specific styles
    ======================================== */
 
-/* 필터 영역 */
+/* Filter area */
 .qna-filters {
   display: flex;
   gap: 0.75rem;
@@ -32,7 +32,7 @@
 }
 
 .filter-btn::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -67,7 +67,7 @@
   opacity: 1;
 }
 
-/* 질문 작성 패널 */
+/* Question creation panel */
 .qna-ask-panel {
   background: linear-gradient(135deg, #fff7f9 0%, #fef9fb 100%);
   border-radius: 1rem;
@@ -80,7 +80,7 @@
 }
 
 .qna-ask-panel::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -89,14 +89,14 @@
   background: linear-gradient(90deg, #4a1f2f 0%, #8a4b4b 100%);
 }
 
-/* 질문 목록 */
+/* List of questions */
 .qna-list {
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
 
-/* 질문 카드 */
+/* Question card */
 .qna-card {
   background: #fff;
   border-radius: 1rem;
@@ -109,13 +109,17 @@
 }
 
 .qna-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, rgba(74, 31, 47, 0.02) 0%, transparent 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(74, 31, 47, 0.02) 0%,
+    transparent 100%
+  );
   opacity: 0;
   transition: opacity 0.4s ease;
   pointer-events: none;
@@ -132,7 +136,7 @@
 }
 
 .qna-card::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 0;
@@ -147,7 +151,7 @@
   transform: scaleX(1);
 }
 
-/* 질문 헤더 */
+/* Question header */
 .qna-header {
   display: flex;
   align-items: flex-start;
@@ -181,7 +185,7 @@
   flex: 1;
 }
 
-/* 질문 메타 정보 */
+/* Question meta information */
 .qna-meta {
   font-size: 0.85rem;
   color: #777;
@@ -218,7 +222,7 @@
 }
 
 .qna-status::before {
-  content: '';
+  content: "";
   width: 6px;
   height: 6px;
   border-radius: 50%;
@@ -245,7 +249,8 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -253,7 +258,7 @@
   }
 }
 
-/* 질문 내용 */
+/* Question content */
 .qna-question {
   font-size: 1rem;
   line-height: 1.8;
@@ -278,7 +283,7 @@
   line-height: 1;
 }
 
-/* 답변 영역 */
+/* Answer area */
 .qna-answer {
   background: linear-gradient(135deg, #fdf2f6 0%, #fff7f9 100%);
   border-radius: 0.75rem;
@@ -291,7 +296,7 @@
 }
 
 .qna-answer::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -301,7 +306,7 @@
 }
 
 .qna-answer::after {
-  content: '💬';
+  content: "💬";
   position: absolute;
   top: 1.5rem;
   right: 1.5rem;
@@ -322,7 +327,7 @@
 }
 
 .qna-answer-label::before {
-  content: '✓';
+  content: "✓";
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -356,11 +361,11 @@
 }
 
 .qna-answer-meta::before {
-  content: '📅';
+  content: "📅";
   font-size: 0.85rem;
 }
 
-/* 관리자 액션 버튼 */
+/* Administrator action button */
 .qna-admin-actions {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
@@ -380,7 +385,7 @@
   box-shadow: 0 6px 16px rgba(74, 31, 47, 0.25);
 }
 
-/* 인라인 답변 편집 패널 */
+/* Inline answer edit panel */
 .panel--inline {
   background: linear-gradient(135deg, #fff7e6 0%, #fef9ed 100%);
   border: 2px solid #ffc107;
@@ -393,7 +398,7 @@
 }
 
 .panel--inline::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -429,7 +434,7 @@
   margin-top: 1rem;
 }
 
-/* 빈 상태 */
+/* empty state */
 .qna-empty {
   text-align: center;
   padding: 5rem 2rem;
@@ -446,7 +451,8 @@
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -467,7 +473,7 @@
   color: #999;
 }
 
-/* 통계 정보 */
+/* Statistical information */
 .qna-stats {
   display: flex;
   gap: 1rem;
@@ -506,7 +512,7 @@
   color: #4a1f2f;
 }
 
-/* 반응형 디자인 */
+/* Responsive design */
 @media (max-width: 768px) {
   .qna-filters {
     padding: 1rem;
@@ -645,7 +651,7 @@
   }
 }
 
-/* 애니메이션 */
+/* animated movie */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -673,17 +679,27 @@
   animation-fill-mode: both;
 }
 
-.qna-card:nth-child(1) { animation-delay: 0.1s; }
-.qna-card:nth-child(2) { animation-delay: 0.2s; }
-.qna-card:nth-child(3) { animation-delay: 0.3s; }
-.qna-card:nth-child(4) { animation-delay: 0.4s; }
-.qna-card:nth-child(5) { animation-delay: 0.5s; }
+.qna-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.qna-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.qna-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.qna-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.qna-card:nth-child(5) {
+  animation-delay: 0.5s;
+}
 
 .qna-answer {
   animation: slideInRight 0.4s ease-out;
 }
 
-/* 로딩 상태 */
+/* Loading status */
 .qna-loading {
   text-align: center;
   padding: 3rem;

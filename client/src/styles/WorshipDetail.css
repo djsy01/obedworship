@@ -1,5 +1,5 @@
 /* ========================================
-   디테일 페이지 공통 스타일
+   Detail page common style
    ======================================== */
 
 .detail-header {
@@ -27,7 +27,7 @@
 }
 
 /* ========================================
-   히어로 섹션
+   hero section
    ======================================== */
 
 .detail-hero {
@@ -53,7 +53,7 @@
   line-height: 1.2;
 }
 
-/* 히어로 정보 */
+/* Hero Information */
 .hero-info {
   display: flex;
   justify-content: center;
@@ -93,7 +93,7 @@
 }
 
 /* ========================================
-   탭 네비게이션
+   tab navigation
    ======================================== */
 
 .tabs-container {
@@ -148,7 +148,7 @@
 }
 
 /* ========================================
-   공통 섹션 스타일
+   Common section styles
    ======================================== */
 
 .info-section,
@@ -184,7 +184,7 @@
 }
 
 /* ========================================
-   시간 안내
+   Time information
    ======================================== */
 
 .time-info {
@@ -215,12 +215,12 @@
 }
 
 /* ========================================
-   영상 임베드
+   Embed video
    ======================================== */
 
 .video-embed {
   position: relative;
-  padding-bottom: 56.25%; /* 16:9 비율 */
+  padding-bottom: 56.25%;
   height: 0;
   overflow: hidden;
   border-radius: 0.75rem;
@@ -237,7 +237,7 @@
 }
 
 /* ========================================
-   장소 안내
+  Location information
    ======================================== */
 
 .location-info {
@@ -271,7 +271,7 @@
 }
 
 /* ========================================
-   미리듣기 섹션
+   Preview section
    ======================================== */
 
 .songs-intro {
@@ -311,7 +311,7 @@
 }
 
 /* ========================================
-   갤러리 탭
+   Gallery tab
    ======================================== */
 
 .section-header-with-action {
@@ -420,7 +420,7 @@
 }
 
 /* ========================================
-   악보 탭 - 단일 PDF 파일 스타일
+   Sheet music tab - single PDF file style
    ======================================== */
 
 .scores-intro {
@@ -461,7 +461,9 @@
   width: 100%;
   max-width: 600px;
   box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .score-single-card:hover {
@@ -673,7 +675,7 @@
 }
 
 /* ========================================
-   PDF 미리보기 모달
+   PDF preview modal
    ======================================== */
 
 .pdf-preview-modal {
@@ -732,7 +734,7 @@
 }
 
 /* ========================================
-   라이트박스
+   light box
    ======================================== */
 
 .lightbox {
@@ -799,7 +801,7 @@
 }
 
 /* ========================================
-   빈 컨테이너
+  empty container
    ======================================== */
 
 .empty-container {
@@ -814,7 +816,7 @@
 }
 
 /* ========================================
-   반응형 디자인
+   Responsive Design
    ======================================== */
 
 @media (max-width: 768px) {
@@ -822,31 +824,31 @@
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .detail-hero {
     padding: 1.5rem 1.25rem;
   }
-  
+
   .detail-title {
     font-size: 1.5rem;
   }
-  
+
   .hero-info {
     gap: 1rem;
   }
-  
+
   .tab-content {
     padding: 1.5rem 1rem;
   }
-  
+
   .tabs-nav {
     flex-direction: column;
   }
-  
+
   .tab-button {
     padding: 0.75rem 1rem;
   }
-  
+
   .info-section,
   .time-section,
   .video-section,
@@ -859,28 +861,28 @@
   .scores-section {
     padding: 1rem;
   }
-  
+
   .photo-grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 0.75rem;
   }
-  
+
   .score-single-card {
     max-width: 100%;
   }
-  
+
   .score-preview-large {
     height: 250px;
   }
-  
+
   .score-info-large {
     padding: 1.25rem 1.5rem;
   }
-  
+
   .score-download-section {
     padding: 1.25rem 1.5rem;
   }
-  
+
   .lightbox-close,
   .lightbox-prev,
   .lightbox-next {
@@ -888,7 +890,7 @@
     height: 40px;
     font-size: 1.5rem;
   }
-  
+
   .pdf-preview-content {
     width: 95%;
     height: 85%;
@@ -899,47 +901,47 @@
   .detail-title {
     font-size: 1.3rem;
   }
-  
+
   .hero-info {
     flex-direction: column;
     gap: 0.75rem;
   }
-  
+
   .section-subtitle {
     font-size: 1rem;
   }
-  
+
   .photo-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .score-preview-large {
     height: 200px;
   }
-  
+
   .score-title-main {
     font-size: 1.1rem;
   }
-  
+
   .score-info-large {
     padding: 1rem 1.25rem;
   }
-  
+
   .score-download-section {
     padding: 1rem 1.25rem;
   }
-  
+
   .download-btn-large {
     font-size: 1rem;
     padding: 0.7rem 1.25rem;
   }
-  
+
   .tabs-nav {
     overflow-x: auto;
     flex-direction: row;
     flex-wrap: nowrap;
   }
-  
+
   .tab-button {
     white-space: nowrap;
     min-width: 80px;

@@ -1,6 +1,4 @@
-/* WorshipLog.css - 집회 안내 페이지 전용 스타일 */
-
-/* 섹션 헤더 스타일 - Vision 페이지처럼 */
+/* Section header style */
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -59,7 +57,7 @@
 }
 
 .log-card::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 0;
@@ -120,7 +118,7 @@
   transform: translateX(4px);
 }
 
-/* 관리자 카드 액션 버튼 */
+/* Administrator card action button */
 .admin-card-actions {
   position: absolute;
   top: 0.75rem;
@@ -175,11 +173,11 @@
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .log-card {
     padding: 1rem 1.1rem;
   }
-  
+
   .log-title {
     font-size: 1.1rem;
   }

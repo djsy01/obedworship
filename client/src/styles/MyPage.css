@@ -1,5 +1,5 @@
 /* ========================================
-   마이페이지 전용 스타일
+   My page exclusive style
    ======================================== */
 
 /* 마이페이지 그리드 */
@@ -11,7 +11,7 @@
 }
 
 /* ========================================
-   프로필 카드
+   profile card
    ======================================== */
 
 .profile-card {
@@ -100,7 +100,7 @@
 }
 
 /* ========================================
-   관리자 대시보드 카드
+   Administrator Dashboard Card
    ======================================== */
 
 .admin-dashboard-card {
@@ -180,7 +180,7 @@
 }
 
 /* ========================================
-   신청 내역 섹션
+   Application History Section
    ======================================== */
 
 .applications-section {
@@ -236,7 +236,7 @@
   box-shadow: 0 4px 12px rgba(74, 31, 47, 0.2);
 }
 
-/* 신청 내역 리스트 */
+/* Application details list */
 .applications-list {
   display: flex;
   flex-direction: column;
@@ -436,7 +436,7 @@
   flex-wrap: wrap;
 }
 
-/* 빈 상태 */
+/* empty state */
 .empty-applications {
   text-align: center;
   padding: 5rem 2rem;
@@ -465,7 +465,7 @@
 }
 
 /* ========================================
-   관리자 신청 현황 모달
+   Administrator application status modal
    ======================================== */
 
 .admin-applications-modal {
@@ -532,7 +532,7 @@
 }
 
 /* ========================================
-   상세 보기 모달
+   View details modal
    ======================================== */
 
 .detail-section {
@@ -622,7 +622,7 @@
 }
 
 /* ========================================
-   반응형 디자인
+   Responsive Design
    ======================================== */
 
 @media (max-width: 968px) {
@@ -780,7 +780,7 @@
 }
 
 /* ========================================
-   애니메이션
+   animated movie
    ======================================== */
 
 @keyframes fadeInUp {
@@ -799,8 +799,18 @@
   animation-fill-mode: both;
 }
 
-.application-card:nth-child(1) { animation-delay: 0.1s; }
-.application-card:nth-child(2) { animation-delay: 0.2s; }
-.application-card:nth-child(3) { animation-delay: 0.3s; }
-.application-card:nth-child(4) { animation-delay: 0.4s; }
-.application-card:nth-child(5) { animation-delay: 0.5s; }
+.application-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.application-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.application-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.application-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.application-card:nth-child(5) {
+  animation-delay: 0.5s;
+}

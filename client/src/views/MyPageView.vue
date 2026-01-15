@@ -10,9 +10,9 @@
         </div>
       </div>
 
-      <!-- 기본 정보 섹션 -->
+      <!-- Basic information section -->
       <div class="mypage-grid">
-        <!-- 프로필 카드 -->
+        <!-- profile card -->
         <div class="profile-card">
           <div class="profile-header">
             <div class="profile-avatar">
@@ -21,7 +21,7 @@
             <div class="profile-info">
               <h2 class="profile-name">{{ userName }}</h2>
               <p class="profile-role">
-                {{ isAdmin ? '관리자' : '일반 사용자' }}
+                {{ isAdmin ? "관리자" : "일반 사용자" }}
               </p>
             </div>
           </div>
@@ -33,11 +33,13 @@
             </div>
             <div class="detail-item">
               <span class="detail-label">연락처</span>
-              <span class="detail-value">{{ userPhone || '미등록' }}</span>
+              <span class="detail-value">{{ userPhone || "미등록" }}</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">소속</span>
-              <span class="detail-value">{{ userAffiliation || '미등록' }}</span>
+              <span class="detail-value">{{
+                userAffiliation || "미등록"
+              }}</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">가입일</span>
@@ -55,10 +57,10 @@
           </div>
         </div>
 
-        <!-- 관리자 전용 대시보드 -->
+        <!-- Administrator-only dashboard -->
         <div v-if="isAdmin" class="admin-dashboard-card">
           <h3 class="card-title">관리자 대시보드</h3>
-          
+
           <div class="dashboard-stats">
             <div class="stat-box">
               <div class="stat-icon">📅</div>
@@ -96,7 +98,7 @@
         </div>
       </div>
 
-      <!-- 집회 신청 내역 -->
+      <!-- Meeting application details -->
       <div class="applications-section">
         <div class="section-header-inline">
           <h2 class="section-title-sub">내 신청 내역</h2>
@@ -140,7 +142,9 @@
           >
             <div class="application-header">
               <div class="application-title-section">
-                <h3 class="application-worship-title">{{ app.worship_title }}</h3>
+                <h3 class="application-worship-title">
+                  {{ app.worship_title }}
+                </h3>
                 <span class="application-status" :data-status="app.status">
                   {{ getStatusText(app.status) }}
                 </span>
@@ -156,7 +160,9 @@
                 </div>
                 <div class="detail-row">
                   <span class="detail-label">신청일</span>
-                  <span class="detail-value">{{ formatDate(app.applied_at) }}</span>
+                  <span class="detail-value">{{
+                    formatDate(app.applied_at)
+                  }}</span>
                 </div>
               </div>
 
@@ -165,7 +171,9 @@
                 <div class="ticket-items">
                   <div v-if="app.infant_child_count > 0" class="ticket-item">
                     <span class="ticket-type">영유아</span>
-                    <span class="ticket-count">{{ app.infant_child_count }}장</span>
+                    <span class="ticket-count"
+                      >{{ app.infant_child_count }}장</span
+                    >
                   </div>
                   <div v-if="app.teen_count > 0" class="ticket-item">
                     <span class="ticket-type">청소년</span>
@@ -186,7 +194,9 @@
                 <span class="total-label">총 티켓</span>
                 <span class="total-value">{{ app.total_ticket_count }}장</span>
                 <span class="total-label">총 금액</span>
-                <span class="total-value amount">{{ app.total_amount.toLocaleString() }}원</span>
+                <span class="total-value amount"
+                  >{{ app.total_amount.toLocaleString() }}원</span
+                >
               </div>
 
               <div v-if="app.special_note" class="special-note">
@@ -221,7 +231,7 @@
       </div>
     </section>
 
-    <!-- 정보 수정 모달 -->
+    <!-- Edit Info Modal -->
     <div v-if="showEditProfile" class="modal-overlay" @click="closeEditProfile">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
@@ -237,7 +247,11 @@
 
             <label class="field field--full">
               <span class="field-label">연락처</span>
-              <input v-model="editForm.phone" type="tel" placeholder="010-0000-0000" />
+              <input
+                v-model="editForm.phone"
+                type="tel"
+                placeholder="010-0000-0000"
+              />
             </label>
 
             <label class="field field--full">
@@ -259,17 +273,19 @@
               <button class="btn" type="button" @click="closeEditProfile">
                 취소
               </button>
-              <button class="btn primary" type="submit">
-                저장
-              </button>
+              <button class="btn primary" type="submit">저장</button>
             </div>
           </form>
         </div>
       </div>
     </div>
 
-    <!-- 비밀번호 변경 모달 -->
-    <div v-if="showChangePassword" class="modal-overlay" @click="closeChangePassword">
+    <!-- Change password modal -->
+    <div
+      v-if="showChangePassword"
+      class="modal-overlay"
+      @click="closeChangePassword"
+    >
       <div class="modal-content" @click.stop>
         <div class="modal-header">
           <h2 class="modal-title">비밀번호 변경</h2>
@@ -296,17 +312,19 @@
               <button class="btn" type="button" @click="closeChangePassword">
                 취소
               </button>
-              <button class="btn primary" type="submit">
-                변경
-              </button>
+              <button class="btn primary" type="submit">변경</button>
             </div>
           </form>
         </div>
       </div>
     </div>
 
-    <!-- 관리자: 전체 신청 현황 모달 -->
-    <div v-if="showAdminApplications && isAdmin" class="modal-overlay" @click="closeAdminApplications">
+    <!-- Administrator: All application status modal -->
+    <div
+      v-if="showAdminApplications && isAdmin"
+      class="modal-overlay"
+      @click="closeAdminApplications"
+    >
       <div class="modal-content admin-applications-modal" @click.stop>
         <div class="modal-header">
           <h2 class="modal-title">전체 신청 현황</h2>
@@ -326,9 +344,12 @@
                 </span>
               </div>
               <div class="admin-app-body">
-                <p class="admin-app-worship">{{ app.worship_title }} ({{ app.worship_date }})</p>
+                <p class="admin-app-worship">
+                  {{ app.worship_title }} ({{ app.worship_date }})
+                </p>
                 <p class="admin-app-tickets">
-                  총 {{ app.total_ticket_count }}장 / {{ app.total_amount.toLocaleString() }}원
+                  총 {{ app.total_ticket_count }}장 /
+                  {{ app.total_amount.toLocaleString() }}원
                 </p>
               </div>
               <div class="admin-app-actions">
@@ -352,7 +373,7 @@
       </div>
     </div>
 
-    <!-- 신청 상세 모달 -->
+    <!-- Application details modal -->
     <div v-if="showDetailModal" class="modal-overlay" @click="closeDetailModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
@@ -365,15 +386,21 @@
             <div class="detail-grid">
               <div class="detail-item-full">
                 <span class="detail-label">집회명</span>
-                <span class="detail-value">{{ selectedApplication.worship_title }}</span>
+                <span class="detail-value">{{
+                  selectedApplication.worship_title
+                }}</span>
               </div>
               <div class="detail-item-full">
                 <span class="detail-label">날짜</span>
-                <span class="detail-value">{{ selectedApplication.worship_date }}</span>
+                <span class="detail-value">{{
+                  selectedApplication.worship_date
+                }}</span>
               </div>
               <div class="detail-item-full">
                 <span class="detail-label">장소</span>
-                <span class="detail-value">{{ selectedApplication.worship_place }}</span>
+                <span class="detail-value">{{
+                  selectedApplication.worship_place
+                }}</span>
               </div>
             </div>
           </div>
@@ -381,36 +408,74 @@
           <div class="detail-section">
             <h3 class="detail-section-title">티켓 정보</h3>
             <div class="ticket-detail-list">
-              <div v-if="selectedApplication.infant_child_count > 0" class="ticket-detail-item">
+              <div
+                v-if="selectedApplication.infant_child_count > 0"
+                class="ticket-detail-item"
+              >
                 <span class="ticket-type">영유아</span>
-                <span class="ticket-count">{{ selectedApplication.infant_child_count }}장</span>
+                <span class="ticket-count"
+                  >{{ selectedApplication.infant_child_count }}장</span
+                >
                 <span class="ticket-price">0원</span>
               </div>
-              <div v-if="selectedApplication.teen_count > 0" class="ticket-detail-item">
+              <div
+                v-if="selectedApplication.teen_count > 0"
+                class="ticket-detail-item"
+              >
                 <span class="ticket-type">청소년</span>
-                <span class="ticket-count">{{ selectedApplication.teen_count }}장</span>
-                <span class="ticket-price">{{ (selectedApplication.teen_count * 5000).toLocaleString() }}원</span>
+                <span class="ticket-count"
+                  >{{ selectedApplication.teen_count }}장</span
+                >
+                <span class="ticket-price"
+                  >{{
+                    (selectedApplication.teen_count * 5000).toLocaleString()
+                  }}원</span
+                >
               </div>
-              <div v-if="selectedApplication.military_count > 0" class="ticket-detail-item">
+              <div
+                v-if="selectedApplication.military_count > 0"
+                class="ticket-detail-item"
+              >
                 <span class="ticket-type">군인</span>
-                <span class="ticket-count">{{ selectedApplication.military_count }}장</span>
-                <span class="ticket-price">{{ (selectedApplication.military_count * 5000).toLocaleString() }}원</span>
+                <span class="ticket-count"
+                  >{{ selectedApplication.military_count }}장</span
+                >
+                <span class="ticket-price"
+                  >{{
+                    (
+                      selectedApplication.military_count * 5000
+                    ).toLocaleString()
+                  }}원</span
+                >
               </div>
-              <div v-if="selectedApplication.adult_count > 0" class="ticket-detail-item">
+              <div
+                v-if="selectedApplication.adult_count > 0"
+                class="ticket-detail-item"
+              >
                 <span class="ticket-type">어른</span>
-                <span class="ticket-count">{{ selectedApplication.adult_count }}장</span>
-                <span class="ticket-price">{{ (selectedApplication.adult_count * 10000).toLocaleString() }}원</span>
+                <span class="ticket-count"
+                  >{{ selectedApplication.adult_count }}장</span
+                >
+                <span class="ticket-price"
+                  >{{
+                    (selectedApplication.adult_count * 10000).toLocaleString()
+                  }}원</span
+                >
               </div>
             </div>
             <div class="ticket-total">
               <span>총 {{ selectedApplication.total_ticket_count }}장</span>
-              <span class="total-amount">{{ selectedApplication.total_amount.toLocaleString() }}원</span>
+              <span class="total-amount"
+                >{{ selectedApplication.total_amount.toLocaleString() }}원</span
+              >
             </div>
           </div>
 
           <div v-if="selectedApplication.special_note" class="detail-section">
             <h3 class="detail-section-title">특이사항</h3>
-            <p class="special-note-text">{{ selectedApplication.special_note }}</p>
+            <p class="special-note-text">
+              {{ selectedApplication.special_note }}
+            </p>
           </div>
 
           <div class="detail-section">
@@ -418,11 +483,16 @@
             <div class="detail-grid">
               <div class="detail-item-full">
                 <span class="detail-label">신청일</span>
-                <span class="detail-value">{{ formatDate(selectedApplication.applied_at) }}</span>
+                <span class="detail-value">{{
+                  formatDate(selectedApplication.applied_at)
+                }}</span>
               </div>
               <div class="detail-item-full">
                 <span class="detail-label">상태</span>
-                <span class="application-status" :data-status="selectedApplication.status">
+                <span
+                  class="application-status"
+                  :data-status="selectedApplication.status"
+                >
                   {{ getStatusText(selectedApplication.status) }}
                 </span>
               </div>
@@ -435,255 +505,257 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useAuth } from '@/composables/useAuth'
-import '../styles/MyPage.css'
+import { ref, computed } from "vue";
+import { useAuth } from "@/composables/useAuth";
+import "../styles/MyPage.css";
 
-type ApplicationStatus = 'PENDING' | 'CONFIRMED' | 'CANCELED'
+type ApplicationStatus = "PENDING" | "CONFIRMED" | "CANCELED";
 
 type Application = {
-  id: number
-  worship_id: number
-  worship_title: string
-  worship_date: string
-  worship_place: string
-  user_name: string
-  user_email: string
-  infant_child_count: number
-  teen_count: number
-  military_count: number
-  adult_count: number
-  total_ticket_count: number
-  total_amount: number
-  status: ApplicationStatus
-  special_note?: string
-  applied_at: string
-}
+  id: number;
+  worship_id: number;
+  worship_title: string;
+  worship_date: string;
+  worship_place: string;
+  user_name: string;
+  user_email: string;
+  infant_child_count: number;
+  teen_count: number;
+  military_count: number;
+  adult_count: number;
+  total_ticket_count: number;
+  total_amount: number;
+  status: ApplicationStatus;
+  special_note?: string;
+  applied_at: string;
+};
 
-const { isAdmin } = useAuth()
+const { isAdmin } = useAuth();
 
-// 사용자 정보 (Mock - 실제로는 Redis에서 가져옴)
-const userName = ref('홍길동')
-const userEmail = ref('user@example.com')
-const userPhone = ref('010-1234-5678')
-const userAffiliation = ref('청년부')
-const userJoinDate = ref('2024-01-15')
+// User information (Mock - actually taken from Redis)
+const userName = ref("홍길동");
+const userEmail = ref("user@example.com");
+const userPhone = ref("010-1234-5678");
+const userAffiliation = ref("청년");
+const userJoinDate = ref("2024-01-15");
 
-const userInitial = computed(() => userName.value.charAt(0))
+const userInitial = computed(() => userName.value.charAt(0));
 
-// 모달 상태
-const showEditProfile = ref(false)
-const showChangePassword = ref(false)
-const showAdminApplications = ref(false)
-const showDetailModal = ref(false)
+// modal state
+const showEditProfile = ref(false);
+const showChangePassword = ref(false);
+const showAdminApplications = ref(false);
+const showDetailModal = ref(false);
 
-// 필터
-const applicationFilter = ref<'all' | ApplicationStatus>('all')
+// filter
+const applicationFilter = ref<"all" | ApplicationStatus>("all");
 
-// 폼 데이터
+// form data
 const editForm = ref({
   name: userName.value,
   phone: userPhone.value,
   affiliation: userAffiliation.value,
-})
+});
 
 const passwordForm = ref({
-  current: '',
-  new: '',
-  confirm: '',
-})
+  current: "",
+  new: "",
+  confirm: "",
+});
 
-// Mock 신청 데이터
+// Mock application data
 const myApplications = ref<Application[]>([
   {
     id: 1,
     worship_id: 2,
-    worship_title: '샬롬',
-    worship_date: '2025-12-06 (금) 18:30',
-    worship_place: '예수인교회 본관 지하 2층',
-    user_name: '홍길동',
-    user_email: 'user@example.com',
+    worship_title: "샬롬",
+    worship_date: "2025-12-06 (금) 18:30",
+    worship_place: "예수인교회 본관 지하 2층",
+    user_name: "홍길동",
+    user_email: "user@example.com",
     infant_child_count: 2,
     teen_count: 1,
     military_count: 0,
     adult_count: 2,
     total_ticket_count: 5,
     total_amount: 25000,
-    status: 'CONFIRMED',
-    special_note: '주차 공간 필요합니다',
-    applied_at: '2025-11-20T14:30:00',
+    status: "CONFIRMED",
+    special_note: "주차 공간 필요합니다",
+    applied_at: "2025-11-20T14:30:00",
   },
   {
     id: 2,
     worship_id: 1,
-    worship_title: '하나됨',
-    worship_date: '2025-03-22 (토) 19:00',
-    worship_place: '예수인교회 본관 지하 2층',
-    user_name: '홍길동',
-    user_email: 'user@example.com',
+    worship_title: "하나됨",
+    worship_date: "2025-03-22 (토) 19:00",
+    worship_place: "예수인교회 본관 지하 2층",
+    user_name: "홍길동",
+    user_email: "user@example.com",
     infant_child_count: 0,
     teen_count: 0,
     military_count: 0,
     adult_count: 1,
     total_ticket_count: 1,
     total_amount: 10000,
-    status: 'PENDING',
-    applied_at: '2025-03-10T10:15:00',
+    status: "PENDING",
+    applied_at: "2025-03-10T10:15:00",
   },
-])
+]);
 
-// 관리자용 전체 신청 데이터
+// Full application data for administrator
 const allApplications = ref<Application[]>([
   ...myApplications.value,
   {
     id: 3,
     worship_id: 2,
-    worship_title: '샬롬',
-    worship_date: '2025-12-06 (금) 18:30',
-    worship_place: '예수인교회 본관 지하 2층',
-    user_name: '김철수',
-    user_email: 'kim@example.com',
+    worship_title: "샬롬",
+    worship_date: "2025-12-06 (금) 18:30",
+    worship_place: "예수인교회 본관 지하 2층",
+    user_name: "김철수",
+    user_email: "kim@example.com",
     infant_child_count: 1,
     teen_count: 2,
     military_count: 1,
     adult_count: 2,
     total_ticket_count: 6,
     total_amount: 35000,
-    status: 'PENDING',
-    applied_at: '2025-11-25T09:20:00',
+    status: "PENDING",
+    applied_at: "2025-11-25T09:20:00",
   },
-])
+]);
 
-const selectedApplication = ref<Application | null>(null)
+const selectedApplication = ref<Application | null>(null);
 
-// 필터링된 신청 내역
+// Filtered application details
 const filteredApplications = computed(() => {
-  if (applicationFilter.value === 'all') {
-    return myApplications.value
+  if (applicationFilter.value === "all") {
+    return myApplications.value;
   }
-  return myApplications.value.filter(app => app.status === applicationFilter.value)
-})
+  return myApplications.value.filter(
+    (app) => app.status === applicationFilter.value
+  );
+});
 
-// 관리자 통계
-const totalWorships = computed(() => 2) // Mock
-const totalApplications = computed(() => allApplications.value.length)
+// Admin Statistics
+const totalWorships = computed(() => 2); // Mock
+const totalApplications = computed(() => allApplications.value.length);
 const totalTickets = computed(() =>
   allApplications.value.reduce((sum, app) => sum + app.total_ticket_count, 0)
-)
+);
 
-// 빈 메시지
+// empty message
 const emptyMessage = computed(() => {
-  if (applicationFilter.value === 'all') {
-    return '아직 신청한 집회가 없습니다'
+  if (applicationFilter.value === "all") {
+    return "아직 신청한 집회가 없습니다";
   }
   const statusText = {
-    PENDING: '대기중인',
-    CONFIRMED: '승인완료된',
-    CANCELED: '취소된',
-  }
-  return `${statusText[applicationFilter.value]} 신청 내역이 없습니다`
-})
+    PENDING: "대기중인",
+    CONFIRMED: "승인완료된",
+    CANCELED: "취소된",
+  };
+  return `${statusText[applicationFilter.value]} 신청 내역이 없습니다`;
+});
 
-// 상태 텍스트
+// status text
 const getStatusText = (status: ApplicationStatus) => {
   switch (status) {
-    case 'PENDING':
-      return '대기중'
-    case 'CONFIRMED':
-      return '승인완료'
-    case 'CANCELED':
-      return '취소됨'
+    case "PENDING":
+      return "대기중";
+    case "CONFIRMED":
+      return "승인완료";
+    case "CANCELED":
+      return "취소됨";
   }
-}
+};
 
-// 날짜 포맷
+// date format
 const formatDate = (dateString: string) => {
-  const date = new Date(dateString)
-  return date.toLocaleString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
+  const date = new Date(dateString);
+  return date.toLocaleString("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 
-// 정보 수정
+// edit information
 const closeEditProfile = () => {
-  showEditProfile.value = false
-}
+  showEditProfile.value = false;
+};
 
 const handleUpdateProfile = () => {
-  userName.value = editForm.value.name
-  userPhone.value = editForm.value.phone
-  userAffiliation.value = editForm.value.affiliation
+  userName.value = editForm.value.name;
+  userPhone.value = editForm.value.phone;
+  userAffiliation.value = editForm.value.affiliation;
 
-  // TODO: API 호출
-  alert('정보가 수정되었습니다!')
-  closeEditProfile()
-}
+  // TODO: API call
+  alert("정보가 수정되었습니다!");
+  closeEditProfile();
+};
 
-// 비밀번호 변경
+// change password
 const closeChangePassword = () => {
-  showChangePassword.value = false
-  passwordForm.value = { current: '', new: '', confirm: '' }
-}
+  showChangePassword.value = false;
+  passwordForm.value = { current: "", new: "", confirm: "" };
+};
 
 const handleChangePassword = () => {
   if (passwordForm.value.new !== passwordForm.value.confirm) {
-    alert('새 비밀번호가 일치하지 않습니다.')
-    return
+    alert("새 비밀번호가 일치하지 않습니다.");
+    return;
   }
 
-  // TODO: API 호출
-  alert('비밀번호가 변경되었습니다!')
-  closeChangePassword()
-}
+  // TODO: API call
+  alert("비밀번호가 변경되었습니다!");
+  closeChangePassword();
+};
 
-// 신청 취소
+// Cancel application
 const cancelApplication = (id: number) => {
-  if (!confirm('정말 이 신청을 취소하시겠습니까?')) return
+  if (!confirm("정말 이 신청을 취소하시겠습니까?")) return;
 
-  const app = myApplications.value.find(a => a.id === id)
+  const app = myApplications.value.find((a) => a.id === id);
   if (app) {
-    app.status = 'CANCELED'
-    alert('신청이 취소되었습니다.')
+    app.status = "CANCELED";
+    alert("신청이 취소되었습니다.");
   }
-}
+};
 
-// 관리자: 신청 승인
+// Administrator: Approval of application
 const approveApplication = (id: number) => {
-  const app = allApplications.value.find(a => a.id === id)
+  const app = allApplications.value.find((a) => a.id === id);
   if (app) {
-    app.status = 'CONFIRMED'
-    alert('신청이 승인되었습니다.')
+    app.status = "CONFIRMED";
+    alert("신청이 승인되었습니다.");
   }
-}
+};
 
-// 관리자: 신청 취소
+// Administrator: Cancel application
 const cancelApplicationAdmin = (id: number) => {
-  if (!confirm('이 신청을 취소하시겠습니까?')) return
+  if (!confirm("이 신청을 취소하시겠습니까?")) return;
 
-  const app = allApplications.value.find(a => a.id === id)
+  const app = allApplications.value.find((a) => a.id === id);
   if (app) {
-    app.status = 'CANCELED'
-    alert('신청이 취소되었습니다.')
+    app.status = "CANCELED";
+    alert("신청이 취소되었습니다.");
   }
-}
+};
 
-// 관리자 신청 현황 모달
+// Administrator application status modal
 const closeAdminApplications = () => {
-  showAdminApplications.value = false
-}
+  showAdminApplications.value = false;
+};
 
-// 상세 보기
+// View details
 const viewApplicationDetail = (app: Application) => {
-  selectedApplication.value = app
-  showDetailModal.value = true
-}
+  selectedApplication.value = app;
+  showDetailModal.value = true;
+};
 
 const closeDetailModal = () => {
-  showDetailModal.value = false
-  selectedApplication.value = null
-}
+  showDetailModal.value = false;
+  selectedApplication.value = null;
+};
 </script>

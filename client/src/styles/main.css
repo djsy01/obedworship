@@ -6,7 +6,11 @@
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
     sans-serif;
   background: #faf7f7;
   color: #222;
@@ -86,7 +90,7 @@ a {
   border-radius: 999px;
 }
 
-/* 데스크톱 네비게이션 */
+/* desktop navigation */
 .nav {
   display: flex;
   gap: 0.75rem;
@@ -115,7 +119,7 @@ a {
   opacity: 1;
 }
 
-/* 데스크톱 인증 영역 */
+/* Desktop Authentication Realm */
 .auth-area {
   display: flex;
   align-items: center;
@@ -215,7 +219,7 @@ a {
 }
 
 /* ========================================
-   모바일 햄버거 메뉴
+   mobile hamburger menu
    ======================================== */
 
 .mobile-menu-btn {
@@ -352,7 +356,7 @@ a {
   color: #c0392b;
 }
 
-/* 모바일 메뉴 하단 로그인 영역 */
+/* Login area at the bottom of the mobile menu */
 .mobile-nav-footer {
   padding: 1rem 1.5rem;
   border-top: 1px solid rgba(0, 0, 0, 0.06);
@@ -379,7 +383,7 @@ a {
   box-shadow: 0 4px 12px rgba(74, 31, 47, 0.2);
 }
 
-/* 모바일 메뉴 애니메이션 */
+/* mobile menu animation */
 .mobile-menu-enter-active,
 .mobile-menu-leave-active {
   transition: opacity 0.3s ease-out;
@@ -401,11 +405,11 @@ a {
 }
 
 /* ========================================
-   반응형: 모바일
+   Responsive: Mobile
    ======================================== */
 
 @media (max-width: 900px) {
-  /* 데스크톱 네비게이션 숨기기 */
+  /* Hide desktop navigation */
   .desktop-nav,
   .desktop-auth {
     display: none !important;
@@ -448,7 +452,7 @@ a {
 }
 
 /* ========================================
-   메인 콘텐츠
+   main content
    ======================================== */
 
 .app-main {
@@ -459,12 +463,11 @@ a {
   .app-main {
     padding-top: 0;
   }
-  
+
   .page {
     padding-top: 1.5rem;
   }
 }
-
 
 .app-footer {
   border-top: 1px solid rgba(0, 0, 0, 0.06);
@@ -603,15 +606,15 @@ a {
   margin: 0.3rem 0;
 }
 
-.card-status[data-status='OPEN'] {
+.card-status[data-status="OPEN"] {
   color: #146c43;
 }
 
-.card-status[data-status='CLOSED'] {
+.card-status[data-status="CLOSED"] {
   color: #a15c00;
 }
 
-.card-status[data-status='CANCELED'] {
+.card-status[data-status="CANCELED"] {
   color: #a30000;
 }
 
@@ -704,9 +707,9 @@ a {
   min-width: fit-content;
 }
 
-input[type='text'],
-input[type='number'],
-input[type='file'],
+input[type="text"],
+input[type="number"],
+input[type="file"],
 select,
 textarea {
   font: inherit;
@@ -717,8 +720,8 @@ textarea {
   transition: border-color 0.2s ease-out;
 }
 
-input[type='text']:focus,
-input[type='number']:focus,
+input[type="text"]:focus,
+input[type="number"]:focus,
 select:focus,
 textarea:focus {
   border-color: #4a1f2f;
@@ -819,38 +822,38 @@ textarea {
 }
 
 /* ========================================
-   모바일 반응형 (900px 이하)
+   Mobile responsive (less than 900px)
    ======================================== */
 @media (max-width: 900px) {
   /* 헤더 레이아웃 - 한 줄 유지 */
   .header-inner {
     padding: 0.6rem 1rem;
     gap: 0.5rem;
-    flex-wrap: nowrap; /* 줄바꿈 방지 */
+    flex-wrap: nowrap;
   }
-  
-  /* 로고 - 텍스트 포함 유지 */
+
+  /* Logo - keep text included */
   .logo {
     flex-shrink: 0;
   }
-  
+
   .logo-img {
     height: 32px;
   }
-  
+
   .logo-text {
-    display: flex; /* 텍스트 유지 */
+    display: flex;
   }
-  
+
   .logo-main {
     font-size: 0.8rem;
   }
-  
+
   .logo-sub {
     font-size: 0.6rem;
   }
-  
-  /* 오디오 플레이어 - 중앙에 유연하게 배치 */
+
+  /* Audio player - flexible placement in the center */
   .header-player {
     flex: 1;
     min-width: 0;
@@ -858,29 +861,29 @@ textarea {
     margin-right: 0.5rem;
     justify-content: center;
   }
-  
+
   .mini-audio {
     width: 100%;
     max-width: 100%;
     height: 28px;
   }
-  
-  /* 햄버거 버튼 - 오른쪽 끝 */
+
+  /* Hamburger button - far right */
   .mobile-menu-btn {
     display: flex;
     flex-shrink: 0;
   }
-  
-  /* 데스크톱 네비게이션 숨김 */
+
+  /* Hide desktop navigation */
   .desktop-nav {
     display: none;
   }
-  
-  /* 데스크톱 인증 영역 숨김 */
+
+  /* Hide desktop authentication area */
   .desktop-auth {
     display: none;
   }
-  
+
   .section-header {
     flex-direction: column;
     align-items: flex-start;
@@ -888,82 +891,82 @@ textarea {
 }
 
 /* ========================================
-   태블릿/모바일 추가 조정 (640px 이하)
+   Additional adjustments for tablet/mobile (under 640px)
    ======================================== */
 @media (max-width: 640px) {
   .header-inner {
     padding: 0.5rem 0.75rem;
     gap: 0.4rem;
   }
-  
+
   .logo-img {
     height: 28px;
   }
-  
+
   .logo-main {
     font-size: 0.75rem;
   }
-  
+
   .logo-sub {
     font-size: 0.55rem;
   }
-  
+
   .mini-audio {
     height: 26px;
   }
-  
+
   .mobile-menu-btn {
     width: 36px;
     height: 36px;
     gap: 5px;
   }
-  
+
   .hamburger-line {
     width: 24px;
     height: 2.5px;
   }
-  
+
   .footer-content {
     flex-direction: column;
     text-align: center;
   }
-  
+
   .footer-social {
     margin-top: 0.5rem;
   }
 }
 
 /* ========================================
-   아주 작은 화면 (480px 이하)
+   Very small screens (480px or less)
    ======================================== */
 @media (max-width: 480px) {
   .header-inner {
     padding: 0.4rem 0.6rem;
     gap: 0.3rem;
   }
-  
+
   .logo-img {
     height: 26px;
   }
-  
+
   .logo-main {
     font-size: 0.7rem;
   }
-  
+
   .logo-sub {
     font-size: 0.5rem;
   }
-  
+
   .mini-audio {
     height: 24px;
   }
-  
+
   .mobile-menu-btn {
     width: 32px;
     height: 32px;
     gap: 4px;
   }
-  
+
   .hamburger-line {
     width: 22px;
     height: 2px;

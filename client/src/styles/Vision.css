@@ -1,9 +1,9 @@
 /* ========================================
-   Vision 페이지 스타일 (개선 버전)
+   Vision page styles (improved version)
    ======================================== */
 
 /* ========================================
-   성경 구절
+   bible verse
    ======================================== */
 
 .bible-verse {
@@ -36,8 +36,8 @@
 }
 
 /* ========================================
-   팀 소개
-   ======================================== */
+Team Introduction 
+  ======================================== */
 
 .team-description {
   display: grid;
@@ -65,7 +65,7 @@
 }
 
 /* ========================================
-   팀원 섹션
+   Team Member Section
    ======================================== */
 
 .team-member-section {
@@ -80,7 +80,7 @@
 }
 
 /* ========================================
-   필터 버튼
+   filter button
    ======================================== */
 
 .position-filter,
@@ -129,7 +129,7 @@
   color: #ffffff !important;
   box-shadow: 0 6px 16px rgba(74, 31, 47, 0.25) !important;
   transform: translateY(-2px) !important;
-  
+
   -webkit-text-fill-color: #ffffff !important;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
   font-weight: 700 !important;
@@ -150,7 +150,7 @@
 }
 
 /* ========================================
-   멤버 그리드
+   member grid
    ======================================== */
 
 .member-grid {
@@ -200,7 +200,7 @@
 }
 
 /* ========================================
-   멤버 정보
+   Member Information
    ======================================== */
 
 .member-name {
@@ -221,7 +221,7 @@
   font-weight: 600;
 }
 
-/* 역할 배지 (Leader) */
+/* Role Badge (Leader) */
 .member-roles {
   display: flex;
   flex-wrap: wrap;
@@ -239,7 +239,7 @@
   font-weight: 600;
 }
 
-/* 포지션 배지 */
+/* position badge */
 .member-positions {
   display: flex;
   flex-wrap: wrap;
@@ -278,7 +278,8 @@
 }
 
 /* ========================================
-   소셜 링크
+   social links
+
    ======================================== */
 
 .social-links {
@@ -314,7 +315,7 @@
 }
 
 /* ========================================
-   빈 상태
+   empty state
    ======================================== */
 
 .empty-text {
@@ -329,7 +330,7 @@
 }
 
 /* ========================================
-   반응형 디자인
+   Responsive Design
    ======================================== */
 
 @media (max-width: 768px) {
@@ -462,7 +463,7 @@
 }
 
 /* ========================================
-   추가 애니메이션
+   Additional animations
    ======================================== */
 
 @keyframes fadeIn {
@@ -480,9 +481,21 @@
   animation: fadeIn 0.4s ease-out;
 }
 
-.member-card:nth-child(1) { animation-delay: 0.05s; }
-.member-card:nth-child(2) { animation-delay: 0.1s; }
-.member-card:nth-child(3) { animation-delay: 0.15s; }
-.member-card:nth-child(4) { animation-delay: 0.2s; }
-.member-card:nth-child(5) { animation-delay: 0.25s; }
-.member-card:nth-child(6) { animation-delay: 0.3s; }
+.member-card:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.member-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.member-card:nth-child(3) {
+  animation-delay: 0.15s;
+}
+.member-card:nth-child(4) {
+  animation-delay: 0.2s;
+}
+.member-card:nth-child(5) {
+  animation-delay: 0.25s;
+}
+.member-card:nth-child(6) {
+  animation-delay: 0.3s;
+}

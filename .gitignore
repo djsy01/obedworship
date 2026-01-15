@@ -92,4 +92,4 @@ local.properties
 *.keystore
 
 #Test
-/test_server/
+/test-server/
