@@ -8,6 +8,7 @@ import TicketsView from "@/views/TicketsView.vue";
 import QnaView from "@/views/QnaView.vue";
 import MapView from "@/views/MapView.vue";
 import MyPageView from "@/views/MyPageView.vue";
+import AdminView from "@/views/AdminView.vue";
 import login from "@/components/Login.vue";
 import register from "@/components/Register.vue";
 import FindId from "@/components/Find-ID.vue";
@@ -27,6 +28,7 @@ const routes: RouteRecordRaw[] = [
   { path: "/qna", name: "qna", component: QnaView },
   { path: "/map", name: "map", component: MapView },
   { path: "/mypage", name: "mypage", component: MyPageView },
+  { path: "/admin", name: "admin", component: AdminView },
   { path: "/login", name: "login", component: login },
   { path: "/register", name: "register", component: register },
   { path: "/find-id", name: "find-id", component: FindId },

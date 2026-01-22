@@ -52,6 +52,13 @@
               <button @click="goToMyPage" class="dropdown-item">
                 👤 마이페이지
               </button>
+              <button
+                v-if="isAdmin"
+                @click="goToAdmin"
+                class="dropdown-item admin"
+              >
+                ⚙️ 관리자
+              </button>
               <button @click="handleLogout" class="dropdown-item logout">
                 🚪 로그아웃
               </button>
@@ -167,6 +174,19 @@
         </p>
         <div class="footer-social">
           <a
+            href="https://soundcloud.com/obed-497061928"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="social-link"
+            title="OBED Worship Soundcloud"
+          >
+            <img
+              :src="soundcloudIcon"
+              alt="Soundcloud"
+              class="social-icon-footer"
+            />
+          </a>
+          <a
             href="https://www.instagram.com/obed_worship"
             target="_blank"
             rel="noopener noreferrer"
@@ -202,6 +222,7 @@ import { useAuth } from "@/composables/useAuth";
 import logo from "@/assets/image/Logo.png";
 import light from "@/assets/music/빛의사자들이여(inst).mp3";
 import celevrate from "@/assets/music/CelebratetheLight(inst).mp3";
+import soundcloudIcon from "@/assets/icons/Soundcloud.png";
 import instagramIcon from "@/assets/icons/Instargram.png";
 import youtubeIcon from "@/assets/icons/Youtube.png";
 
@@ -265,6 +286,15 @@ const goToMyPage = () => {
   document.body.style.position = "";
   document.body.style.width = "";
   router.push("/mypage");
+};
+
+const goToAdmin = () => {
+  showDropdown.value = false;
+  showMobileMenu.value = false;
+  document.body.style.overflow = "";
+  document.body.style.position = "";
+  document.body.style.width = "";
+  router.push("/admin");
 };
 
 const handleLogout = () => {
