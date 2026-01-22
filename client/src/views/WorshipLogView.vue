@@ -48,12 +48,7 @@
 
           <label class="field">
             <span class="field-label">날짜</span>
-            <input
-              v-model="newWorship.date"
-              type="text"
-              placeholder="예: 2025-12-06 (Sat)"
-              required
-            />
+            <input v-model="newWorship.date" type="date" required />
           </label>
 
           <label class="field">
@@ -79,7 +74,7 @@
           <label class="field">
             <span class="field-label">찬양팀</span>
             <input
-              v-model="newWorship.worship"
+              v-model="newWorship.worship_team"
               type="text"
               placeholder="예: OBED Worship"
               required
@@ -124,10 +119,12 @@
           class="log-card"
           @click="goToDetail(w.id)"
         >
-          <p class="log-date">{{ w.date }}</p>
+          <p class="log-date">
+            {{ new Date(w.date).toLocaleDateString("ko-KR") }}
+          </p>
           <h2 class="log-title">{{ w.title }}</h2>
           <p class="log-meta">
-            설교: {{ w.preacher }} · 찬양: {{ w.worship }}
+            설교: {{ w.preacher }} · 찬양: {{ w.worship_team }}
             <template v-if="w.guest && w.guest.trim() !== ''">
               · 초청 간사: {{ w.guest }}
             </template>
@@ -168,64 +165,46 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuth } from "@/composables/useAuth";
+import { worshipApi, type Worship } from "@/api/worship";
 import "../styles/WorshipLog.css";
 
 const router = useRouter();
 const { isAdmin } = useAuth();
 
-type WorshipLog = {
-  id: number;
-  date: string;
-  year: number;
-  title: string;
-  preacher: string;
-  worship: string;
-  guest?: string;
-  description: string;
-};
-
-// Dummy data (replaced with API data later)
-const logs = ref<WorshipLog[]>([
-  {
-    id: 1,
-    date: "2025-03-22 (Sat)",
-    year: 2025,
-    title: "하나됨",
-    preacher: "민찬기 목사",
-    worship: "OBED Worship",
-    description: "호흡있는 모든 자들은 찬양하라",
-  },
-  {
-    id: 2,
-    date: "2025-12-06 (Sat)",
-    year: 2025,
-    title: "샬롬",
-    preacher: "박훈 목사",
-    worship: "OBED Worship",
-    guest: "찬양사역자 오은",
-    description: "너희는 마음에 근심하지도 말고 두려워하지도 말라",
-  },
-]);
-
+const logs = ref<Worship[]>([]);
 const selectedYear = ref<string>("");
 const showAddModal = ref(false);
+const loading = ref(false);
 
 // new rally data
-const newWorship = ref<Omit<WorshipLog, "id">>({
+const newWorship = ref({
   date: "",
   year: new Date().getFullYear(),
   title: "",
   preacher: "",
-  worship: "OBED Worship",
+  worship_team: "OBED Worship",
   guest: "",
   description: "",
 });
 
+// 집회 조회
+const fetchWorships = async () => {
+  loading.value = true;
+  try {
+    const response = await worshipApi.getAll();
+    logs.value = response.data;
+  } catch (error) {
+    console.error("집회 조회 실패:", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
 const years = computed(() =>
-  Array.from(new Set(logs.value.map((l) => l.year))).sort((a, b) => b - a)
+  Array.from(new Set(logs.value.map((l) => l.year))).sort((a, b) => b - a),
 );
 
 const filteredLogs = computed(() => {
@@ -235,7 +214,9 @@ const filteredLogs = computed(() => {
     filtered = logs.value.filter((l) => l.year === year);
   }
 
-  return filtered.sort((a, b) => b.id - a.id);
+  return filtered.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  );
 });
 
 const goToDetail = (id: number) => {
@@ -243,16 +224,22 @@ const goToDetail = (id: number) => {
 };
 
 const editWorship = (id: number) => {
-  // TODO: Go to edit modal or edit page
-  console.log("편집:", id);
-  alert(`집회 ${id} 편집 기능 구현 예정`);
+  router.push({ name: "worship-detail", params: { id: id.toString() } });
 };
 
-const deleteWorship = (id: number) => {
-  if (confirm("정말 이 집회를 삭제하시겠습니까?")) {
-    // TODO: Call API to delete
-    console.log("삭제:", id);
-    alert(`집회 ${id} 삭제 기능 구현 예정`);
+const deleteWorship = async (id: number) => {
+  if (!confirm("정말 이 집회를 삭제하시겠습니까?")) return;
+
+  loading.value = true;
+  try {
+    await worshipApi.delete(id);
+    alert("집회가 삭제되었습니다!");
+    await fetchWorships();
+  } catch (error) {
+    console.error("집회 삭제 실패:", error);
+    alert("집회 삭제에 실패했습니다");
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -265,7 +252,7 @@ const openAddWorshipModal = () => {
     year: new Date().getFullYear(),
     title: "",
     preacher: "",
-    worship: "OBED Worship",
+    worship_team: "OBED Worship",
     guest: "",
     description: "",
   };
@@ -276,31 +263,39 @@ const closeAddModal = () => {
   showAddModal.value = false;
 };
 
-// Additional processing of meetings
+// 집회 추가
 const handleAddWorship = async () => {
+  if (
+    !newWorship.value.title ||
+    !newWorship.value.date ||
+    !newWorship.value.preacher ||
+    !newWorship.value.description
+  ) {
+    alert("필수 항목을 입력해주세요");
+    return;
+  }
+
+  loading.value = true;
   try {
-    // Generate a new ID (actually generated on the server)
-    const newId = Math.max(...logs.value.map((l) => l.id)) + 1;
-
-    const worshipToAdd: WorshipLog = {
-      id: newId,
-      ...newWorship.value,
-    };
-
-    // TODO: Call API and save on server
-    // await apiClient.post('/api/worship', worshipToAdd)
-
-    // Mock: Add to local array
-    logs.value.unshift(worshipToAdd);
-
+    const response = await worshipApi.create(newWorship.value as any);
     alert("집회가 추가되었습니다!");
     closeAddModal();
-
-    // Go to detail page (optional)
-    // router.push({ name: 'worship-detail', params: { id: newId.toString() } })
+    await fetchWorships();
+    // 상세 페이지로 이동
+    router.push({
+      name: "worship-detail",
+      params: { id: response.data.id.toString() },
+    });
   } catch (error) {
     console.error("집회 추가 실패:", error);
-    alert("집회 추가에 실패했습니다.");
+    alert("집회 추가에 실패했습니다");
+  } finally {
+    loading.value = false;
   }
 };
+
+// 초기 로드
+onMounted(() => {
+  fetchWorships();
+});
 </script>

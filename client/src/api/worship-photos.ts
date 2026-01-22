@@ -1,0 +1,60 @@
+import axios from "./axios";
+
+export interface WorshipPhoto {
+  id: number;
+  worship_id: number;
+  photo_url: string;
+  thumbnail_url?: string;
+  file_name: string;
+  file_size?: number;
+  photo_order: number;
+  created_at?: string;
+}
+
+export interface CreateWorshipPhotoDto {
+  worship_id: number;
+  photo_url: string;
+  file_name: string;
+  photo_order?: number;
+}
+
+export interface UpdateWorshipPhotoDto {
+  photo_url?: string;
+  photo_order?: number;
+}
+
+const BASE_URL = "/worship-photos";
+
+export interface UploadResponse {
+  filename: string;
+  savedFilename: string;
+  size: number;
+  mimetype: string;
+  url: string;
+}
+
+export const worshipPhotoApi = {
+  getAll: () => axios.get<WorshipPhoto[]>(BASE_URL),
+
+  getByWorshipId: (worshipId: number) =>
+    axios.get<WorshipPhoto[]>(`${BASE_URL}/worship/${worshipId}`),
+
+  getOne: (id: number) => axios.get<WorshipPhoto>(`${BASE_URL}/${id}`),
+
+  // 파일 업로드 (photos 엔드포인트 사용)
+  uploadFile: (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return axios.post<UploadResponse>("/photos/upload", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+
+  create: (data: CreateWorshipPhotoDto) =>
+    axios.post<WorshipPhoto>(BASE_URL, data),
+
+  update: (id: number, data: UpdateWorshipPhotoDto) =>
+    axios.patch<WorshipPhoto>(`${BASE_URL}/${id}`, data),
+
+  delete: (id: number) => axios.delete(`${BASE_URL}/${id}`),
+};
