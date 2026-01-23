@@ -1,4 +1,5 @@
 import axios from "./axios";
+import type { UploadResponse } from "./types";
 
 export interface WorshipPhoto {
   id: number;
@@ -24,14 +25,6 @@ export interface UpdateWorshipPhotoDto {
 }
 
 const BASE_URL = "/worship-photos";
-
-export interface UploadResponse {
-  filename: string;
-  savedFilename: string;
-  size: number;
-  mimetype: string;
-  url: string;
-}
 
 export const worshipPhotoApi = {
   getAll: () => axios.get<WorshipPhoto[]>(BASE_URL),

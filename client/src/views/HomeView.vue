@@ -24,10 +24,9 @@
         <!-- Group photo -->
         <div class="hero-image">
           <img
-            src="@/assets/image/team-photo.jpg"
+            :src="teamPhoto"
             alt="OBED Worship 단체 사진"
             class="team-photo"
-            @error="handleImageError"
           />
         </div>
       </div>
@@ -78,11 +77,25 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from "vue";
+import { assetApi } from "@/api/assets";
 import "../styles/Home.css";
 
-// Replacement image when image load fails
-const handleImageError = (event: Event) => {
-  const img = event.target as HTMLImageElement;
-  img.src = "/placeholder-team.jpg";
+const teamPhoto = ref<string>("");
+
+// DB에서 팀 사진 로드
+const loadTeamPhoto = async () => {
+  try {
+    const response = await assetApi.getByKey("home_team_photo");
+    if (response.data.file_url) {
+      teamPhoto.value = response.data.file_url;
+    }
+  } catch (error) {
+    console.error("Team photo not found in DB:", error);
+  }
 };
+
+onMounted(() => {
+  loadTeamPhoto();
+});
 </script>

@@ -48,3 +48,4 @@ export type * from "./worship-songs";
 export type * from "./worship-videos";
 export type * from "./worship-photos";
 export type * from "./worship-scores";
+export type * from "./types";

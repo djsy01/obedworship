@@ -25,7 +25,7 @@
           <RouterLink to="/vision" class="nav-link">비전</RouterLink>
           <RouterLink to="/worship-log" class="nav-link">집회안내</RouterLink>
           <RouterLink to="/scores" class="nav-link">악보</RouterLink>
-          <RouterLink to="/tickets" class="nav-link">집회신청</RouterLink>
+          <!--<RouterLink to="/tickets" class="nav-link">집회신청</RouterLink>-->
           <RouterLink to="/map" class="nav-link">오시는길</RouterLink>
           <RouterLink to="/qna" class="nav-link">Q&amp;A</RouterLink>
         </nav>
@@ -219,9 +219,7 @@
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuth } from "@/composables/useAuth";
-import logo from "@/assets/image/Logo.png";
-import light from "@/assets/music/빛의사자들이여(inst).mp3";
-import celevrate from "@/assets/music/CelebratetheLight(inst).mp3";
+import { assetApi } from "@/api/assets";
 import soundcloudIcon from "@/assets/icons/Soundcloud.png";
 import instagramIcon from "@/assets/icons/Instargram.png";
 import youtubeIcon from "@/assets/icons/Youtube.png";
@@ -229,7 +227,8 @@ import youtubeIcon from "@/assets/icons/Youtube.png";
 const router = useRouter();
 const { isLoggedIn, isAdmin, logout } = useAuth();
 
-const playlist = [celevrate, light];
+const logo = ref<string>("");
+const playlist = ref<string[]>([]);
 const currentTrackIndex = ref(0);
 const audioPlayer = ref<HTMLAudioElement | null>(null);
 const showDropdown = ref(false);
@@ -247,7 +246,8 @@ const userName = computed(() => {
 });
 
 const handleEnded = () => {
-  currentTrackIndex.value = (currentTrackIndex.value + 1) % playlist.length;
+  currentTrackIndex.value =
+    (currentTrackIndex.value + 1) % playlist.value.length;
   setTimeout(() => {
     if (audioPlayer.value) {
       audioPlayer.value.play();
@@ -329,8 +329,42 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 };
 
+// 자산 로드
+const loadAssets = async () => {
+  try {
+    // 로고 로드
+    try {
+      const logoRes = await assetApi.getByKey("home_logo");
+      if (logoRes.data.file_url) {
+        logo.value = logoRes.data.file_url;
+      }
+    } catch (error) {
+      console.error("Logo not found in DB:", error);
+    }
+
+    // 음악 로드
+    try {
+      const songsRes = await assetApi.getByCategory("songs");
+      if (
+        songsRes.data &&
+        Array.isArray(songsRes.data) &&
+        songsRes.data.length > 0
+      ) {
+        playlist.value = songsRes.data
+          .filter((song) => song.file_url)
+          .map((song) => song.file_url as string);
+      }
+    } catch (error) {
+      console.error("Songs not found in DB:", error);
+    }
+  } catch (error) {
+    console.error("Failed to load assets:", error);
+  }
+};
+
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
+  loadAssets();
 });
 
 onUnmounted(() => {

@@ -41,7 +41,29 @@
       </div>
 
       <div class="team-member-section">
-        <h2 class="section-title-sub">팀원 소개</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h2 class="section-title-sub">팀원 소개</h2>
+
+          <!-- 관리자 모드 토글 -->
+          <button
+            @click="isAdmin = !isAdmin"
+            style="padding: 0.5rem 1rem; background: #4a1f2f; color: white; border: none; border-radius: 4px; cursor: pointer;"
+          >
+            {{ isAdmin ? '👤 관리자 모드 OFF' : '🔒 관리자 모드 ON' }}
+          </button>
+        </div>
+
+        <!-- 관리자 모드: 새 멤버 추가 버튼 -->
+        <div v-if="isAdmin" style="margin-bottom: 1rem;">
+          <button
+            @click="openAddModal"
+            style="padding: 0.75rem 1.5rem; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: background 0.2s;"
+            @mouseenter="($event.target as HTMLElement).style.background = '#45a049'"
+            @mouseleave="($event.target as HTMLElement).style.background = '#4caf50'"
+          >
+            ➕ 새 멤버 추가
+          </button>
+        </div>
 
         <div class="position-filter">
           <button
@@ -157,7 +179,11 @@
           </button>
         </div>
 
-        <div class="member-grid">
+        <div v-if="loading" class="loading">
+          로딩 중...
+        </div>
+
+        <div v-else class="member-grid">
           <div
             v-for="member in filteredMembers"
             :key="member.id"
@@ -248,6 +274,22 @@
                   <img :src="youtubeIcon" alt="YouTube" class="social-icon" />
                 </a>
               </div>
+
+              <!-- 관리자 모드: 수정/삭제 버튼 -->
+              <div v-if="isAdmin" style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                <button
+                  @click="openEditModal(member)"
+                  style="flex: 1; padding: 0.5rem; background: #4a7c59; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;"
+                >
+                  ✏️ 수정
+                </button>
+                <button
+                  @click="deleteMemberConfirm(member)"
+                  style="flex: 1; padding: 0.5rem; background: #c0392b; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;"
+                >
+                  🗑️ 삭제
+                </button>
+              </div>
             </div>
           </div>
 
@@ -257,21 +299,23 @@
         </div>
       </div>
     </section>
+
+    <!-- Member Edit Modal -->
+    <MemberEditModal
+      :is-open="isModalOpen"
+      :member="selectedMember"
+      @close="closeModal"
+      @success="handleMemberSaved"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
+import { memberApi, type Member as ApiMember } from "@/api/members";
+import { assetApi } from "@/api/assets";
+import MemberEditModal from "@/components/MemberEditModal.vue";
 import "../styles/Vision.css";
-import logo from "@/assets/image/LOGO.JPG";
-import photoGiin from "@/assets/people/Giin.jpeg";
-import photoMijung from "@/assets/people/mijung.jpeg";
-import photoInho from "@/assets/people/inho.JPG";
-import photoDrumWook from "@/assets/people/DrumWook.jpeg";
-import photoJungsuk from "@/assets/people/jungsuk.jpeg";
-import photoOnnew from "@/assets/people/onnew.jpeg";
-import photoJongeon from "@/assets/people/Jongeon.jpeg";
-import photoYesol from "@/assets/people/yesol.jpeg";
 import instagramIcon from "@/assets/icons/Instargram.png";
 import youtubeIcon from "@/assets/icons/Youtube.png";
 
@@ -286,237 +330,59 @@ type Member = {
   worship_positions: string[];
   step_positions: string[];
   description: string;
+  display_order?: number;
 };
+
+// 관리자 모드
+const isAdmin = ref(false);
+
+// Modal state
+const isModalOpen = ref(false);
+const selectedMember = ref<ApiMember | null>(null);
+
+// Loading state
+const loading = ref(true);
 
 const filter = ref<"all" | "leader" | "worship" | "step">("all");
 const worshipFilter = ref<string>("");
 const stepFilter = ref<string>("");
 
-const members = ref<Member[]>([
-  {
-    id: 1,
-    name: "박훈 목사",
-    affiliation: "목사",
-    photo_url: logo,
-    instagram_url: "https://www.instagram.com/holyforest.jpg",
-    youtube_url: null,
-    roles: ["Pastor"],
-    worship_positions: [],
-    step_positions: [],
-    description: "OBED 영적 총감독, 초청 간사/목사 섭외",
-  },
-  {
-    id: 2,
-    name: "이기인 장로",
-    affiliation: "장년부",
-    photo_url: photoGiin,
-    instagram_url: "https://www.instagram.com/somanja59",
-    youtube_url: null,
-    roles: ["Elder"],
-    worship_positions: ["Acoustic Guitar"],
-    step_positions: [],
-    description: "찬양위원회, 어쿠스틱",
-  },
-  {
-    id: 3,
-    name: "김미정",
-    affiliation: "장년부",
-    photo_url: photoMijung,
-    instagram_url: "https://www.instagram.com/cat0925_",
-    youtube_url: null,
-    roles: ["Accounting Leader"],
-    worship_positions: [],
-    step_positions: ["Accounting Team"],
-    description: "재정 담당, 예배 인력 섭외, 운영 지원",
-  },
-  {
-    id: 4,
-    name: "엄인호",
-    affiliation: "청년부",
-    photo_url: photoInho,
-    instagram_url: "https://www.instagram.com/djsy_01",
-    youtube_url: "https://www.youtube.com/@djsy01",
-    roles: ["Worship Team Leader", "Lead Singer"],
-    worship_positions: [
-      "Vocal",
-      "Acoustic Guitar",
-      "Lead Guitar",
-      "Backing Guitar",
-    ],
-    step_positions: [
-      "Preproduction",
-      "Mix Engineer",
-      "Music Producer",
-      "Video Editor",
-      "Master Engineer",
-    ],
-    description:
-      "OBED Worship 팀장 + 인도자 + 기타 + 프리프로덕션 + 마스터링 + 믹싱 + 영상편집 + 음악 프로듀싱",
-  },
-  {
-    id: 5,
-    name: "박상욱",
-    affiliation: "청년부",
-    photo_url: photoDrumWook,
-    instagram_url: "https://www.instagram.com/drum_wook02",
-    youtube_url: "https://youtube.com/channel/UC_vv_fm_8e3O8xTb5TbPKrg",
-    roles: ["Media Leader"],
-    worship_positions: ["Drum"],
-    step_positions: [
-      "Camera Operator",
-      "Video Editor",
-      "Mix Engineer",
-      "Music Producer",
-    ],
-    description: "드럼 + 영상팀장(촬영 및 편집) + 후반 믹싱",
-  },
-  {
-    id: 6,
-    name: "전예원",
-    affiliation: "청년부",
-    photo_url: logo,
-    instagram_url: "https://www.instagram.com/winnie_the_ron_02",
-    youtube_url: null,
-    roles: [],
-    worship_positions: ["Vocal"],
-    step_positions: ["Prayer Team"],
-    description: "싱어 + 기도팀",
-  },
-  {
-    id: 7,
-    name: "김온유",
-    affiliation: "청년부",
-    photo_url: photoOnnew,
-    instagram_url: "https://www.instagram.com/onyourmusic",
-    youtube_url: "https://www.youtube.com/@onyourmusic",
-    roles: [],
-    worship_positions: ["Vocal"],
-    step_positions: ["Stage Designer", "Lighting Operator"],
-    description: "싱어",
-  },
-  /** 
-  {
-    id: 8,
-    name: "김정석",
-    affiliation: "청년부",
-    photo_url: photoJungsuk,
-    instagram_url: "https://www.instagram.com/_kjs_1127",
-    youtube_url: null,
-    roles: [],
-    worship_positions: ["Bass Guitar"],
-    step_positions: ["Lighting Operator"],
-    description: "베이스기타 + 조명팀",
-  },
-  **/
-  {
-    id: 9,
-    name: "마승빈",
-    affiliation: "청년부",
-    photo_url: logo,
-    instagram_url: "https://www.instagram.com/z.sbbxn_",
-    youtube_url: null,
-    roles: [],
-    worship_positions: ["Drum"],
-    step_positions: ["Planning Team"],
-    description: "드럼 + 홍보팀",
-  },
-  {
-    id: 10,
-    name: "박소라",
-    affiliation: "장년부",
-    photo_url: logo,
-    instagram_url: null,
-    youtube_url: null,
-    roles: [],
-    worship_positions: ["Synthesizer"],
-    step_positions: ["Planning Team"],
-    description: "세컨건반 + 홍보팀",
-  },
-  {
-    id: 11,
-    name: "신예솔",
-    affiliation: "고등부",
-    photo_url: photoYesol,
-    instagram_url: "https://www.instagram.com/yz_sol5",
-    youtube_url: "https://youtube.com/channel/UCvyHxOBm7RDwCo62pFBwVSA",
-    roles: [],
-    worship_positions: ["Vocal"],
-    step_positions: ["Media Team"],
-    description: "싱어 + 미디어팀(유튜브 채널 관리)",
-  },
-  {
-    id: 12,
-    name: "신지은",
-    affiliation: "청년부",
-    photo_url: logo,
-    instagram_url: "https://www.instagram.com/_wldms.3",
-    youtube_url: null,
-    roles: [],
-    worship_positions: ["Piano", "Synthesizer"],
-    step_positions: ["Planning Team"],
-    description: "메인건반 + 세컨건반 + 홍보팀",
-  },
-  {
-    id: 13,
-    name: "오종언",
-    affiliation: "청년부",
-    photo_url: photoJongeon,
-    instagram_url: "https://www.instagram.com/5_bells_05",
-    youtube_url: null,
-    roles: ["Stage Leader"],
-    worship_positions: ["Vocal"],
-    step_positions: ["Live Engineer", "Audio Setup", "Stage Designer"],
-    description: "무대팀장 + 싱어 + 무대구상 + 음향 설계",
-  },
-  {
-    id: 14,
-    name: "오현명",
-    affiliation: "장년부",
-    photo_url: logo,
-    instagram_url: "https://www.instagram.com/5rosy_n_5lira",
-    youtube_url: null,
-    roles: [],
-    worship_positions: ["Piano"],
-    step_positions: ["Audio Setup", "Stage Designer"],
-    description: "메인건반 + 음향 설계 보조 + 무대구상",
-  },
-  {
-    id: 15,
-    name: "유근서",
-    affiliation: "청년부",
-    photo_url: logo,
-    instagram_url: null,
-    youtube_url: null,
-    roles: [],
-    worship_positions: ["Lead Guitar", "Bass Guitar"],
-    step_positions: ["Prayer Team"],
-    description: "리드기타 + 베이스기타 + 기도팀",
-  },
-  {
-    id: 16,
-    name: "지용민",
-    affiliation: "장년부",
-    photo_url: logo,
-    instagram_url: null,
-    youtube_url: null,
-    roles: ["Lead Singer"],
-    worship_positions: ["Vocal"],
-    step_positions: ["Accounting Team"],
-    description: "인도자 + 싱어 + 회계팀",
-  },
-  {
-    id: 17,
-    name: "최영",
-    affiliation: "장년부",
-    photo_url: logo,
-    instagram_url: "https://www.instagram.com/breeze2174",
-    youtube_url: null,
-    roles: ["Prayer Leader"],
-    worship_positions: ["Vocal"],
-    step_positions: [],
-    description: "싱어(화음) + 기도팀장",
-  },
-]);
+// Members data - loaded from API
+const members = ref<Member[]>([]);
+
+// Logo - loaded from DB
+const logo = ref<string>("");
+
+// Convert enum underscores back to spaces for display
+const convertFromEnum = (value: string) => value.replace(/_/g, ' ');
+
+// Load members from API
+const loadMembers = async () => {
+  try {
+    loading.value = true;
+    const response = await memberApi.getAll();
+
+    // Transform API response to match component's expected structure
+    members.value = response.data.map((apiMember) => ({
+      id: apiMember.id,
+      name: apiMember.name,
+      affiliation: apiMember.affiliation,
+      photo_url: apiMember.photo_url || logo.value, // Use logo as fallback
+      instagram_url: apiMember.instagram_url || null,
+      youtube_url: apiMember.youtube_url || null,
+      roles: apiMember.member_roles?.map((r) => convertFromEnum(r.role_type)) || [],
+      worship_positions: apiMember.member_worship_positions?.map((p) => convertFromEnum(p.position_type)) || [],
+      step_positions: apiMember.member_step_positions?.map((p) => convertFromEnum(p.position_type)) || [],
+      description: apiMember.description || "",
+      display_order: apiMember.display_order ?? 0,
+    }));
+  } catch (error) {
+    console.error("Failed to load members:", error);
+    alert("멤버 정보를 불러오는데 실패했습니다.");
+  } finally {
+    loading.value = false;
+  }
+};
 
 const filteredMembers = computed(() => {
   let filtered = members.value;
@@ -600,82 +466,45 @@ const filteredMembers = computed(() => {
     }
   }
 
-  if (filter.value === "leader") {
-    filtered.sort((a, b) => {
-      const roleOrder: { [key: string]: number } = {
-        Pastor: 1,
-        Elder: 2,
-        "Worship Team Leader": 3,
-        "Singer Leader": 4,
-        "Session Leader": 5,
-        "Lead Singer": 6,
-        "Accounting Leader": 7,
-        "Planning Leader": 8,
-        "Media Leader": 9,
-        "Stage Leader": 10,
-        "Prayer Leader": 11,
-      };
+  // Sort by role priority
+  const roleOrder: { [key: string]: number } = {
+    Pastor: 1,
+    Elder: 2,
+    "Worship Team Leader": 3,
+    "Accounting Leader": 4,
+    "Lead Singer": 5,
+    "Singer Leader": 6,
+    "Session Leader": 7,
+    "Planning Leader": 8,
+    "Media Leader": 9,
+    "Stage Leader": 10,
+    "Prayer Leader": 11,
+  };
 
-      const getMinOrder = (roles: string[]) => {
-        const orders = roles.map((r) => roleOrder[r] || 99);
-        return Math.min(...orders);
-      };
+  filtered.sort((a, b) => {
+    const getMinOrder = (roles: string[]) => {
+      if (roles.length === 0) return 99;
+      const orders = roles.map((r) => roleOrder[r] || 99);
+      return Math.min(...orders);
+    };
 
-      const orderA = getMinOrder(a.roles);
-      const orderB = getMinOrder(b.roles);
+    const orderA = getMinOrder(a.roles);
+    const orderB = getMinOrder(b.roles);
 
-      if (orderA !== orderB) {
-        return orderA - orderB;
-      }
+    if (orderA !== orderB) {
+      return orderA - orderB;
+    }
 
-      return a.name.localeCompare(b.name, "ko-KR");
-    });
-  }
+    // 같은 역할이면 display_order로 정렬
+    const displayOrderA = a.display_order ?? 0;
+    const displayOrderB = b.display_order ?? 0;
 
-  if (filter.value === "worship") {
-    filtered.sort((a, b) => {
-      const getPriority = (member: Member) => {
-        if (member.roles.includes("Worship Team Leader")) return 1;
-        if (member.roles.includes("Lead Singer")) return 2;
-        if (member.roles.includes("Singer Leader")) return 3;
-        if (member.roles.includes("Session Leader")) return 4;
-        return 5;
-      };
+    if (displayOrderA !== displayOrderB) {
+      return displayOrderA - displayOrderB;
+    }
 
-      const priorityA = getPriority(a);
-      const priorityB = getPriority(b);
-
-      if (priorityA !== priorityB) {
-        return priorityA - priorityB;
-      }
-
-      const positionOrder: { [key: string]: number } = {
-        Vocal: 1,
-        Piano: 2,
-        Synthesizer: 3,
-        "Acoustic Guitar": 4,
-        "Lead Guitar": 5,
-        "Backing Guitar": 6,
-        "Bass Guitar": 7,
-        Drum: 8,
-      };
-
-      const getPositionOrder = (positions: string[]) => {
-        if (positions.length === 0) return 99;
-        const orders = positions.map((p) => positionOrder[p] || 99);
-        return Math.min(...orders);
-      };
-
-      const posOrderA = getPositionOrder(a.worship_positions);
-      const posOrderB = getPositionOrder(b.worship_positions);
-
-      if (posOrderA !== posOrderB) {
-        return posOrderA - posOrderB;
-      }
-
-      return a.name.localeCompare(b.name, "ko-KR");
-    });
-  }
+    return a.name.localeCompare(b.name, "ko-KR");
+  });
 
   return filtered;
 });
@@ -685,4 +514,100 @@ const handleMainFilter = (value: "all" | "leader" | "worship" | "step") => {
   worshipFilter.value = "";
   stepFilter.value = "";
 };
+
+// Modal handlers
+const openEditModal = async (member: Member) => {
+  try {
+    // Fetch full member data including roles and positions
+    const response = await memberApi.getOne(member.id);
+    selectedMember.value = response.data;
+    isModalOpen.value = true;
+  } catch (error) {
+    console.error("Failed to load member:", error);
+    alert("멤버 정보를 불러오는데 실패했습니다.");
+  }
+};
+
+const openAddModal = () => {
+  selectedMember.value = null;
+  isModalOpen.value = true;
+};
+
+const closeModal = () => {
+  isModalOpen.value = false;
+  selectedMember.value = null;
+};
+
+const handleMemberSaved = async () => {
+  if (!selectedMember.value) {
+    // New member was added, reload all
+    loadMembers();
+    return;
+  }
+
+  // Update only the edited member to avoid full reload
+  try {
+    const response = await memberApi.getOne(selectedMember.value.id);
+    const updatedMember = response.data;
+
+    // Find and update the member in the list
+    const index = members.value.findIndex(m => m.id === updatedMember.id);
+    if (index !== -1) {
+      members.value[index] = {
+        id: updatedMember.id,
+        name: updatedMember.name,
+        affiliation: updatedMember.affiliation,
+        photo_url: updatedMember.photo_url || logo.value,
+        instagram_url: updatedMember.instagram_url || null,
+        youtube_url: updatedMember.youtube_url || null,
+        roles: updatedMember.member_roles?.map((r) => convertFromEnum(r.role_type)) || [],
+        worship_positions: updatedMember.member_worship_positions?.map((p) => convertFromEnum(p.position_type)) || [],
+        step_positions: updatedMember.member_step_positions?.map((p) => convertFromEnum(p.position_type)) || [],
+        description: updatedMember.description || "",
+        display_order: updatedMember.display_order ?? 0,
+      };
+    }
+  } catch (error) {
+    console.error("Failed to update member:", error);
+    // Fallback to full reload if update fails
+    loadMembers();
+  }
+};
+
+// 관리자 기능: 멤버 삭제
+const deleteMemberConfirm = (member: Member) => {
+  if (!confirm(`정말로 "${member.name}" 멤버를 삭제하시겠습니까?`)) {
+    return;
+  }
+
+  memberApi.delete(member.id)
+    .then(() => {
+      alert("멤버가 삭제되었습니다!");
+      // Reload members from API
+      loadMembers();
+    })
+    .catch((error) => {
+      console.error("삭제 실패:", error);
+      alert("삭제에 실패했습니다.");
+    });
+};
+
+// Load logo from DB
+const loadLogo = async () => {
+  try {
+    const response = await assetApi.getByKey("home_logo");
+    if (response.data.file_url) {
+      logo.value = response.data.file_url;
+    }
+  } catch (error) {
+    console.error("Logo not found in DB:", error);
+  }
+};
+
+// Load members and logo on component mount
+onMounted(async () => {
+  // Load logo first, then members (so fallback uses the correct logo)
+  await loadLogo();
+  await loadMembers();
+});
 </script>

@@ -12,6 +12,9 @@ export interface Member {
   description?: string;
   created_at?: string;
   updated_at?: string;
+  member_roles?: Array<{ role_type: string }>;
+  member_worship_positions?: Array<{ position_type: string }>;
+  member_step_positions?: Array<{ position_type: string }>;
 }
 
 export interface CreateMemberDto {
@@ -59,4 +62,27 @@ export const memberApi = {
 
   // 멤버 삭제
   delete: (id: number) => axios.delete(`/members/${id}`),
+
+  // 사진 업로드
+  uploadPhoto: (file: File) => {
+    const formData = new FormData();
+    formData.append("photo", file);
+    return axios.post<{ photo_url: string }>("/members/upload-photo", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  },
+
+  // 역할(Roles) 업데이트
+  updateRoles: (memberId: number, roleTypes: string[]) =>
+    axios.post(`/members/${memberId}/roles`, { roleTypes }),
+
+  // Worship 포지션 업데이트
+  updateWorshipPositions: (memberId: number, positionTypes: string[]) =>
+    axios.post(`/members/${memberId}/worship-positions`, { positionTypes }),
+
+  // Step 포지션 업데이트
+  updateStepPositions: (memberId: number, positionTypes: string[]) =>
+    axios.post(`/members/${memberId}/step-positions`, { positionTypes }),
 };

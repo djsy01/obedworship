@@ -1,4 +1,5 @@
 import axios from "./axios";
+import type { UploadResponse } from "./types";
 
 export interface WorshipScore {
   id: number;
@@ -26,14 +27,6 @@ export interface UpdateWorshipScoreDto {
 }
 
 const BASE_URL = "/worship-scores";
-
-export interface UploadResponse {
-  filename: string;
-  savedFilename: string;
-  size: number;
-  mimetype: string;
-  url: string;
-}
 
 export const worshipScoreApi = {
   getAll: () => axios.get<WorshipScore[]>(BASE_URL),

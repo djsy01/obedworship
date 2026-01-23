@@ -257,13 +257,14 @@
 | thumbnail_url | VARCHAR(500) | NULL | 썸네일 URL (포스터) |
 | description | TEXT | NULL | 악보 설명 |
 | uploaded_at | TIMESTAMP | DEFAULT NOW | 업로드일시 |
-| uploaded_by | VARCHAR(50) | NULL | 업로드한 사용자 |
+| uploaded_by | INT | NULL | 업로드한 사용자 ID (향후 users.id FK) |
 
 **제약조건**:
 - CASCADE DELETE
 
 **인덱스**:
 - `idx_worship` (worship_id)
+- `idx_uploaded_by` (uploaded_by)
 
 ---
 
@@ -289,7 +290,7 @@
 | copyright_info | TEXT | NULL | 저작권 정보 |
 | created_at | TIMESTAMP | DEFAULT NOW | 생성일시 |
 | updated_at | TIMESTAMP | DEFAULT NOW | 수정일시 |
-| uploaded_by | VARCHAR(50) | NULL | 업로드한 사용자 |
+| uploaded_by | INT | NULL | 업로드한 사용자 ID (향후 users.id FK) |
 | download_count | INT | DEFAULT 0 | 다운로드 횟수 |
 | is_public | BOOLEAN | DEFAULT true | 공개 여부 |
 
@@ -297,6 +298,7 @@
 - `idx_title` (title)
 - `idx_key` (song_key)
 - `idx_bpm` (bpm)
+- `idx_uploaded_by` (uploaded_by)
 - `idx_category` (category)
 - `idx_is_original` (is_original)
 - `idx_created_at` (created_at)
@@ -309,7 +311,7 @@
 |--------|------|------|------|
 | id | INT | PK, AI | 다운로드 ID |
 | score_id | INT | FK, NOT NULL | 악보 ID |
-| user_id | VARCHAR(50) | NOT NULL | 사용자 ID |
+| user_id | INT | NOT NULL | 사용자 ID (향후 users.id FK) |
 | downloaded_at | TIMESTAMP | DEFAULT NOW | 다운로드일시 |
 | ip_address | VARCHAR(45) | NULL | IP 주소 |
 | user_agent | TEXT | NULL | User Agent |
@@ -330,7 +332,7 @@
 | 필드명 | 타입 | 제약 | 설명 |
 |--------|------|------|------|
 | id | INT | PK, AI | Q&A ID |
-| user_id | VARCHAR(50) | NOT NULL | 작성자 ID |
+| user_id | INT | NOT NULL | 작성자 ID (향후 users.id FK) |
 | category | ENUM | NOT NULL | 카테고리 (집회/악보/기타) |
 | title | VARCHAR(200) | NOT NULL | 제목 |
 | content | TEXT | NOT NULL | 질문 내용 |
@@ -341,6 +343,7 @@
 | updated_at | TIMESTAMP | DEFAULT NOW | 수정일시 |
 
 **인덱스**:
+- `idx_user` (user_id)
 - `idx_category` (category)
 - `idx_status` (status)
 - `idx_created_at` (created_at)

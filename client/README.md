@@ -7,7 +7,7 @@
 ## 기술 스택
 
 | 라이브러리/프레임워크 | 버전 | 용도 |
-|-------------------|------|------|
+| ------------------- | ------ | ------ |
 | Vue.js | 3.5.22 | UI 프레임워크 |
 | Vue Router | 4.6.3 | 클라이언트 라우팅 |
 | TypeScript | 5.x | 타입 안전성 |
@@ -21,6 +21,7 @@
 ## 현재 완료 사항
 
 ### 📄 페이지
+
 - **Home** - 메인 페이지 (히어로 섹션, 기능 소개 카드)
 - **Vision** - 비전 및 팀원 소개 (필터링 기능: All/Leader/Worship/Step)
 - **Map** - 오시는 길 (구글맵 임베드, 길찾기 링크)
@@ -31,12 +32,14 @@
 - **Q&A** - 질문 및 답변 (카테고리 필터, 관리자 답변 기능, 통계)
 
 ### 🔐 인증 관련
+
 - **Login** - 로그인
 - **Register** - 회원가입 (이메일 인증 플로우)
 - **FindId** - 아이디 찾기
 - **ResetPassword** - 비밀번호 재설정
 
 ### 🎨 레이아웃 및 UI/UX
+
 - **MainLayout** - 헤더, 네비게이션, 푸터
   - 데스크톱: 로고 + 오디오 플레이어 + 네비게이션 + 로그인/드롭다운
   - 모바일: 로고 + 오디오 플레이어 + 햄버거 메뉴 (사이드 슬라이드)
@@ -44,6 +47,7 @@
 - **오디오 플레이어** - 헤더 통합 미니 플레이어 (자동 다음곡 재생)
 
 ### ⚙️ 주요 기능
+
 - **관리자 전용 기능** (useAuth composable 기반)
   - 집회: 추가/수정/삭제, 영상/사진/악보 관리
   - 악보: 추가/수정/삭제
@@ -61,20 +65,23 @@
 ## 🔐 관리자 기능 테스트 방법
 
 ### 1. 관리자 계정 (Mock)
-```
+
+```text
 이메일: admin@obed.com
 비밀번호: admin123
 ```
 
 ### 2. 일반 사용자 계정 (Mock)
-```
+
+```text
 이메일: user@obed.com
 비밀번호: user123
 ```
 
 ### 3. 관리자 전용 기능
+
 - **집회 목록**: 각 카드 우측 상단 ✏️ 편집, 🗑️ 삭제
-- **집회 상세**: 
+- **집회 상세**:
   - 우측 상단 `✏️ 편집 모드` 토글 버튼
   - 편집 모드 활성화 시:
     - 영상: `+ 영상 추가`, 각 영상 우측 상단 🗑️ 삭제
@@ -88,21 +95,25 @@
 ## 🚀 실행 방법
 
 ### 설치
+
 ```bash
 npm install
 ```
 
 ### 개발 서버
+
 ```bash
 npm run dev
 ```
 
 ### 빌드
+
 ```bash
 npm run build
 ```
 
 ### 프리뷰
+
 ```bash
 npm run preview
 ```
@@ -110,7 +121,8 @@ npm run preview
 ---
 
 ## 📁 프로젝트 구조
-```
+
+```text
 client/
 ├── public/                    # 정적 파일
 │   └── favicon.ico
@@ -172,6 +184,7 @@ client/
 ---
 
 ## 🎨 반응형 브레이크포인트
+
 - **900px 이하**: 햄버거 메뉴 활성화, 데스크톱 네비게이션 숨김
 - **768px 이하**: 그리드 2열 → 1열, 폰트 크기 축소
 - **480px 이하**: 추가 최적화 (간격, 버튼 크기, 패딩 등)
@@ -236,11 +249,13 @@ client/
 ## 🔜 향후 작업 예정
 
 ### 필수 작업
+
 - [ ] JWT 인증 구현
 - [ ] 에러 핸들링 개선
 - [ ] 로딩 상태 관리
 
 ### 추가 기능
+
 - [ ] 마이페이지 개발
 - [ ] 티켓팅 시스템
 - [ ] 알림 기능
@@ -249,6 +264,7 @@ client/
 - [ ] 국제화 (i18n)
 
 ### 성능 최적화
+
 - [ ] 이미지 최적화 (WebP, lazy loading)
 - [ ] 코드 스플리팅
 - [ ] 캐싱 전략
@@ -267,6 +283,7 @@ client/
 ### API 엔드포인트
 
 #### 팀원 (Members)
+
 - `GET /members` - 전체 팀원 조회
 - `GET /members/:id` - 특정 팀원 조회
 - `POST /members` - 팀원 추가
@@ -274,6 +291,7 @@ client/
 - `DELETE /members/:id` - 팀원 삭제
 
 #### 집회 (Worship)
+
 - `GET /worship` - 전체 집회 조회
 - `GET /worship/:id` - 특정 집회 조회
 - `GET /worship/year/:year` - 연도별 집회 조회
@@ -282,24 +300,29 @@ client/
 - `DELETE /worship/:id` - 집회 삭제
 
 #### 집회 곡 (Worship Songs)
+
 - `POST /worship-songs` - 집회 곡 추가
 - `DELETE /worship-songs/:id` - 집회 곡 삭제
 
 #### 집회 영상 (Worship Videos)
+
 - `POST /worship-videos` - 영상 추가
 - `DELETE /worship-videos/:id` - 영상 삭제
 
 #### 집회 사진 (Worship Photos)
+
 - `POST /worship-photos` - 사진 추가
 - `POST /worship-photos/upload` - 사진 파일 업로드
 - `DELETE /worship-photos/:id` - 사진 삭제
 
 #### 집회 악보 (Worship Scores)
+
 - `POST /worship-scores` - 악보 추가
 - `POST /worship-scores/upload` - 악보 파일 업로드
 - `DELETE /worship-scores/:id` - 악보 삭제
 
 #### 악보 라이브러리 (Scores)
+
 - `GET /scores` - 전체 악보 조회
 - `GET /scores/:id` - 특정 악보 조회
 - `POST /scores` - 악보 추가
@@ -308,6 +331,7 @@ client/
 - `DELETE /scores/:id` - 악보 삭제
 
 #### 파일 업로드 (Photos)
+
 - `POST /photos/upload` - 이미지 파일 업로드 (포스터, 사진)
 
 ---
@@ -315,11 +339,13 @@ client/
 ## 🔧 환경 변수
 
 ### `.env` 파일
+
 ```env
 VITE_API_BASE_URL=http://localhost:3000
 ```
 
 ### Railway 배포 시
+
 ```env
 VITE_API_BASE_URL=https://your-api-url.railway.app
 ```

@@ -29,6 +29,9 @@
         </RouterLink>
       </div>
 
+      <!-- Asset Manager -->
+      <AssetManager />
+
       <!-- 집회 현황 -->
       <div class="dashboard-section">
         <h2 class="section-title-sub">집회 현황</h2>
@@ -88,6 +91,7 @@ import { ref, onMounted, computed } from "vue";
 import { RouterLink } from "vue-router";
 import { useAuth } from "@/composables/useAuth";
 import { worshipApi, type Worship } from "@/api/worship";
+import AssetManager from "@/components/AssetManager.vue";
 
 const { isAdmin } = useAuth();
 const worships = ref<Worship[]>([]);
