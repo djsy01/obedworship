@@ -194,7 +194,7 @@ source /Users/inho/Desktop/Cording/obedworship/database/migration_users_and_seed
 ### 2. Prisma Client 재생성
 
 ```bash
-cd test-server
+cd backend
 npx prisma generate
 ```
 
@@ -340,7 +340,7 @@ ADD COLUMN user_id INT NULL;
 
 **해결**:
 ```bash
-cd test-server
+cd backend
 npx prisma generate
 npm run start:dev
 ```
@@ -365,7 +365,7 @@ WHERE name = '엄인호';
 - `/docs/MEMBER_SYSTEM_UPDATE.md` - 이 문서
 
 ### 수정된 파일
-- `/test-server/prisma/schema.prisma` - users 모델 추가, members에 user_id 추가
+- `prisma/schema.prisma` - users 모델 추가, members에 user_id 추가
 - `/client/src/views/VisionView.vue` - 더미 데이터 제거, API 로드 추가
 
 ## 참고 사항

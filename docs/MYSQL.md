@@ -129,7 +129,7 @@ SELECT User, Host FROM mysql.user;
 
 ### 로컬 개발 환경
 
-#### `test-server/.env`
+#### 백엔드 `.env`
 ```env
 DATABASE_URL="mysql://obedadmin:strong_password@localhost:3306/obedworship"
 ```
@@ -151,7 +151,7 @@ Railway에서 MySQL 플러그인 추가 시 자동으로 `DATABASE_URL` 환경�
 ### 1. Prisma Client 설치
 
 ```bash
-cd test-server
+cd backend
 npm install @prisma/client
 npm install -D prisma
 ```

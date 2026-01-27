@@ -274,7 +274,7 @@ const handleUpdateScore = async () => {
     await scoreApi.update(id, updateData);
     alert("악보가 수정되었습니다!");
     cancelEdit();
-    await fetchScores(); // 목록 새로고침
+    await fetchScores(); // Refresh the list
   } catch (error) {
     console.error("❌ 악보 수정 실패:", error);
     alert("악보 수정에 실패했습니다");

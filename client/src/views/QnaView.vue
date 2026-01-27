@@ -16,7 +16,7 @@ const currentUser = ref<{ userId: string; name: string; role: string } | null>(
 // Login or not
 const isLoggedIn = computed(() => currentUser.value !== null);
 
-// 관리자 여부 확인
+// Check if user is admin
 const isAdmin = computed(() => currentUser.value?.role === "admin");
 
 // Login check

@@ -1,5 +1,35 @@
+/**
+ * assets.ts - Static Assets API Client
+ *
+ * Backend API Endpoints Required:
+ * - GET    /assets                 - Get all assets
+ * - GET    /assets?category=X      - Filter by category (home, songs, etc.)
+ * - GET    /assets/key/:key        - Get asset by unique key
+ * - GET    /assets/:id             - Get asset by ID
+ * - POST   /assets                 - Create asset record
+ * - PATCH  /assets/:id             - Update asset by ID
+ * - PATCH  /assets/key/:key        - Update asset by key
+ * - DELETE /assets/:id             - Delete asset
+ * - POST   /assets/upload          - Upload file (multipart/form-data)
+ *
+ * Database Table: assets
+ *
+ * Purpose: Manage static assets that need to be updateable from admin
+ * - Home page team photo (key: "home_team_photo")
+ * - Logo (key: "home_logo")
+ * - Music files, etc.
+ *
+ * Upload Logic:
+ * - If asset_key exists, delete old file and update record
+ * - If asset_key doesn't exist, create new record
+ * - Files stored in Google Cloud Storage (GCS)
+ */
 import axios from "./axios";
 
+/**
+ * Asset data structure
+ * Maps to assets table in MySQL
+ */
 export interface Asset {
   id: number;
   asset_key: string;

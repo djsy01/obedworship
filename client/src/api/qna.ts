@@ -1,6 +1,28 @@
+/**
+ * qna.ts - Q&A API Client
+ *
+ * Backend API Endpoints Required:
+ * - GET    /qna                    - Get all Q&A entries
+ * - GET    /qna?category=X         - Filter by category (집회/악보/기타)
+ * - GET    /qna/:id                - Get single Q&A
+ * - POST   /qna                    - Create new question
+ * - PATCH  /qna/:id/answer         - Admin: Add/update answer
+ * - DELETE /qna/:id                - Delete Q&A
+ *
+ * Database Table: qna
+ *
+ * Status Flow:
+ * - User creates question -> status: "WAITING"
+ * - Admin answers -> status: "ANSWERED", answer_date: now()
+ *
+ * Note: Questions are created with user_id for tracking
+ * but user info is NOT displayed publicly (privacy protection)
+ */
 import axios from "./axios";
 
-// type definition
+/**
+ * DTO for creating a new Q&A question
+ */
 export interface CreateQnaDto {
   user_id: string;
   category: "집회" | "악보" | "기타";

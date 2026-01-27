@@ -1,4 +1,4 @@
-# 구현 완료 요약
+# 구현 계획 요약 (예정)
 
 ## 📅 작업 일자
 2026-01-23
@@ -17,11 +17,11 @@
 
 ### 1. Google Cloud Storage 설정 및 통합
 
-#### 백엔드 구현
+#### 백엔드 구현 (예정)
 - ✅ `@google-cloud/storage` 패키지 설치
-- ✅ `StorageService` 구현 ([src/common/storage/storage.service.ts](../test-server/src/common/storage/storage.service.ts))
-- ✅ `StorageModule` 구현 및 전역 모듈 등록
-- ✅ 환경 변수 설정 (`.env`)
+- 📋 `StorageService` 구현 예정
+- 📋 `StorageModule` 구현 및 전역 모듈 등록 예정
+- 📋 환경 변수 설정 예정 (`.env`)
 
 **주요 기능**:
 - 파일 업로드 (`uploadFile`)
@@ -29,9 +29,9 @@
 - URL에서 파일명 추출 (`extractFilename`)
 - 자동 공개 URL 생성
 
-**파일 구조**:
+**파일 구조(예정)**:
 ```
-test-server/src/common/storage/
+backend/src/common/storage/
 ├── storage.module.ts    # Global 모듈
 └── storage.service.ts   # GCS 업로드 서비스
 ```
@@ -41,7 +41,7 @@ test-server/src/common/storage/
 ### 2. 파일 업로드 API 엔드포인트
 
 #### 2.1 Members API
-**파일**: [src/members/members.controller.ts](../test-server/src/members/members.controller.ts)
+**파일**: 백엔드 구현 예정
 
 **추가된 엔드포인트**:
 - `POST /members/upload-photo` - 단일 멤버 사진 업로드
@@ -66,7 +66,7 @@ curl -X POST http://localhost:3000/members/upload-photo \
 ```
 
 #### 2.2 Worship Photos API
-**파일**: [src/worship-photos/worship-photos.controller.ts](../test-server/src/worship-photos/worship-photos.controller.ts)
+**파일**: 백엔드 구현 예정
 
 **추가된 엔드포인트**:
 - `POST /worship-photos/upload` - 단일 사진 업로드
@@ -174,7 +174,7 @@ await memberApi.create({
 
 ## 📂 변경된 파일 목록
 
-### 백엔드 (test-server/)
+### 백엔드 (예정)
 ```
 새로 생성:
   src/common/storage/storage.module.ts
@@ -248,7 +248,7 @@ await memberApi.create({
 
 **StorageService**:
 ```typescript
-// test-server/src/common/storage/storage.service.ts
+// backend/src/common/storage/storage.service.ts (예정)
 await this.storageService.uploadFile(file, 'members');
 await this.storageService.deleteFile(filename);
 const filename = this.storageService.extractFilename(url);
@@ -256,7 +256,7 @@ const filename = this.storageService.extractFilename(url);
 
 **Members 업로드 API**:
 ```typescript
-// test-server/src/members/members.controller.ts:51-66
+// backend/src/members/members.controller.ts:51-66 (예정)
 @Post('upload-photo')
 @UseInterceptors(FileInterceptor('photo'))
 async uploadPhoto(@UploadedFile() file: Express.Multer.File) { ... }
@@ -264,7 +264,7 @@ async uploadPhoto(@UploadedFile() file: Express.Multer.File) { ... }
 
 **Worship Photos 업로드 API**:
 ```typescript
-// test-server/src/worship-photos/worship-photos.controller.ts:33-77
+// backend/src/worship-photos/worship-photos.controller.ts:33-77 (예정)
 @Post('upload')
 @UseInterceptors(FileInterceptor('photo'))
 async uploadPhoto(...) { ... }
@@ -383,7 +383,7 @@ curl -X POST http://localhost:3000/members/upload-photo \
 2. **로그 확인**:
    ```bash
    # 백엔드 로그
-   cd test-server
+   cd backend
    npm run start:dev
    ```
 

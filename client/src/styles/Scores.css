@@ -348,14 +348,14 @@
   min-height: 80px;
 }
 
-/* 한 줄 폼 래퍼 */
+/* Single row form wrapper */
 .form-row {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
 }
 
-/* 체크박스 필드 스타일 */
+/* Checkbox field style */
 .form-row .field-checkbox {
   flex-direction: row;
   gap: 0.5rem;
@@ -373,13 +373,13 @@
   align-items: center;
 }
 
-/* 2열 그리드 (큰 화면) */
+/* 2-column grid (large screens) */
 @media (min-width: 768px) {
   .form-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  /* 한 줄 폼 - 3열 배치 */
+  /* Single row form - 3-column layout */
   .form-row {
     grid-column: 1 / -1;
     display: grid;
@@ -388,7 +388,7 @@
     align-items: flex-end;
   }
 
-  /* 체크박스는 아래 정렬 */
+  /* Checkbox aligned to bottom */
   .form-row .field-checkbox {
     padding-bottom: 0.5rem;
   }

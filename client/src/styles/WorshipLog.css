@@ -168,7 +168,7 @@
   padding: 2rem;
 }
 
-/* 로딩 상태 */
+/* Loading state */
 .loading {
   text-align: center;
   padding: 3rem;
@@ -176,7 +176,7 @@
   color: #666;
 }
 
-/* 에러 상태 */
+/* Error state */
 .error-message {
   text-align: center;
   padding: 3rem;

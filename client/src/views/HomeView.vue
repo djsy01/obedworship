@@ -1,11 +1,26 @@
 <script setup lang="ts">
+/**
+ * HomeView.vue - Main landing page for OBED Worship website
+ *
+ * Features:
+ * - Hero section with team photo loaded from database (via Assets API)
+ * - Feature cards linking to main sections (Scores, Q&A)
+ *
+ * API Dependencies:
+ * - assetApi.getByKey("home_team_photo") - Fetches team photo URL from assets table
+ */
 import { ref, onMounted } from "vue";
 import { assetApi } from "@/api/assets";
 import "../styles/Home.css";
 
+// Reactive reference for team photo URL (loaded from database)
 const teamPhoto = ref<string>("");
 
-// DB에서 팀 사진 로드
+/**
+ * Load team photo from database
+ * Fetches the team photo URL using the asset key "home_team_photo"
+ * Falls back gracefully if photo is not found
+ */
 const loadTeamPhoto = async () => {
   try {
     const response = await assetApi.getByKey("home_team_photo");
@@ -17,6 +32,7 @@ const loadTeamPhoto = async () => {
   }
 };
 
+// Initialize: Load team photo on component mount
 onMounted(() => {
   loadTeamPhoto();
 });

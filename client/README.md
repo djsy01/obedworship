@@ -6,15 +6,15 @@
 
 ## 기술 스택
 
-| 라이브러리/프레임워크 | 버전 | 용도 |
-| ------------------- | ------ | ------ |
-| Vue.js | 3.5.22 | UI 프레임워크 |
-| Vue Router | 4.6.3 | 클라이언트 라우팅 |
-| TypeScript | 5.x | 타입 안전성 |
-| Vite | 7.1.11 | 빌드 도구 |
-| Axios | ^1.x | HTTP 클라이언트 |
-| @vitejs/plugin-vue | 6.0.1 | Vue SFC 지원 |
-| vite-plugin-vue-devtools | 8.0.3 | 개발 도구 |
+| 라이브러리/프레임워크    | 버전   | 용도              |
+| ------------------------ | ------ | ----------------- |
+| Vue.js                   | 3.5.22 | UI 프레임워크     |
+| Vue Router               | 4.6.3  | 클라이언트 라우팅 |
+| TypeScript               | 5.x    | 타입 안전성       |
+| Vite                     | 7.1.11 | 빌드 도구         |
+| Axios                    | ^1.x   | HTTP 클라이언트   |
+| @vitejs/plugin-vue       | 6.0.1  | Vue SFC 지원      |
+| vite-plugin-vue-devtools | 8.0.3  | 개발 도구         |
 
 ---
 
@@ -28,7 +28,8 @@
 - **WorshipLog** - 집회 목록 (연도별 필터, 관리자 추가 기능)
 - **WorshipDetail** - 집회 상세 (탭: 안내/갤러리/악보, 날짜 기반 악보 탭 표시)
 - **Scores** - 악보 페이지 (검색, Key/BPM 필터, 페이지네이션)
-- **Tickets** - 집회 신청
+- **집회 신청** - 집회 신청 시스템 (개발 중)
+- **마이페이지** - 사용자 대시보드, 신청 내역 관리
 - **Q&A** - 질문 및 답변 (카테고리 필터, 관리자 답변 기능, 통계)
 
 ### 🔐 인증 관련
@@ -62,23 +63,42 @@
 
 ---
 
-## 🔐 관리자 기능 테스트 방법
+## 🔐 테스트 계정 (Mock)
 
-### 1. 관리자 계정 (Mock)
+### 4개 역할 체계
+
+- `admin`, `operator` = 관리자 권한
+- `member`, `user` = 일반 권한
+
+### 1. 관리자 계정
 
 ```text
 이메일: admin@obed.com
 비밀번호: admin123
 ```
 
-### 2. 일반 사용자 계정 (Mock)
+### 2. 운영자 계정 (관리자와 동일 권한)
 
 ```text
-이메일: user@obed.com
-비밀번호: user123
+이메일: operator@obed.com
+비밀번호: operator123
 ```
 
-### 3. 관리자 전용 기능
+### 3. 멤버 계정
+
+```text
+이메일: member@obed.com
+비밀번호: member123
+```
+
+### 4. 일반 사용자 계정
+
+```text
+이메일: (아무 이메일)
+비밀번호: (아무 비밀번호)
+```
+
+### 5. 관리자 전용 기능
 
 - **집회 목록**: 각 카드 우측 상단 ✏️ 편집, 🗑️ 삭제
 - **집회 상세**:
@@ -170,6 +190,7 @@ client/
 │   │   ├── WorshipDetailView.vue
 │   │   ├── ScoresView.vue
 │   │   ├── TicketsView.vue
+│   │   ├── MyPageView.vue
 │   │   ├── QnaView.vue
 │   │   └── AdminView.vue
 │   ├── App.vue
@@ -194,14 +215,16 @@ client/
 ## 📝 주요 기능 상세
 
 ### Vision 페이지 필터링
+
 - **메인 필터**: All, Leader, Worship, Step
-- **Worship 세부 필터**: 
+- **Worship 세부 필터**:
   - Vocal, Piano(Piano+Synthesizer), Guitar(4종), Drum
-- **Step 세부 필터**: 
+- **Step 세부 필터**:
   - Accounting, Planning, Media, Stage, Prayer
 - **정렬 우선순위**: 역할(Role) → 포지션 → 이름(가나다순)
 
 ### 집회 상세 페이지
+
 - **탭 구조**: 안내 / 영상·사진 / 악보
 - **악보 탭 조건**: 집회 날짜 이후에만 표시 (당일 포함)
 - **저작권 안내**: 제외된 곡 목록 경고 표시
@@ -209,12 +232,14 @@ client/
 - **영상/사진 갤러리**: 라이트박스 기능
 
 ### 악보 페이지
+
 - **검색**: 곡 제목 실시간 검색
 - **필터**: Key 선택, 정렬(제목/BPM/최신순)
 - **페이지네이션**: 페이지당 10개 (총 N 페이지)
 - **다운로드**: 로그인 필수
 
 ### Q&A
+
 - **카테고리**: 집회, 악보, 기타
 - **통계 카드**: 전체/답변완료/답변대기 건수
 - **상태**: WAITING, ANSWERED
@@ -224,7 +249,8 @@ client/
 
 ## ✅ 완료된 기능
 
-### 백엔드 API 연동
+### API 연동 (예정)
+
 - [x] Axios 인스턴스 설정
 - [x] API 클라이언트 모듈화
   - 팀원 API (members)
@@ -240,9 +266,20 @@ client/
   - 로그인 필수 체크
 
 ### 집회 포스터 시스템
+
 - [x] 포스터 업로드/변경/삭제
 - [x] 안내 탭: 클릭 시 전체화면 모달
 - [x] 악보 탭: 포스터 미리보기 (집회 포스터 공유)
+
+---
+
+## ✅ 최근 완료된 기능 (01/26)
+
+- [x] 마이페이지 개발 (MyPageView.vue)
+- [x] 4개 역할 체계 구현 (admin/operator/member/user)
+- [x] 탭 가시성 로직 개선
+  - 영상/사진 탭: 관리자는 항상 보임, 일반 사용자는 날짜 지난 후 + 콘텐츠 있을 때만
+  - 악보 탭: 관리자는 항상 보임, 일반 사용자는 날짜 지난 후 + 악보 있을 때만
 
 ---
 
@@ -251,13 +288,10 @@ client/
 ### 필수 작업
 
 - [ ] JWT 인증 구현
-- [ ] 에러 핸들링 개선
-- [ ] 로딩 상태 관리
+- [ ] 집회 신청 시스템 완성
 
 ### 추가 기능
 
-- [ ] 마이페이지 개발
-- [ ] 티켓팅 시스템
 - [ ] 알림 기능
 - [ ] 다크 모드
 - [ ] PWA 지원
@@ -272,13 +306,34 @@ client/
 
 ---
 
-## 📡 API 연동 현황
+## 📡 백엔드 개발자를 위한 API 명세
 
-### Axios 설정
-- **Base URL**: `http://localhost:3000` (개발) / Railway URL (프로덕션)
+> ⚠️ **승훈에게**: 이 섹션은 프론트엔드가 필요로 하는 API 엔드포인트 목록입니다.
+> 각 API 파일(`client/src/api/*.ts`)에 더 자세한 주석이 있으니 참고하세요.
+
+### Axios 설정 (프론트엔드)
+
+- **Base URL**: 환경변수 `VITE_API_BASE_URL`
 - **Timeout**: 10초
-- **요청 인터셉터**: JWT 토큰 자동 추가
+- **요청 인터셉터**: Authorization 헤더에 JWT 토큰 자동 추가
 - **응답 인터셉터**: 401 에러 시 자동 로그아웃
+
+### 인증 API (`/auth`)
+
+> 현재 Mock 인증 사용 중. 실제 구현 필요.
+
+```text
+POST /auth/login          - 로그인 (email, password)
+POST /auth/register       - 회원가입 (email, password, name, phone?)
+POST /auth/logout         - 로그아웃
+GET  /auth/session        - 세션 확인 (JWT 토큰 검증)
+POST /auth/change-password - 비밀번호 변경
+```
+
+**역할 시스템 (4개)**:
+
+- `admin`, `operator` = 관리자 권한
+- `member`, `user` = 일반 권한
 
 ### API 엔드포인트
 

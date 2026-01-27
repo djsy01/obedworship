@@ -354,7 +354,7 @@
 
 ### Schema 파일 위치
 ```
-test-server/prisma/schema.prisma
+prisma/schema.prisma
 ```
 
 ### 주요 명령어

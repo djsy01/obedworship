@@ -825,7 +825,7 @@ textarea {
    Mobile responsive (less than 900px)
    ======================================== */
 @media (max-width: 900px) {
-  /* 헤더 레이아웃 - 한 줄 유지 */
+  /* Header layout - keep single row */
   .header-inner {
     padding: 0.6rem 1rem;
     gap: 0.5rem;

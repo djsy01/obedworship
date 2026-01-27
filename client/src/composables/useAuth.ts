@@ -1,12 +1,41 @@
+/**
+ * useAuth.ts - Authentication Composable for OBED Worship
+ *
+ * IMPORTANT: This file currently uses MOCK authentication for frontend development.
+ * Backend developer should implement actual authentication and uncomment the API calls.
+ *
+ * Role System (4 roles):
+ * - admin: Full administrator access
+ * - operator: Same privileges as admin (co-administrator)
+ * - member: OBED Worship team member (logged in, basic access)
+ * - user: General user (logged in, basic access)
+ *
+ * Permission Groups:
+ * - isAdmin: admin OR operator (can manage content)
+ * - isMember: Any logged in user (can access member features)
+ *
+ * Mock Test Accounts (for development):
+ * - admin@obed.com / admin123 -> admin role
+ * - operator@obed.com / operator123 -> operator role
+ * - member@obed.com / member123 -> member role
+ * - Any other email/password -> user role
+ *
+ * Backend Integration:
+ * - Uncomment authApi imports and calls when backend is ready
+ * - API endpoints needed: login, register, logout, checkSession, changePassword
+ */
 import { computed, ref } from "vue";
-// import { authApi, type User } from '@/api/auth' // Uncomment after completing the backend
+// import { authApi, type User } from '@/api/auth' // TODO: Uncomment when backend is ready
 
 // ==========================================
-// Manage authentication status
+// TYPE DEFINITIONS
 // ==========================================
 
-// Current user information (User type used when linking backend)
-// admin, operator = administrator privileges / member, user = general privileges
+/**
+ * User roles - 4 role permission system
+ * admin, operator = Admin privileges (can manage content)
+ * member, user = Regular privileges (can view/use features)
+ */
 type UserRole = "admin" | "operator" | "member" | "user";
 
 interface CurrentUser {
@@ -203,7 +232,7 @@ export function useAuth() {
       // if (response.data.success) {
       //   return true
       // }
-      // errorRef.value = response.data.message || '회원가입에 실패했습니다.'
+      // errorRef.value = response.data.message || 'Registration failed.'
       // return false
       // ========================================================
 
@@ -211,16 +240,16 @@ export function useAuth() {
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       if (email && password && name) {
-        console.log("회원가입 성공 (Mock):", { email, name, phone });
+        console.log("Registration success (Mock):", { email, name, phone });
         return true;
       }
 
-      errorRef.value = "모든 필수 항목을 입력해주세요.";
+      errorRef.value = "Please fill in all required fields.";
       return false;
       // ========================================================
     } catch (err: any) {
       errorRef.value =
-        err.response?.data?.message || "회원가입에 실패했습니다.";
+        err.response?.data?.message || "Registration failed.";
       return false;
     } finally {
       loadingRef.value = false;
@@ -237,7 +266,7 @@ export function useAuth() {
       // await authApi.logout()
       // ========================================================
     } catch (err) {
-      console.error("로그아웃 API 실패:", err);
+      console.error("Logout API failed:", err);
     } finally {
       // initialize local state
       isLoggedInRef.value = false;
@@ -269,7 +298,7 @@ export function useAuth() {
       //   }
       //   return true
       // }
-      // // 세션 만료 시 로컬 상태 초기화
+      // // Reset local state when session expires
       // await logout()
       // return false
       // ========================================================
@@ -278,7 +307,7 @@ export function useAuth() {
       return isLoggedInRef.value;
       // ========================================================
     } catch (err) {
-      console.error("세션 확인 실패:", err);
+      console.error("Session check failed:", err);
       return false;
     }
   };
@@ -306,38 +335,40 @@ export function useAuth() {
 
       // ========== Mock (used until backend completion) ==========
       await new Promise((resolve) => setTimeout(resolve, 500));
-      console.log("비밀번호 변경 (Mock)");
+      console.log("Password changed (Mock)");
       return true;
       // ========================================================
     } catch (err: any) {
       errorRef.value =
-        err.response?.data?.message || "비밀번호 변경에 실패했습니다.";
+        err.response?.data?.message || "Failed to change password.";
       return false;
     } finally {
       loadingRef.value = false;
     }
   };
 
-  // Error initialization
+  /**
+   * Clear any error messages
+   */
   const clearError = () => {
     errorRef.value = null;
   };
 
   return {
-    // situation
-    isLoggedIn,
-    isAdmin,
-    isMember,
-    currentUser,
-    loading,
-    error,
+    // State (reactive)
+    isLoggedIn,       // Boolean: User is logged in
+    isAdmin,          // Boolean: User is admin or operator
+    isMember,         // Boolean: User is logged in (any role)
+    currentUser,      // User object or null
+    loading,          // Boolean: API call in progress
+    error,            // Error message or null
 
-    //method
-    login,
-    register,
-    logout,
-    checkSession,
-    changePassword,
-    clearError,
+    // Methods
+    login,            // Login with email/password
+    register,         // Register new user
+    logout,           // Logout and clear state
+    checkSession,     // Verify session is still valid
+    changePassword,   // Change user password
+    clearError,       // Clear error message
   };
 }

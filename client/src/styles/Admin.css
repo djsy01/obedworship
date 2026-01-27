@@ -27,7 +27,7 @@
   line-height: 1.6;
 }
 
-/* 관리 링크 카드 */
+/* Admin link cards */
 .admin-links {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -65,7 +65,7 @@
   margin: 0;
 }
 
-/* 대시보드 섹션 */
+/* Dashboard section */
 .dashboard-section {
   background: #fff;
   border: 1px solid #eee;
@@ -84,7 +84,7 @@
   border-bottom: 2px solid #f0e6e8;
 }
 
-/* 통계 그리드 */
+/* Statistics grid */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -123,7 +123,7 @@
   font-weight: 500;
 }
 
-/* 최근 집회 목록 */
+/* Recent worship list */
 .recent-worships {
   margin-top: 2rem;
 }
@@ -190,7 +190,7 @@
   color: #2b1a20;
 }
 
-/* 로딩 및 빈 상태 */
+/* Loading and empty states */
 .loading,
 .empty {
   text-align: center;
@@ -222,7 +222,7 @@
   }
 }
 
-/* 반응형 */
+/* Responsive */
 @media (max-width: 900px) {
   .section-title {
     font-size: 2rem;

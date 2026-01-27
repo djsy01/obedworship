@@ -1,5 +1,33 @@
+/**
+ * members.ts - Team Members API Client
+ *
+ * Backend API Endpoints Required:
+ * - GET    /members                    - Get all members (with roles and positions)
+ * - GET    /members?active=true        - Get only active members
+ * - GET    /members?affiliation=X      - Filter by affiliation
+ * - GET    /members/:id                - Get single member
+ * - POST   /members                    - Create new member
+ * - PATCH  /members/:id                - Update member
+ * - DELETE /members/:id                - Delete member
+ * - POST   /members/upload-photo       - Upload member photo (multipart/form-data)
+ * - POST   /members/:id/roles          - Update member's leadership roles
+ * - POST   /members/:id/worship-positions - Update worship positions
+ * - POST   /members/:id/step-positions - Update step team positions
+ *
+ * Database Tables:
+ * - members (main table)
+ * - member_roles (leadership roles - Pastor, Elder, Team Leader, etc.)
+ * - member_worship_positions (Vocal, Piano, Guitar, Drum, etc.)
+ * - member_step_positions (Media Team, Stage Team, etc.)
+ *
+ * Note: When fetching members, include joined data from role/position tables
+ */
 import axios from "./axios";
 
+/**
+ * Member data structure with joined roles and positions
+ * Maps to members table with LEFT JOINs on role/position tables
+ */
 export interface Member {
   id: number;
   name: string;

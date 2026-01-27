@@ -14,7 +14,7 @@
 
 ### 로컬 저장소 모드
 
-- 파일 저장 위치: `test-server/uploads/`
+- 파일 저장 위치: `uploads/`
 - URL 형식: `http://localhost:3000/uploads/{folder}/{filename}`
 - 장점: 설정 없이 바로 테스트 가능
 - 단점: 서버를 재시작하면 파일이 유지되지만, 배포 시 문제 발생 가능
@@ -22,7 +22,7 @@
 ## 파일 구조
 
 ```
-test-server/
+backend/
 ├── uploads/                    # 로컬 저장소 (gitignore에 추가됨)
 │   ├── members/               # 멤버 사진
 │   ├── assets/
@@ -38,7 +38,6 @@ test-server/
 
 1. 서버 실행:
 ```bash
-cd test-server
 npm run start:dev
 ```
 
@@ -49,7 +48,7 @@ npm run start:dev
    - 곡 업로드: MP3, WAV 등
 
 3. 업로드된 파일 확인:
-   - 서버: `test-server/uploads/` 폴더
+   - 서버: `uploads/` 폴더
    - 브라우저: `http://localhost:3000/uploads/{folder}/{filename}`
 
 ### 프로덕션 환경 (GCS 설정 필요)
@@ -81,7 +80,7 @@ GCS_KEY_FILE="./path/to/service-account-key.json"
    - 이름 입력 (예: `obedworship-storage`)
    - Role: "Storage Object Admin" 선택
    - "CREATE KEY" → JSON 다운로드
-   - 다운로드한 JSON 파일을 `test-server/gcs-key.json`에 저장
+   - 다운로드한 JSON 파일을 `gcs-key.json`에 저장
 
 4. **.env 파일 업데이트**
 ```env
@@ -187,13 +186,13 @@ curl -X POST http://localhost:3000/assets/upload \
 
 ```gitignore
 # Local uploads
-test-server/uploads/
+uploads/
 
 # GCS credentials
-test-server/gcs-key.json
-test-server/*.json
-!test-server/package.json
-!test-server/tsconfig.json
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
 ```
 
 ## 문제 해결
@@ -202,19 +201,19 @@ test-server/*.json
 
 1. **서버 로그 확인**
 ```bash
-cd test-server
+   cd backend
 npm run start:dev
 ```
 
 로그에 다음 메시지가 표시되어야 함:
 ```
-📁 Static files path: /Users/.../obedworship/test-server/uploads
+📁 Static files path: /path/to/project/uploads
 GCS not configured. Using local file storage for development.
 ```
 
 2. **uploads 폴더 권한 확인**
 ```bash
-ls -la test-server/uploads
+ls -la uploads
 ```
 
 3. **브라우저 콘솔 에러 확인**

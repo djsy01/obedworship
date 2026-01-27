@@ -2,7 +2,7 @@
    My page exclusive style
    ======================================== */
 
-/* 마이페이지 그리드 */
+/* My Page grid layout */
 .mypage-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

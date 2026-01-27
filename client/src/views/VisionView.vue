@@ -1,4 +1,27 @@
 <script setup lang="ts">
+/**
+ * VisionView.vue - Team member showcase page with advanced filtering
+ *
+ * Features:
+ * - Displays OBED Worship team members with photos, roles, and positions
+ * - Multi-level filtering: All / Leader / Worship / Step
+ * - Sub-filters for Worship (Vocal, Piano, Guitar, Drum)
+ * - Sub-filters for Step teams (Accounting, Planning, Media, Stage, Prayer)
+ * - Admin mode: Add, Edit, Delete members
+ * - Members sorted by role priority, then display order, then name
+ *
+ * API Dependencies:
+ * - memberApi.getAll() - Fetch all members with roles and positions
+ * - memberApi.getOne(id) - Fetch single member details
+ * - memberApi.delete(id) - Delete a member
+ * - assetApi.getByKey("home_logo") - Fetch logo as fallback image
+ *
+ * Data Structure:
+ * - Members have: roles, worship_positions, step_positions
+ * - Roles determine leadership status (Pastor, Elder, Team Leaders, etc.)
+ * - Worship positions: Vocal, Piano, Guitar, Drum, etc.
+ * - Step positions: Various team roles (Media, Stage, etc.)
+ */
 import { computed, ref, onMounted } from "vue";
 import { memberApi, type Member as ApiMember } from "@/api/members";
 import { assetApi } from "@/api/assets";
@@ -7,44 +30,77 @@ import "../styles/Vision.css";
 import instagramIcon from "@/assets/icons/Instargram.png";
 import youtubeIcon from "@/assets/icons/Youtube.png";
 
+/**
+ * Local Member type - transformed from API response for component use
+ * Roles and positions are converted from enum format to display format
+ */
 type Member = {
   id: number;
   name: string;
-  affiliation: string;
+  affiliation: string;           // Church position: 목사, 장로, 청년부, etc.
   photo_url: string;
   instagram_url: string | null;
   youtube_url: string | null;
-  roles: string[];
-  worship_positions: string[];
-  step_positions: string[];
+  roles: string[];               // Leadership roles (e.g., Pastor, Worship Team Leader)
+  worship_positions: string[];   // Musical positions (e.g., Vocal, Piano)
+  step_positions: string[];      // Team roles (e.g., Media Team, Stage Designer)
   description: string;
-  display_order?: number;
+  display_order?: number;        // Sort order within same role priority
 };
 
-//Administrator mode
+// ==========================================
+// STATE: UI Controls
+// ==========================================
+
+// Admin mode toggle - shows edit/delete buttons when enabled
 const isAdmin = ref(false);
 
-// Modal state
+// Modal state for member edit/add
 const isModalOpen = ref(false);
 const selectedMember = ref<ApiMember | null>(null);
 
-// Loading state
+// Loading state for API calls
 const loading = ref(true);
 
-const filter = ref<"all" | "leader" | "worship" | "step">("all");
-const worshipFilter = ref<string>("");
-const stepFilter = ref<string>("");
+// ==========================================
+// STATE: Filter Controls
+// ==========================================
 
-// Members data - loaded from API
+// Main category filter: all, leader, worship, step
+const filter = ref<"all" | "leader" | "worship" | "step">("all");
+
+// Sub-filters (active when main filter is selected)
+const worshipFilter = ref<string>("");  // Vocal, Piano, Guitar, Drum
+const stepFilter = ref<string>("");     // Accounting, Planning, Media, Stage, Prayer
+
+// ==========================================
+// STATE: Data
+// ==========================================
+
+// All members loaded from API
 const members = ref<Member[]>([]);
 
-// Logo - loaded from DB
+// Logo URL used as fallback when member has no photo
 const logo = ref<string>("");
 
-// Convert enum underscores back to spaces for display
+// ==========================================
+// UTILITIES
+// ==========================================
+
+/**
+ * Convert enum values to display format
+ * Database stores "Lead_Guitar" -> Display shows "Lead Guitar"
+ */
 const convertFromEnum = (value: string) => value.replace(/_/g, " ");
 
-// Load members from API
+// ==========================================
+// API CALLS
+// ==========================================
+
+/**
+ * Load all members from API and transform to component format
+ * Includes roles, worship positions, and step positions
+ */
 const loadMembers = async () => {
   try {
     loading.value = true;
@@ -79,14 +135,31 @@ const loadMembers = async () => {
   }
 };
 
+/**
+ * Computed: Filtered and sorted member list
+ *
+ * Filter Logic:
+ * 1. Main filter (all/leader/worship/step) filters by category
+ * 2. Sub-filters narrow down within category
+ * 3. Results sorted by: role priority -> display order -> name
+ *
+ * Special groupings:
+ * - Piano includes: Piano, Synthesizer
+ * - Guitar includes: Acoustic, Lead, Backing, Bass Guitar
+ * - Each Step team includes its leader and all sub-positions
+ */
 const filteredMembers = computed(() => {
   let filtered = members.value;
 
+  // Step 1: Apply main category filter
   if (filter.value === "leader") {
+    // Show only members with leadership roles
     filtered = filtered.filter((m) => m.roles.length > 0);
   } else if (filter.value === "worship") {
+    // Show only members with musical positions
     filtered = filtered.filter((m) => m.worship_positions.length > 0);
   } else if (filter.value === "step") {
+    // Show only members with team positions
     filtered = filtered.filter((m) => m.step_positions.length > 0);
   }
 
@@ -161,7 +234,8 @@ const filteredMembers = computed(() => {
     }
   }
 
-  // Sort by role priority
+  // Step 3: Sort by role priority (leaders first)
+  // Lower number = higher priority
   const roleOrder: { [key: string]: number } = {
     Pastor: 1,
     Elder: 2,
@@ -204,13 +278,23 @@ const filteredMembers = computed(() => {
   return filtered;
 });
 
+/**
+ * Handle main filter change - resets sub-filters
+ */
 const handleMainFilter = (value: "all" | "leader" | "worship" | "step") => {
   filter.value = value;
   worshipFilter.value = "";
   stepFilter.value = "";
 };
 
-// Modal handlers
+// ==========================================
+// MODAL HANDLERS (Admin Mode)
+// ==========================================
+
+/**
+ * Open edit modal with member data
+ * Fetches fresh data from API to ensure we have latest info
+ */
 const openEditModal = async (member: Member) => {
   try {
     // Fetch full member data including roles and positions
@@ -223,16 +307,28 @@ const openEditModal = async (member: Member) => {
   }
 };
 
+/**
+ * Open modal for adding new member
+ * selectedMember = null indicates "add" mode
+ */
 const openAddModal = () => {
   selectedMember.value = null;
   isModalOpen.value = true;
 };
 
+/**
+ * Close modal and reset state
+ */
 const closeModal = () => {
   isModalOpen.value = false;
   selectedMember.value = null;
 };
 
+/**
+ * Handle successful save from modal
+ * For edits: Updates only the changed member locally
+ * For adds: Reloads entire member list
+ */
 const handleMemberSaved = async () => {
   if (!selectedMember.value) {
     // New member was added, reload all
@@ -278,7 +374,10 @@ const handleMemberSaved = async () => {
   }
 };
 
-// Administrator function: Delete member
+/**
+ * Delete member with confirmation
+ * Calls API to delete, then reloads member list
+ */
 const deleteMemberConfirm = (member: Member) => {
   if (!confirm(`정말로 "${member.name}" 멤버를 삭제하시겠습니까?`)) {
     return;

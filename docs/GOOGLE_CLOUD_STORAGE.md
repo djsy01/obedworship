@@ -85,10 +85,7 @@
 2. 파일명 변경 (예: `gcs-service-account.json`)
 3. **절대 Git에 커밋하지 마세요!**
 
-**권장 위치**:
-```
-/Users/inho/Desktop/Cording/obedworship/test-server/gcs-service-account.json
-```
+**권장 위치**: 백엔드 환경에서 안전한 경로에 보관
 
 ---
 
@@ -96,13 +93,13 @@
 
 ### 4.1 .env 파일 수정
 
-`test-server/.env` 파일에 다음 내용을 추가/수정합니다:
+백엔드 `.env` 파일에 다음 내용을 추가/수정합니다:
 
 ```bash
 # Google Cloud Storage
 GCS_PROJECT_ID="obed-worship"
 GCS_BUCKET_NAME="obed-worship-files"
-GCS_KEY_FILE="./gcs-service-account.json"
+GCS_KEY_FILE="/path/to/gcs-service-account.json"
 ```
 
 ### 4.2 .gitignore 확인
@@ -124,7 +121,6 @@ GCS_KEY_FILE="./gcs-service-account.json"
 ### 5.1 서버 시작
 
 ```bash
-cd test-server
 npm run start:dev
 ```
 
@@ -192,7 +188,6 @@ curl -X POST http://localhost:3000/worship-photos/upload-multiple \
 
 ### 2. "Service account key file not found" 에러
 - `GCS_KEY_FILE` 경로 확인
-- 상대 경로는 `test-server` 폴더 기준
 
 ### 3. "Permission denied" 에러
 - 서비스 계정에 "Storage 관리자" 역할이 부여되었는지 확인

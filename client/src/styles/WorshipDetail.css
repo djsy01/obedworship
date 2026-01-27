@@ -1187,7 +1187,7 @@
   margin-top: 0.25rem;
 }
 
-/* 썸네일 미리보기 */
+/* Thumbnail preview */
 .thumbnail-preview {
   margin-top: 1rem;
   border-radius: 0.5rem;
@@ -1288,7 +1288,7 @@
   opacity: 0.8;
 }
 
-/* 포스터 클릭 가능 스타일 */
+/* Clickable poster style */
 .clickable-poster {
   position: relative;
   cursor: pointer;
@@ -1332,7 +1332,7 @@
   margin: 0;
 }
 
-/* 포스터 전체화면 모달 */
+/* Poster fullscreen modal */
 .fullscreen-modal {
   position: fixed;
   top: 0;

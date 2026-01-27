@@ -1,5 +1,30 @@
+/**
+ * scores.ts - Sheet Music API Client
+ *
+ * Backend API Endpoints Required:
+ * - GET    /scores                 - Get all scores
+ * - GET    /scores?category=X      - Filter by category
+ * - GET    /scores?key=X           - Filter by musical key (C, D, E, etc.)
+ * - GET    /scores?search=X        - Full-text search
+ * - GET    /scores/:id             - Get single score
+ * - POST   /scores/upload          - Upload score file (multipart/form-data)
+ * - POST   /scores                 - Create score record
+ * - PATCH  /scores/:id             - Update score
+ * - GET    /scores/download/:id    - Download score file (blob response)
+ * - DELETE /scores/:id             - Delete score
+ *
+ * Database Tables:
+ * - scores (main table with score metadata)
+ * - score_downloads (download history - optional)
+ *
+ * Storage: Files stored in Google Cloud Storage (GCS)
+ */
 import axios from "./axios";
 
+/**
+ * Score data structure
+ * Maps to scores table in MySQL
+ */
 export interface Score {
   id: number;
   title: string;
