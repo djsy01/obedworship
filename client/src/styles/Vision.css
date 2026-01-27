@@ -10,7 +10,11 @@
   text-align: center;
   padding: 2.5rem 2rem;
   border-radius: 1rem;
-  background: linear-gradient(135deg, var(--ow-surface-accent) 0%, var(--ow-surface-wash) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--ow-surface-accent) 0%,
+    var(--ow-surface-wash) 100%
+  );
   border: 1px solid rgba(148, 81, 105, 0.2);
   margin-bottom: 2.5rem;
   box-shadow: 0 10px 30px var(--ow-shadow-soft-2);
@@ -110,6 +114,10 @@ Team Introduction
   font-size: 0.85rem;
 }
 
+.admin-toggle {
+  white-space: nowrap;
+}
+
 .filter-btn:hover {
   border-color: rgba(74, 31, 47, 0.4);
   background: #fdf4f7;
@@ -124,7 +132,11 @@ Team Introduction
 }
 
 .filter-btn.active {
-  background: linear-gradient(135deg, var(--ow-accent) 0%, #6a2f3f 100%) !important;
+  background: linear-gradient(
+    135deg,
+    var(--ow-accent) 0%,
+    #6a2f3f 100%
+  ) !important;
   border-color: var(--ow-accent) !important;
   color: var(--ow-surface) !important;
   box-shadow: 0 6px 16px rgba(74, 31, 47, 0.25) !important;
@@ -145,7 +157,11 @@ Team Introduction
 }
 
 .filter-btn.active:hover {
-  background: linear-gradient(135deg, var(--ow-accent-dark) 0%, #7a3f4f 100%) !important;
+  background: linear-gradient(
+    135deg,
+    var(--ow-accent-dark) 0%,
+    #7a3f4f 100%
+  ) !important;
   color: var(--ow-surface) !important;
 }
 

@@ -10,7 +10,7 @@
 
 | DB 이름             | DB 버전 | 비고                                |
 | ------------------- | ------- | ----------------------------------- |
-| Redis               | 8.2.1   | 사용자 정보 관리                    |
+| Redis               | 8.4.0   | 사용자 정보 관리                    |
 | [MySQL](./MySQL.md) | 9.4     | 집회, 사진, 집회신청, QaA 정보 관리 |
 
 ---
@@ -37,6 +37,7 @@ user      - 사용자 (일반 권한)
 ### 집회 신청 시스템
 
 - **tickets 테이블**: 신청 가능한 집회 (OPEN, CLOSED, CANCELED)
+- **가격 컬럼**: price_infant / price_teen / price_military / price_adult
 - **ticket_applications 테이블**: 신청 내역
   - 상태: PENDING, CONFIRMED, CANCELLED
   - 결제: UNPAID, PAID, FREE
@@ -95,6 +96,28 @@ worship_logs (1개 집회)
    SETEX session:abc123 1800 '{...}'
    ↓
 4. 쿠키에 sessionId 저장
+```
+
+---
+
+## 멤버 ↔ 사용자 매핑
+
+관리자가 멤버를 실제 로그인 계정(users)과 연결하기 위해 `members.user_id`를 설정합니다.
+
+### 매핑 방법 (운영/관리자)
+
+```text
+1) users에서 대상 사용자 조회 (email 기준)
+2) members에서 대상 팀원 조회 (name 기준)
+3) members.user_id 업데이트
+```
+
+### 예시 SQL
+
+```sql
+SELECT id, email, name FROM users WHERE email = 'user@obed.com';
+SELECT id, name FROM members WHERE name = '홍길동';
+UPDATE members SET user_id = 5 WHERE id = 12;
 ```
 
 ### 3️⃣ 집회 추가 (관리자)

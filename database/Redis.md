@@ -68,6 +68,26 @@ MySQL의 qna.user_id = "user_001"
 - FK 제약조건은 없음 (Redis와 MySQL 분리)
 - **역할 분담**: Redis는 사용자 인증/세션 관리, MySQL은 컨텐츠 관리
 
+---
+
+## 세션 관리 (Redis)
+
+세션은 Redis에 저장하고, MySQL은 콘텐츠 데이터만 관리합니다.
+
+권장 키 구조:
+
+```text
+user:user_001        -> 사용자 기본 정보 JSON
+email:admin@obed.com -> user_001
+session:abc123       -> 세션 정보 JSON (TTL 적용)
+```
+
+권장 TTL 예시:
+
+```text
+session:* 1800s (30분)
+```
+
 ### MySQL 내부 관계
 
 ```text

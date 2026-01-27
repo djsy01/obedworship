@@ -20,6 +20,10 @@ export interface Ticket {
   place?: string;
   preacher?: string;
   description?: string;
+  price_infant?: number;
+  price_teen?: number;
+  price_military?: number;
+  price_adult?: number;
   status: TicketStatus;
   max_capacity?: number;
   application_deadline?: string;
@@ -47,6 +51,10 @@ export interface CreateTicketDto {
   place?: string;
   preacher?: string;
   description?: string;
+  price_infant?: number;
+  price_teen?: number;
+  price_military?: number;
+  price_adult?: number;
   status?: TicketStatus;
   max_capacity?: number;
   application_deadline?: string;
@@ -61,6 +69,10 @@ export interface UpdateTicketDto {
   place?: string;
   preacher?: string;
   description?: string;
+  price_infant?: number;
+  price_teen?: number;
+  price_military?: number;
+  price_adult?: number;
   status?: TicketStatus;
   max_capacity?: number;
   application_deadline?: string;

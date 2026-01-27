@@ -604,10 +604,10 @@ const closeDetailModal = () => {
               <span class="field-label">소속</span>
               <select v-model="editForm.affiliation">
                 <option value="">선택하세요</option>
-                <option value="영유아">영유아</option>
-                <option value="청소년">청소년</option>
-                <option value="청년">청년</option>
-                <option value="장년">장년</option>
+                <option value="중등부">중등부</option>
+                <option value="고등부">고등부</option>
+                <option value="청년부">청년부</option>
+                <option value="장년부">장년부</option>
               </select>
             </label>
 

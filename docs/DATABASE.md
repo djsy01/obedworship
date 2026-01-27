@@ -23,6 +23,7 @@
 | id | INT | PK, AI | 팀원 ID |
 | name | VARCHAR(100) | NOT NULL | 이름 |
 | affiliation | ENUM | NOT NULL | 소속 (목사/장로/집사/장년부/청년부/고등부/중등부) |
+| user_id | INT | NULL | users.id 연결 (선택) |
 | photo_url | VARCHAR(500) | NULL | 프로필 사진 URL |
 | instagram_url | VARCHAR(255) | NULL | 인스타그램 URL |
 | youtube_url | VARCHAR(255) | NULL | 유튜브 URL |
@@ -36,6 +37,7 @@
 - `idx_affiliation` (affiliation)
 - `idx_display_order` (display_order)
 - `idx_is_active` (is_active)
+ - `idx_user_id` (user_id)
 
 ---
 
@@ -467,6 +469,32 @@ mysqldump -u user -p database > backup.sql
 ```bash
 mysql -u user -p database < backup.sql
 ```
+
+---
+
+## Tickets (집회 신청)
+
+#### `tickets` - 집회 신청용 티켓
+| 필드명 | 타입 | 제약 | 설명 |
+|--------|------|------|------|
+| id | INT | PK, AI | 티켓 ID |
+| title | VARCHAR(200) | NOT NULL | 집회명 |
+| date | VARCHAR(50) | NOT NULL | 날짜 |
+| year | INT | NOT NULL | 연도 |
+| price_infant | INT | DEFAULT 0 | 영유아 가격 |
+| price_teen | INT | DEFAULT 0 | 청소년 가격 |
+| price_military | INT | DEFAULT 0 | 군인 가격 |
+| price_adult | INT | DEFAULT 0 | 어른 가격 |
+| status | ENUM | DEFAULT OPEN | 상태 |
+
+#### `ticket_applications` - 티켓 신청 내역
+| 필드명 | 타입 | 제약 | 설명 |
+|--------|------|------|------|
+| id | INT | PK, AI | 신청 ID |
+| ticket_id | INT | FK | 티켓 ID |
+| user_id | INT | FK | 사용자 ID |
+| party_size | INT | DEFAULT 1 | 인원 |
+| status | ENUM | DEFAULT PENDING | 상태 |
 
 ---
 

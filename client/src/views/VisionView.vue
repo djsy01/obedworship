@@ -23,6 +23,7 @@
  * - Step positions: Various team roles (Media, Stage, etc.)
  */
 import { computed, ref, onMounted } from "vue";
+import { useAuth } from "@/composables/useAuth";
 import { memberApi, type Member as ApiMember } from "@/api/members";
 import { assetApi } from "@/api/assets";
 import MemberEditModal from "@/components/MemberEditModal.vue";
@@ -37,23 +38,23 @@ import youtubeIcon from "@/assets/icons/Youtube.png";
 type Member = {
   id: number;
   name: string;
-  affiliation: string;           // Church position: 목사, 장로, 청년, etc.
+  affiliation: string; // Church position: 목사, 장로, 청년부, etc.
   photo_url: string;
   instagram_url: string | null;
   youtube_url: string | null;
-  roles: string[];               // Leadership roles (e.g., Pastor, Worship Team Leader)
-  worship_positions: string[];   // Musical positions (e.g., Vocal, Piano)
-  step_positions: string[];      // Team roles (e.g., Media Team, Stage Designer)
+  roles: string[]; // Leadership roles (e.g., Pastor, Worship Team Leader)
+  worship_positions: string[]; // Musical positions (e.g., Vocal, Piano)
+  step_positions: string[]; // Team roles (e.g., Media Team, Stage Designer)
   description: string;
-  display_order?: number;        // Sort order within same role priority
 };
 
 // ==========================================
 // STATE: UI Controls
 // ==========================================
 
-// Admin mode toggle - shows edit/delete buttons when enabled
-const isAdmin = ref(false);
+// Admin mode (auth-based)
+const { isAdmin } = useAuth();
+const adminModeEnabled = ref(false);
 
 // Modal state for member edit/add
 const isModalOpen = ref(false);
@@ -70,8 +71,8 @@ const loading = ref(true);
 const filter = ref<"all" | "leader" | "worship" | "step">("all");
 
 // Sub-filters (active when main filter is selected)
-const worshipFilter = ref<string>("");  // Vocal, Piano, Guitar, Drum
-const stepFilter = ref<string>("");     // Accounting, Planning, Media, Stage, Prayer
+const worshipFilter = ref<string>(""); // Vocal, Piano, Guitar, Drum
+const stepFilter = ref<string>(""); // Accounting, Planning, Media, Stage, Prayer
 
 // ==========================================
 // STATE: Data
@@ -107,26 +108,33 @@ const loadMembers = async () => {
     const response = await memberApi.getAll();
 
     // Transform API response to match component's expected structure
-    members.value = response.data.map((apiMember) => ({
-      id: apiMember.id,
-      name: apiMember.name,
-      affiliation: apiMember.affiliation,
-      photo_url: apiMember.photo_url || logo.value, // Use logo as fallback
-      instagram_url: apiMember.instagram_url || null,
-      youtube_url: apiMember.youtube_url || null,
-      roles:
-        apiMember.member_roles?.map((r) => convertFromEnum(r.role_type)) || [],
-      worship_positions:
-        apiMember.member_worship_positions?.map((p) =>
-          convertFromEnum(p.position_type),
-        ) || [],
-      step_positions:
-        apiMember.member_step_positions?.map((p) =>
-          convertFromEnum(p.position_type),
-        ) || [],
-      description: apiMember.description || "",
-      display_order: apiMember.display_order ?? 0,
-    }));
+    members.value = response.data
+      .filter(
+        (apiMember) =>
+          isAdmin.value ||
+          adminModeEnabled.value ||
+          apiMember.is_active !== false,
+      )
+      .map((apiMember) => ({
+        id: apiMember.id,
+        name: apiMember.name,
+        affiliation: apiMember.affiliation,
+        photo_url: apiMember.photo_url || logo.value, // Use logo as fallback
+        instagram_url: apiMember.instagram_url || null,
+        youtube_url: apiMember.youtube_url || null,
+        roles:
+          apiMember.member_roles?.map((r) => convertFromEnum(r.role_type)) ||
+          [],
+        worship_positions:
+          apiMember.member_worship_positions?.map((p) =>
+            convertFromEnum(p.position_type),
+          ) || [],
+        step_positions:
+          apiMember.member_step_positions?.map((p) =>
+            convertFromEnum(p.position_type),
+          ) || [],
+        description: apiMember.description || "",
+      }));
   } catch (error) {
     console.error("Failed to load members:", error);
     alert("멤버 정보를 불러오는데 실패했습니다.");
@@ -264,14 +272,6 @@ const filteredMembers = computed(() => {
       return orderA - orderB;
     }
 
-    // If the role is the same, sort by display_order
-    const displayOrderA = a.display_order ?? 0;
-    const displayOrderB = b.display_order ?? 0;
-
-    if (displayOrderA !== displayOrderB) {
-      return displayOrderA - displayOrderB;
-    }
-
     return a.name.localeCompare(b.name, "ko-KR");
   });
 
@@ -364,7 +364,6 @@ const handleMemberSaved = async () => {
             convertFromEnum(p.position_type),
           ) || [],
         description: updatedMember.description || "",
-        display_order: updatedMember.display_order ?? 0,
       };
     }
   } catch (error) {
@@ -421,7 +420,7 @@ onMounted(async () => {
     <section class="section">
       <div class="section-header">
         <div>
-          <h1 class="section-title">OBED Worship 비전</h1>
+          <h1 class="section-title">비전</h1>
           <p class="section-subtitle">
             순종과 경외로 주님과 소통하는 예배 공동체의 비전과 팀원들을
             소개합니다.
@@ -469,24 +468,18 @@ onMounted(async () => {
         >
           <h2 class="section-title-sub">팀원 소개</h2>
 
-          <!-- Toggle administrator mode -->
+          <!-- Toggle administrator mode (admins only) -->
           <button
-            @click="isAdmin = !isAdmin"
-            style="
-              padding: 0.5rem 1rem;
-              background: #4a1f2f;
-              color: white;
-              border: none;
-              border-radius: 4px;
-              cursor: pointer;
-            "
+            v-if="isAdmin"
+            @click="adminModeEnabled = !adminModeEnabled"
+            class="btn small admin-toggle"
           >
-            {{ isAdmin ? "👤 관리자 모드 OFF" : "🔒 관리자 모드 ON" }}
+            {{ adminModeEnabled ? "👤 관리자 모드 OFF" : "🔒 관리자 모드 ON" }}
           </button>
         </div>
 
         <!-- Administrator mode: Add new member button -->
-        <div v-if="isAdmin" style="margin-bottom: 1rem">
+        <div v-if="isAdmin && adminModeEnabled" style="margin-bottom: 1rem">
           <button
             @click="openAddModal"
             style="
@@ -721,7 +714,7 @@ onMounted(async () => {
 
               <!-- Administrator mode: Edit/Delete button -->
               <div
-                v-if="isAdmin"
+                v-if="isAdmin && adminModeEnabled"
                 style="margin-top: 1rem; display: flex; gap: 0.5rem"
               >
                 <button

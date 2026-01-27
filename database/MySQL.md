@@ -211,7 +211,8 @@ CREATE TABLE users (
 CREATE TABLE members (
   id INT PRIMARY KEY AUTO_INCREMENT,
   name VARCHAR(100) NOT NULL COMMENT '이름',
-  affiliation ENUM('목사', '장로', '집사', '영유아', '청소년', '청년', '장년') NOT NULL COMMENT '소속',
+  affiliation ENUM('목사', '장로', '집사', '장년부', '청년부', '고등부', '중등부') NOT NULL COMMENT '소속',
+  user_id INT DEFAULT NULL COMMENT 'users.id 연결 (선택)',
 
   -- SNS 및 미디어
   photo_url VARCHAR(500) DEFAULT NULL COMMENT '프로필 사진 URL',
@@ -227,7 +228,8 @@ CREATE TABLE members (
 
   INDEX idx_affiliation (affiliation),
   INDEX idx_is_active (is_active),
-  INDEX idx_display_order (display_order)
+  INDEX idx_display_order (display_order),
+  INDEX idx_user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
@@ -398,6 +400,10 @@ CREATE TABLE tickets (
   place VARCHAR(255) DEFAULT NULL COMMENT '장소',
   preacher VARCHAR(100) DEFAULT NULL COMMENT '설교자',
   description TEXT DEFAULT NULL COMMENT '집회 설명',
+  price_infant INT NOT NULL DEFAULT 0 COMMENT '영유아 가격',
+  price_teen INT NOT NULL DEFAULT 0 COMMENT '청소년 가격',
+  price_military INT NOT NULL DEFAULT 0 COMMENT '군인 가격',
+  price_adult INT NOT NULL DEFAULT 0 COMMENT '어른 가격',
   status ENUM('OPEN', 'CLOSED', 'CANCELED') DEFAULT 'OPEN' COMMENT '상태',
   max_capacity INT DEFAULT NULL COMMENT '최대 수용 인원',
   application_deadline DATETIME DEFAULT NULL COMMENT '신청 마감일',

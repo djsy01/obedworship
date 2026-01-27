@@ -55,6 +55,20 @@ ADD CONSTRAINT fk_members_users
 - **ON DELETE SET NULL**: user 삭제 시 member는 유지되고 user_id만 NULL로 설정
 - **ON UPDATE CASCADE**: user id 변경 시 자동으로 member의 user_id도 업데이트
 
+### 2-1. 멤버 ↔ 사용자 매핑 방법
+
+`members.user_id`는 자동 연결이 아니라 **관리자 매핑**으로 연결합니다.
+
+예시 SQL:
+```sql
+SELECT id, email, name FROM users WHERE email = 'user@obed.com';
+SELECT id, name FROM members WHERE name = '홍길동';
+UPDATE members SET user_id = 5 WHERE id = 12;
+```
+
+테스트 서버용 API(프론트 매핑 UI 지원):
+- `GET /users?email=...` → 해당 이메일의 사용자(id/email/name/role) 반환
+
 ### 3. Member 데이터 시드
 
 17명의 OBED 팀원 정보를 데이터베이스에 저장했습니다.

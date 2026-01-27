@@ -33,6 +33,10 @@ const newTicket = ref({
   preacher: "",
   description: "",
   poster_url: "",
+  price_infant: 0,
+  price_teen: 5000,
+  price_military: 5000,
+  price_adult: 10000,
   status: "OPEN" as TicketStatus,
 });
 
@@ -90,6 +94,10 @@ const onWorshipSelect = () => {
       preacher: "",
       description: "",
       poster_url: "",
+      price_infant: 0,
+      price_teen: 5000,
+      price_military: 5000,
+      price_adult: 10000,
       status: "OPEN",
     };
     return;
@@ -105,6 +113,10 @@ const onWorshipSelect = () => {
       preacher: worship.preacher,
       description: worship.description,
       poster_url: worship.poster_url || "",
+      price_infant: 0,
+      price_teen: 5000,
+      price_military: 5000,
+      price_adult: 10000,
       status: "OPEN",
     };
   }
@@ -137,12 +149,21 @@ const totalTickets = computed(() => {
 
 // calculate total amount
 const totalAmount = computed(() => {
+  const ticket = selectedTicket.value;
+  if (!ticket) return 0;
+
   return (
-    ticketCounts.value.teen * 5000 +
-    ticketCounts.value.military * 5000 +
-    ticketCounts.value.adult * 10000
+    ticketCounts.value.infant_child * (ticket.price_infant ?? 0) +
+    ticketCounts.value.teen * (ticket.price_teen ?? 0) +
+    ticketCounts.value.military * (ticket.price_military ?? 0) +
+    ticketCounts.value.adult * (ticket.price_adult ?? 0)
   );
 });
+
+const formatPrice = (price?: number) => {
+  const value = price ?? 0;
+  return value > 0 ? `${value.toLocaleString()}원` : "무료";
+};
 
 // Availability for submission
 const canSubmit = computed(() => {
@@ -180,6 +201,10 @@ const openAddTicketModal = () => {
     preacher: "",
     description: "",
     poster_url: "",
+    price_infant: 0,
+    price_teen: 5000,
+    price_military: 5000,
+    price_adult: 10000,
     status: "OPEN",
   };
 };
@@ -208,6 +233,10 @@ const handleAddTicket = async () => {
       description: newTicket.value.description,
       place: newTicket.value.place,
       poster_url: newTicket.value.poster_url || undefined,
+      price_infant: newTicket.value.price_infant,
+      price_teen: newTicket.value.price_teen,
+      price_military: newTicket.value.price_military,
+      price_adult: newTicket.value.price_adult,
       status: newTicket.value.status,
     });
     alert("티켓이 추가되었습니다!");
@@ -311,6 +340,10 @@ const handleUpdateTicket = async () => {
       preacher: editingTicket.value.preacher,
       description: editingTicket.value.description,
       place: editingTicket.value.place,
+      price_infant: editingTicket.value.price_infant,
+      price_teen: editingTicket.value.price_teen,
+      price_military: editingTicket.value.price_military,
+      price_adult: editingTicket.value.price_adult,
     });
     alert("티켓 정보가 수정되었습니다!");
     closeEditModal();
@@ -368,14 +401,14 @@ const deleteTicket = async (id: number) => {
             type="button"
             @click="openAddTicketModal"
           >
-            + 티켓 추가
+            + 집회 추가
           </button>
         </div>
       </div>
 
       <!-- Admin only: Add ticket modal -->
       <div v-if="showAddModal && isAdmin" class="panel">
-        <h2 class="panel-title">새 티켓 추가</h2>
+        <h2 class="panel-title">새 집회 추가</h2>
         <form class="form-grid" @submit.prevent="handleAddTicket">
           <!-- Select rally information integration -->
           <label class="field field--full">
@@ -453,6 +486,50 @@ const deleteTicket = async (id: number) => {
               placeholder="집회에 대한 간단한 설명을 입력하세요"
               required
             ></textarea>
+          </label>
+
+          <label class="field">
+            <span class="field-label">영유아 가격</span>
+            <input
+              v-model.number="newTicket.price_infant"
+              type="number"
+              min="0"
+              placeholder="0"
+              required
+            />
+          </label>
+
+          <label class="field">
+            <span class="field-label">청소년 가격</span>
+            <input
+              v-model.number="newTicket.price_teen"
+              type="number"
+              min="0"
+              placeholder="5000"
+              required
+            />
+          </label>
+
+          <label class="field">
+            <span class="field-label">군인 가격</span>
+            <input
+              v-model.number="newTicket.price_military"
+              type="number"
+              min="0"
+              placeholder="5000"
+              required
+            />
+          </label>
+
+          <label class="field">
+            <span class="field-label">어른 가격</span>
+            <input
+              v-model.number="newTicket.price_adult"
+              type="number"
+              min="0"
+              placeholder="10000"
+              required
+            />
           </label>
 
           <div class="field field--full">
@@ -604,8 +681,15 @@ const deleteTicket = async (id: number) => {
                 <div class="ticket-type-item">
                   <div class="ticket-type-info">
                     <span class="type-name">영유아</span>
-                    <span class="type-price free">무료</span>
-                    <span class="type-desc">(영유아)</span>
+                    <span
+                      class="type-price"
+                      :class="{
+                        free: (selectedTicket?.price_infant ?? 0) === 0,
+                      }"
+                    >
+                      {{ formatPrice(selectedTicket?.price_infant) }}
+                    </span>
+                    <span class="type-desc">영아, 유치원생, 초등학생</span>
                   </div>
                   <input
                     v-model.number="ticketCounts.infant_child"
@@ -619,8 +703,13 @@ const deleteTicket = async (id: number) => {
                 <div class="ticket-type-item">
                   <div class="ticket-type-info">
                     <span class="type-name">청소년</span>
-                    <span class="type-price">5,000원</span>
-                    <span class="type-desc">(청소년)</span>
+                    <span
+                      class="type-price"
+                      :class="{ free: (selectedTicket?.price_teen ?? 0) === 0 }"
+                    >
+                      {{ formatPrice(selectedTicket?.price_teen) }}
+                    </span>
+                    <span class="type-desc">중학생, 고등학생</span>
                   </div>
                   <input
                     v-model.number="ticketCounts.teen"
@@ -634,7 +723,15 @@ const deleteTicket = async (id: number) => {
                 <div class="ticket-type-item">
                   <div class="ticket-type-info">
                     <span class="type-name">군인</span>
-                    <span class="type-price">5,000원</span>
+                    <span
+                      class="type-price"
+                      :class="{
+                        free: (selectedTicket?.price_military ?? 0) === 0,
+                      }"
+                    >
+                      {{ formatPrice(selectedTicket?.price_military) }}
+                    </span>
+                    <span class="type-desc">직업군인 제외</span>
                   </div>
                   <input
                     v-model.number="ticketCounts.military"
@@ -648,8 +745,14 @@ const deleteTicket = async (id: number) => {
                 <div class="ticket-type-item">
                   <div class="ticket-type-info">
                     <span class="type-name">어른</span>
-                    <span class="type-price">10,000원</span>
-                    <span class="type-desc">(어른)</span>
+                    <span
+                      class="type-price"
+                      :class="{
+                        free: (selectedTicket?.price_adult ?? 0) === 0,
+                      }"
+                    >
+                      {{ formatPrice(selectedTicket?.price_adult) }}
+                    </span>
                   </div>
                   <input
                     v-model.number="ticketCounts.adult"
@@ -665,7 +768,7 @@ const deleteTicket = async (id: number) => {
             <!-- Total amount -->
             <div class="total-section">
               <div class="total-item">
-                <span class="total-label">총 티켓 수량</span>
+                <span class="total-label">총 수량</span>
                 <span class="total-value">{{ totalTickets }}장</span>
               </div>
               <div class="total-item total-amount-item">
@@ -714,7 +817,7 @@ const deleteTicket = async (id: number) => {
       >
         <div class="modal-content edit-modal" @click.stop>
           <div class="modal-header">
-            <h2 class="modal-title">티켓 수정</h2>
+            <h2 class="modal-title">집회 수정</h2>
             <button class="modal-close" @click="closeEditModal">✕</button>
           </div>
 
@@ -747,6 +850,46 @@ const deleteTicket = async (id: number) => {
                   rows="3"
                   required
                 ></textarea>
+              </label>
+
+              <label class="field">
+                <span class="field-label">영유아 가격</span>
+                <input
+                  v-model.number="editingTicket.price_infant"
+                  type="number"
+                  min="0"
+                  required
+                />
+              </label>
+
+              <label class="field">
+                <span class="field-label">청소년 가격</span>
+                <input
+                  v-model.number="editingTicket.price_teen"
+                  type="number"
+                  min="0"
+                  required
+                />
+              </label>
+
+              <label class="field">
+                <span class="field-label">군인 가격</span>
+                <input
+                  v-model.number="editingTicket.price_military"
+                  type="number"
+                  min="0"
+                  required
+                />
+              </label>
+
+              <label class="field">
+                <span class="field-label">어른 가격</span>
+                <input
+                  v-model.number="editingTicket.price_adult"
+                  type="number"
+                  min="0"
+                  required
+                />
               </label>
 
               <label class="field field--full">

@@ -178,7 +178,7 @@
 }
 
 .table tbody tr:hover {
-  background: #faf8f9;
+  background: var(--ow-surface-2);
 }
 
 .table tbody tr:last-child td {
