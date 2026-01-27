@@ -15,12 +15,12 @@
   font-size: 1.6rem;
   font-weight: 700;
   margin: 0 0 0.5rem;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
 }
 
 .section-subtitle {
   font-size: 0.95rem;
-  color: #666;
+  color: var(--ow-text-muted);
   line-height: 1.6;
   margin: 0;
 }
@@ -39,13 +39,13 @@
 }
 
 .log-card {
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 0.75rem;
   padding: 1.2rem 1.3rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 10px 25px var(--ow-shadow-soft);
   cursor: pointer;
   transition: all 0.25s ease-out;
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--ow-border-subtle);
   position: relative;
   overflow: hidden;
 }
@@ -63,7 +63,7 @@
   left: 0;
   width: 100%;
   height: 3px;
-  background: linear-gradient(90deg, #4a1f2f, #8a4b4b);
+  background: linear-gradient(90deg, var(--ow-accent), var(--ow-accent-2));
   transform: scaleX(0);
   transition: transform 0.3s ease-out;
 }
@@ -74,7 +74,7 @@
 
 .log-date {
   font-size: 0.85rem;
-  color: #8a4b4b;
+  color: var(--ow-accent-2);
   margin-bottom: 0.4rem;
   font-weight: 500;
 }
@@ -83,12 +83,12 @@
   margin: 0 0 0.5rem;
   font-size: 1.3rem;
   font-weight: 700;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
 }
 
 .log-meta {
   font-size: 0.85rem;
-  color: #666;
+  color: var(--ow-text-muted);
   margin: 0 0 0.8rem;
   line-height: 1.5;
 }
@@ -96,7 +96,7 @@
 .log-desc {
   font-size: 0.95rem;
   line-height: 1.6;
-  color: #444;
+  color: var(--ow-text);
   margin-bottom: 1rem;
 }
 
@@ -108,7 +108,7 @@
 
 .log-arrow span {
   font-size: 0.85rem;
-  color: #4a1f2f;
+  color: var(--ow-accent);
   font-weight: 600;
   transition: transform 0.2s ease-out;
   display: inline-block;
@@ -139,11 +139,11 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease-out;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px var(--ow-shadow);
 }
 
 .btn-icon.edit {
-  background: #fff;
+  background: var(--ow-surface);
 }
 
 .btn-icon.edit:hover {
@@ -152,7 +152,7 @@
 }
 
 .btn-icon.delete {
-  background: #fff;
+  background: var(--ow-surface);
 }
 
 .btn-icon.delete:hover {
@@ -164,7 +164,7 @@
   grid-column: 1 / -1;
   font-size: 0.9rem;
   text-align: center;
-  color: #888;
+  color: var(--ow-text-faint);
   padding: 2rem;
 }
 
@@ -173,21 +173,21 @@
   text-align: center;
   padding: 3rem;
   font-size: 1.1rem;
-  color: #666;
+  color: var(--ow-text-muted);
 }
 
 /* Error state */
 .error-message {
   text-align: center;
   padding: 3rem;
-  background: #fff7f7;
+  background: var(--ow-danger-bg);
   border-radius: 0.75rem;
-  border: 1px solid #ffdddd;
+  border: 1px solid var(--ow-danger-border);
 }
 
 .error-message p {
   font-size: 1.1rem;
-  color: #c0392b;
+  color: var(--ow-danger);
   margin-bottom: 1rem;
 }
 

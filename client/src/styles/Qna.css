@@ -9,24 +9,24 @@
   margin-bottom: 2rem;
   flex-wrap: wrap;
   padding: 1.25rem;
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 0.75rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 12px var(--ow-border-subtle);
+  border: 1px solid var(--ow-border-subtle);
 }
 
 .filter-btn {
   padding: 0.6rem 1.5rem;
   border-radius: 999px;
-  border: 2px solid rgba(0, 0, 0, 0.12);
-  background: #fff;
+  border: 2px solid var(--ow-border-strong);
+  background: var(--ow-surface);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  color: #666;
+  color: var(--ow-text-muted);
   font-weight: 600;
   font-size: 0.9rem;
   font-family: inherit;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 8px var(--ow-border-subtle);
   position: relative;
   overflow: hidden;
 }
@@ -38,7 +38,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #4a1f2f 0%, #8a4b4b 100%);
+  background: linear-gradient(135deg, var(--ow-accent) 0%, var(--ow-accent-2) 100%);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -52,13 +52,13 @@
   border-color: rgba(74, 31, 47, 0.4);
   background: #fdf4f7;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px var(--ow-border-stronger);
 }
 
 .filter-btn.active {
-  background: linear-gradient(135deg, #4a1f2f 0%, #8a4b4b 100%);
-  border-color: #4a1f2f;
-  color: #fff;
+  background: linear-gradient(135deg, var(--ow-accent) 0%, var(--ow-accent-2) 100%);
+  border-color: var(--ow-accent);
+  color: var(--ow-surface);
   box-shadow: 0 6px 16px rgba(74, 31, 47, 0.25);
   transform: translateY(-2px);
 }
@@ -69,11 +69,11 @@
 
 /* Question creation panel */
 .qna-ask-panel {
-  background: linear-gradient(135deg, #fff7f9 0%, #fef9fb 100%);
+  background: linear-gradient(135deg, var(--ow-surface-wash) 0%, #fef9fb 100%);
   border-radius: 1rem;
   padding: 2rem;
   margin-bottom: 2.5rem;
-  border: 1px solid #f0d4e0;
+  border: 1px solid var(--ow-border-accent);
   box-shadow: 0 10px 30px rgba(74, 31, 47, 0.08);
   position: relative;
   overflow: hidden;
@@ -86,7 +86,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #4a1f2f 0%, #8a4b4b 100%);
+  background: linear-gradient(90deg, var(--ow-accent) 0%, var(--ow-accent-2) 100%);
 }
 
 /* List of questions */
@@ -98,11 +98,11 @@
 
 /* Question card */
 .qna-card {
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 1rem;
   padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 10px 30px var(--ow-border);
+  border: 1px solid var(--ow-border-subtle);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
@@ -142,7 +142,7 @@
   left: 0;
   width: 100%;
   height: 3px;
-  background: linear-gradient(90deg, #4a1f2f 0%, #8a4b4b 100%);
+  background: linear-gradient(90deg, var(--ow-accent) 0%, var(--ow-accent-2) 100%);
   transform: scaleX(0);
   transition: transform 0.4s ease;
 }
@@ -166,8 +166,8 @@
   padding: 0.4rem 1rem;
   font-size: 0.75rem;
   font-weight: 700;
-  color: #fff;
-  background: linear-gradient(135deg, #4a1f2f 0%, #6a2f3f 100%);
+  color: var(--ow-surface);
+  background: linear-gradient(135deg, var(--ow-accent) 0%, #6a2f3f 100%);
   border-radius: 999px;
   box-shadow: 0 4px 12px rgba(74, 31, 47, 0.2);
   letter-spacing: 0.05em;
@@ -180,7 +180,7 @@
   margin: 0;
   font-size: 1.4rem;
   font-weight: 700;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
   line-height: 1.4;
   flex: 1;
 }
@@ -188,14 +188,14 @@
 /* Question meta information */
 .qna-meta {
   font-size: 0.85rem;
-  color: #777;
+  color: var(--ow-text-subtle);
   margin: 0 0 1.5rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
   flex-wrap: wrap;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--ow-shadow-soft-2);
 }
 
 .qna-meta-item {
@@ -218,7 +218,7 @@
   border-radius: 999px;
   font-size: 0.75rem;
   letter-spacing: 0.03em;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px var(--ow-border-stronger);
 }
 
 .qna-status::before {
@@ -262,13 +262,13 @@
 .qna-question {
   font-size: 1rem;
   line-height: 1.8;
-  color: #444;
+  color: var(--ow-text);
   margin: 0 0 1.5rem;
   padding: 1.5rem;
-  background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+  background: linear-gradient(135deg, var(--ow-surface-2) 0%, var(--ow-surface-3) 100%);
   border-radius: 0.75rem;
-  border-left: 4px solid #4a1f2f;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.02);
+  border-left: 4px solid var(--ow-accent);
+  box-shadow: inset 0 2px 8px var(--ow-border-subtle-2);
   position: relative;
 }
 
@@ -285,11 +285,11 @@
 
 /* Answer area */
 .qna-answer {
-  background: linear-gradient(135deg, #fdf2f6 0%, #fff7f9 100%);
+  background: linear-gradient(135deg, #fdf2f6 0%, var(--ow-surface-wash) 100%);
   border-radius: 0.75rem;
   padding: 1.75rem;
   margin-top: 1.5rem;
-  border: 2px solid #f0d4e0;
+  border: 2px solid var(--ow-border-accent);
   box-shadow: 0 8px 20px rgba(138, 75, 75, 0.08);
   position: relative;
   overflow: hidden;
@@ -302,7 +302,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #8a4b4b 0%, #4a1f2f 100%);
+  background: linear-gradient(90deg, var(--ow-accent-2) 0%, var(--ow-accent) 100%);
 }
 
 .qna-answer::after {
@@ -317,7 +317,7 @@
 .qna-answer-label {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #8a4b4b;
+  color: var(--ow-accent-2);
   margin: 0 0 1rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -333,8 +333,8 @@
   justify-content: center;
   width: 20px;
   height: 20px;
-  background: linear-gradient(135deg, #4a1f2f 0%, #8a4b4b 100%);
-  color: #fff;
+  background: linear-gradient(135deg, var(--ow-accent) 0%, var(--ow-accent-2) 100%);
+  color: var(--ow-surface);
   border-radius: 50%;
   font-size: 0.7rem;
   font-weight: 900;
@@ -343,14 +343,14 @@
 .qna-answer-content {
   font-size: 1rem;
   line-height: 1.8;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
   margin: 0 0 1rem;
   padding-left: 0.5rem;
 }
 
 .qna-answer-meta {
   font-size: 0.75rem;
-  color: #8a4b4b;
+  color: var(--ow-accent-2);
   margin: 0;
   text-align: right;
   font-weight: 500;
@@ -369,7 +369,7 @@
 .qna-admin-actions {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-top: 1px solid var(--ow-border);
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
@@ -387,7 +387,7 @@
 
 /* Inline answer edit panel */
 .panel--inline {
-  background: linear-gradient(135deg, #fff7e6 0%, #fef9ed 100%);
+  background: linear-gradient(135deg, var(--ow-warning-bg) 0%, #fef9ed 100%);
   border: 2px solid #ffc107;
   border-radius: 0.75rem;
   padding: 1.5rem;
@@ -404,11 +404,11 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #ffc107 0%, #f57c00 100%);
+  background: linear-gradient(90deg, #ffc107 0%, var(--ow-warning-text) 100%);
 }
 
 .panel--inline .field-label {
-  color: #f57c00;
+  color: var(--ow-warning-text);
   font-weight: 700;
   font-size: 0.9rem;
   text-transform: uppercase;
@@ -419,14 +419,14 @@
   width: 100%;
   min-height: 120px;
   border: 2px solid #ffc107;
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 0.5rem;
   font-size: 0.95rem;
   line-height: 1.6;
 }
 
 .panel--inline textarea:focus {
-  border-color: #f57c00;
+  border-color: var(--ow-warning-text);
   box-shadow: 0 0 0 4px rgba(245, 124, 0, 0.1);
 }
 
@@ -438,9 +438,9 @@
 .qna-empty {
   text-align: center;
   padding: 5rem 2rem;
-  background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+  background: linear-gradient(135deg, var(--ow-surface-2) 0%, var(--ow-surface-3) 100%);
   border-radius: 1rem;
-  border: 2px dashed rgba(0, 0, 0, 0.1);
+  border: 2px dashed var(--ow-border-strong);
 }
 
 .qna-empty-icon {
@@ -462,7 +462,7 @@
 
 .qna-empty h3 {
   font-size: 1.3rem;
-  color: #666;
+  color: var(--ow-text-muted);
   margin: 0 0 0.75rem;
   font-weight: 700;
 }
@@ -470,7 +470,7 @@
 .qna-empty p {
   font-size: 1rem;
   margin: 0;
-  color: #999;
+  color: var(--ow-text-soft);
 }
 
 /* Statistical information */
@@ -484,22 +484,22 @@
 .stat-card {
   flex: 1;
   min-width: 200px;
-  background: linear-gradient(135deg, #fff 0%, #fafafa 100%);
+  background: linear-gradient(135deg, var(--ow-surface) 0%, var(--ow-surface-2) 100%);
   border-radius: 0.75rem;
   padding: 1.25rem;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--ow-border);
+  box-shadow: 0 4px 12px var(--ow-border-subtle);
   transition: all 0.3s ease;
 }
 
 .stat-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 20px var(--ow-border-stronger);
 }
 
 .stat-label {
   font-size: 0.8rem;
-  color: #777;
+  color: var(--ow-text-subtle);
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -509,7 +509,7 @@
 .stat-value {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #4a1f2f;
+  color: var(--ow-accent);
 }
 
 /* Responsive design */
@@ -703,14 +703,14 @@
 .qna-loading {
   text-align: center;
   padding: 3rem;
-  color: #999;
+  color: var(--ow-text-soft);
 }
 
 .loading-spinner {
   width: 40px;
   height: 40px;
   border: 4px solid rgba(74, 31, 47, 0.1);
-  border-top-color: #4a1f2f;
+  border-top-color: var(--ow-accent);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin: 0 auto 1rem;

@@ -10,10 +10,10 @@
   text-align: center;
   padding: 2.5rem 2rem;
   border-radius: 1rem;
-  background: linear-gradient(135deg, #faf2f5 0%, #fff7f9 100%);
+  background: linear-gradient(135deg, var(--ow-surface-accent) 0%, var(--ow-surface-wash) 100%);
   border: 1px solid rgba(148, 81, 105, 0.2);
   margin-bottom: 2.5rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 30px var(--ow-shadow-soft-2);
 }
 
 .bible-verse blockquote {
@@ -24,13 +24,13 @@
   margin: 0 0 0.8rem;
   font-size: 1.5rem;
   line-height: 1.7;
-  color: #4a1f2f;
+  color: var(--ow-accent);
   font-weight: 600;
 }
 
 .bible-verse cite {
   font-size: 1.05rem;
-  color: #8a4b4b;
+  color: var(--ow-accent-2);
   font-style: italic;
   font-weight: 500;
 }
@@ -49,18 +49,18 @@ Team Introduction
 .highlight-box {
   padding: 1.2rem 1.5rem;
   border-radius: 0.85rem;
-  background: #fff;
+  background: var(--ow-surface);
   border: 1px solid rgba(148, 81, 105, 0.12);
   font-size: 1.05rem;
   line-height: 1.7;
-  color: #4a1f2f;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  color: var(--ow-accent);
+  box-shadow: 0 4px 12px var(--ow-shadow-soft);
   transition: all 0.3s ease-out;
 }
 
 .highlight-box:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 20px var(--ow-border);
   border-color: rgba(148, 81, 105, 0.25);
 }
 
@@ -76,7 +76,7 @@ Team Introduction
   font-size: 1.6rem;
   margin: 0 0 1.5rem;
   font-weight: 700;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
 }
 
 /* ========================================
@@ -94,15 +94,15 @@ Team Introduction
 
 .filter-btn {
   border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--ow-border-strong);
   padding: 0.5rem 1.2rem;
   font-size: 0.9rem;
-  background: #fff;
+  background: var(--ow-surface);
   cursor: pointer;
   transition: all 0.25s ease-out;
-  color: #444;
+  color: var(--ow-text);
   font-weight: 500;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 8px var(--ow-border-subtle);
 }
 
 .filter-btn.small {
@@ -114,7 +114,7 @@ Team Introduction
   border-color: rgba(74, 31, 47, 0.4);
   background: #fdf4f7;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px var(--ow-border-stronger);
 }
 
 .filter-btn::before,
@@ -124,14 +124,14 @@ Team Introduction
 }
 
 .filter-btn.active {
-  background: linear-gradient(135deg, #4a1f2f 0%, #6a2f3f 100%) !important;
-  border-color: #4a1f2f !important;
-  color: #ffffff !important;
+  background: linear-gradient(135deg, var(--ow-accent) 0%, #6a2f3f 100%) !important;
+  border-color: var(--ow-accent) !important;
+  color: var(--ow-surface) !important;
   box-shadow: 0 6px 16px rgba(74, 31, 47, 0.25) !important;
   transform: translateY(-2px) !important;
 
-  -webkit-text-fill-color: #ffffff !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+  -webkit-text-fill-color: var(--ow-surface) !important;
+  text-shadow: 0 1px 2px var(--ow-overlay) !important;
   font-weight: 700 !important;
   position: relative !important;
   z-index: 10 !important;
@@ -145,8 +145,8 @@ Team Introduction
 }
 
 .filter-btn.active:hover {
-  background: linear-gradient(135deg, #5a2f3f 0%, #7a3f4f 100%) !important;
-  color: #fff !important;
+  background: linear-gradient(135deg, var(--ow-accent-dark) 0%, #7a3f4f 100%) !important;
+  color: var(--ow-surface) !important;
 }
 
 /* ========================================
@@ -161,11 +161,11 @@ Team Introduction
 }
 
 .member-card {
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 1rem;
   padding: 0;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 10px 30px var(--ow-shadow-soft-2);
+  border: 1px solid var(--ow-border-subtle);
   transition: all 0.3s ease-out;
   display: flex;
   flex-direction: column;
@@ -174,7 +174,7 @@ Team Introduction
 
 .member-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 40px var(--ow-border-strong);
   border-color: rgba(74, 31, 47, 0.2);
 }
 
@@ -206,7 +206,7 @@ Team Introduction
 .member-name {
   font-size: 1.15rem;
   margin: 0;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
   font-weight: 700;
 }
 
@@ -215,8 +215,8 @@ Team Introduction
   width: fit-content;
   padding: 0.3rem 0.7rem;
   font-size: 0.8rem;
-  color: #fff;
-  background: linear-gradient(135deg, #6a2f3f 0%, #8a4b4b 100%);
+  color: var(--ow-surface);
+  background: linear-gradient(135deg, #6a2f3f 0%, var(--ow-accent-2) 100%);
   border-radius: 999px;
   font-weight: 600;
 }
@@ -232,7 +232,7 @@ Team Introduction
   display: inline-block;
   padding: 0.35rem 0.8rem;
   font-size: 0.8rem;
-  color: #4a1f2f;
+  color: var(--ow-accent);
   background: #fdf2f6;
   border: 1px solid rgba(148, 81, 105, 0.25);
   border-radius: 999px;
@@ -287,7 +287,7 @@ Team Introduction
   gap: 0.5rem;
   margin-top: 0.5rem;
   padding-top: 0.6rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-top: 1px solid var(--ow-border);
 }
 
 .icon-link {
@@ -322,11 +322,11 @@ Team Introduction
   grid-column: 1 / -1;
   text-align: center;
   font-size: 1rem;
-  color: #999;
+  color: var(--ow-text-soft);
   padding: 3rem 1rem;
-  background: #fafafa;
+  background: var(--ow-surface-2);
   border-radius: 0.75rem;
-  border: 1px dashed rgba(0, 0, 0, 0.1);
+  border: 1px dashed var(--ow-border-strong);
 }
 
 /* ========================================

@@ -7,10 +7,10 @@
 }
 
 .login-box {
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 1rem;
   padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 30px var(--ow-border-stronger);
   width: 100%;
   max-width: 400px;
 }
@@ -18,7 +18,7 @@
 .login-box h3 {
   text-align: center;
   font-size: 1.5rem;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
   margin: 0 0 1.5rem;
 }
 
@@ -27,7 +27,7 @@
   margin: 1.5rem 0;
   position: relative;
   font-size: 0.8rem;
-  color: #999;
+  color: var(--ow-text-soft);
 }
 
 .divider::before,
@@ -37,7 +37,7 @@
   top: 50%;
   width: 40%;
   height: 1px;
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--ow-border-stronger);
 }
 
 .divider::before {
@@ -55,7 +55,7 @@
 .login-form .input-group label {
   display: block;
   font-size: 0.95rem;
-  color: #555;
+  color: var(--ow-text);
   margin-bottom: 0.4rem;
   font-weight: 500;
 }
@@ -64,14 +64,14 @@
   width: 100%;
   font-size: 0.95rem;
   padding: 0.7rem 0.8rem;
-  border: 1px solid rgba(0, 0, 0, 0.16);
+  border: 1px solid var(--ow-border-stronger);
   border-radius: 0.5rem;
   outline: none;
   transition: border-color 0.2s ease-out;
 }
 
 .login-form .input-group input:focus {
-  border-color: #4a1f2f;
+  border-color: var(--ow-accent);
   box-shadow: 0 0 0 3px rgba(74, 31, 47, 0.1);
 }
 
@@ -86,11 +86,11 @@
   text-align: center;
   margin-top: 1.5rem;
   font-size: 0.85rem;
-  color: #777;
+  color: var(--ow-text-subtle);
 }
 
 .form-links a {
-  color: #4a1f2f;
+  color: var(--ow-accent);
   margin-left: 0.5rem;
   font-weight: 500;
 }
@@ -99,8 +99,8 @@
 .result-box {
   margin-top: 1.5rem;
   padding: 1rem;
-  border: 1px solid #f0d4e0;
-  background: #fff7f9;
+  border: 1px solid var(--ow-border-accent);
+  background: var(--ow-surface-wash);
   border-radius: 0.5rem;
   text-align: center;
 }
@@ -111,20 +111,20 @@
 }
 
 .result-box strong {
-  color: #4a1f2f;
+  color: var(--ow-accent);
   font-weight: 700;
 }
 
 .section-subtitle {
   font-size: 0.9rem;
-  color: #555;
+  color: var(--ow-text);
   margin: 0 0 1rem;
   line-height: 1.5;
 }
 
 .panel-hint {
   font-size: 0.8rem;
-  color: #4a1f2f;
+  color: var(--ow-accent);
   margin-top: 1rem;
   font-weight: 500;
 }
