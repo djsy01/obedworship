@@ -16,6 +16,7 @@
               v-model="formData.email"
               required
               :disabled="isEmailVerified"
+              placeholder="example@email.com"
             />
           </div>
           <div class="input-group">
@@ -26,6 +27,7 @@
               v-model="formData.name"
               required
               :disabled="isEmailVerified"
+              placeholder="name"
             />
           </div>
           <div class="input-group">
@@ -141,7 +143,7 @@ const handleSendEmail = async () => {
 
   // Actual implementation: Server API call (verifies user with input information and sends authentication number)
   alert(
-    `[Mock] 인증번호(${mockEmailCode})가 ${formData.email}로 발송되었습니다. (사용자 정보 확인 완료 가정)`
+    `[Mock] 인증번호(${mockEmailCode})가 ${formData.email}로 발송되었습니다. (사용자 정보 확인 완료 가정)`,
   );
 };
 
@@ -167,7 +169,7 @@ const handleSubmit = async () => {
   // Actual implementation: Server API call
   // Assuming the password reset was successful
   alert(
-    "비밀번호 재설정이 완료되었습니다! 새로운 비밀번호로 로그인해주세요. (프론트엔드 테스트)"
+    "비밀번호 재설정이 완료되었습니다! 새로운 비밀번호로 로그인해주세요. (프론트엔드 테스트)",
   );
   router.push("/login");
 };

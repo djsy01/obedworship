@@ -365,12 +365,6 @@ onMounted(() => {
         </div>
       </div>
 
-      <!-- 로딩 -->
-      <div v-if="loading" class="loading">
-        <div class="loading-spinner"></div>
-        <p>불러오는 중...</p>
-      </div>
-
       <!-- Add sheet music form -->
       <div v-if="showAddForm && isAdmin" class="panel">
         <h2 class="panel-title">새 악보 추가</h2>
@@ -407,6 +401,11 @@ onMounted(() => {
             />
           </label>
 
+          <!-- 로딩 -->
+          <div v-if="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>불러오는 중...</p>
+          </div>
           <label class="field">
             <span class="field-label">카테고리 / 집회 *</span>
             <input
@@ -494,11 +493,7 @@ onMounted(() => {
         <div class="filter-group">
           <label class="field field--inline">
             <span class="field-label">검색</span>
-            <input
-              v-model="keyword"
-              type="text"
-              placeholder="곡 제목, 작곡가, 편곡자 검색"
-            />
+            <input v-model="keyword" type="text" placeholder="곡 제목 검색" />
           </label>
 
           <label class="field field--inline">
@@ -522,6 +517,12 @@ onMounted(() => {
         </div>
 
         <div class="results-info">총 {{ filteredScores.length }}개의 악보</div>
+      </div>
+
+      <!-- 로딩 -->
+      <div v-if="loading" class="loading">
+        <div class="loading-spinner"></div>
+        <p>불러오는 중...</p>
       </div>
 
       <!-- sheet music table -->

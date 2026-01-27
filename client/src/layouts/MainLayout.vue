@@ -117,12 +117,14 @@
               @click="closeMobileMenu"
               >악보</RouterLink
             >
+            <!-- 집회신청 - 백엔드 완성 후 주석 해제
             <RouterLink
-              to="/tickets"
+              to="/applications"
               class="mobile-nav-link"
               @click="closeMobileMenu"
               >집회신청</RouterLink
             >
+            -->
             <RouterLink
               to="/map"
               class="mobile-nav-link"

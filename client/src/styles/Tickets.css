@@ -465,6 +465,20 @@
   margin: 0.5rem 0 0;
 }
 
+/* Poster preview in add form */
+.poster-preview {
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.poster-preview img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+}
+
 /* ========================================
    Responsive Design
    ======================================== */
@@ -602,4 +616,33 @@
 
 .modal-content {
   animation: fadeIn 0.4s ease-out;
+}
+
+/* ========================================
+   로딩 및 에러 상태
+   ======================================== */
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.1rem;
+  color: #666;
+}
+
+.error-message {
+  text-align: center;
+  padding: 3rem;
+  background: #fff7f7;
+  border-radius: 0.75rem;
+  border: 1px solid #ffdddd;
+}
+
+.error-message p {
+  font-size: 1.1rem;
+  color: #c0392b;
+  margin-bottom: 1rem;
+}
+
+.error-message .btn {
+  margin-top: 0.5rem;
 }

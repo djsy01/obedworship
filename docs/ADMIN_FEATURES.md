@@ -1,8 +1,8 @@
-# 관리자 기능 구현 완료
+# 관리자 기능 설계 (예정)
 
 작업 일자: 2026-01-23
 
-## 📋 구현된 기능
+## 📋 설계된 기능 (예정)
 
 ### 1. 멤버 관리 시스템 개선 ✅
 
@@ -30,10 +30,10 @@
   - ✅ "수정" 버튼 → 모달로 멤버 정보 수정
   - ✅ 기존 prompt 기반 함수 제거
 
-### 2. 사진 교체 로직 (백엔드)
+### 2. 사진 교체 로직 (백엔드 예정)
 
 #### 2.1 멤버 사진 자동 삭제
-- **위치**: `test-server/src/members/members.controller.ts`
+- **위치**: 백엔드 구현 예정
 - **기능**:
   - ✅ 멤버 삭제 시 GCS에서 사진 자동 삭제
   - ✅ 새 사진 업로드 시 기존 사진 자동 삭제 (향후 구현 예정)
@@ -80,7 +80,7 @@ CREATE TABLE assets (
 - `category`: 카테고리 (home, songs, logos 등)
 
 #### 3.2 Assets API
-- **위치**: `test-server/src/assets/`
+- **위치**: 백엔드 구현 예정
 - **엔드포인트**:
 
 | Method | Endpoint | 설명 |
@@ -194,7 +194,7 @@ assetApi.uploadFile(file, 'home_team_photo', 'home', 'Title', 'Description')
 
 ## 📂 변경된 파일 목록
 
-### 백엔드 (test-server/)
+### 백엔드 (예정)
 ```
 새로 생성:
   src/assets/                           # Assets 모듈

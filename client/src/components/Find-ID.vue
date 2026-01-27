@@ -9,7 +9,13 @@
         </p>
         <div class="input-group">
           <label htmlFor="name">이름</label>
-          <input type="text" id="name" v-model="name" required />
+          <input
+            type="text"
+            id="name"
+            v-model="name"
+            placeholder="name"
+            required
+          />
         </div>
 
         <div class="input-group">

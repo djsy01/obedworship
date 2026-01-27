@@ -1,0 +1,283 @@
+/* Admin Dashboard Styles */
+
+.section {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.section-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2b1a20;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #4a1f2f 0%, #8a4b4b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.section-subtitle {
+  color: #666;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* 관리 링크 카드 */
+.admin-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.admin-card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  padding: 2rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: block;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.admin-card:hover {
+  border-color: #8a4b4b;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(138, 75, 75, 0.15);
+}
+
+.admin-card h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #2b1a20;
+  margin-bottom: 0.5rem;
+}
+
+.admin-card p {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* 대시보드 섹션 */
+.dashboard-section {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 20px;
+  padding: 2rem;
+  margin-top: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.section-title-sub {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2b1a20;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #f0e6e8;
+}
+
+/* 통계 그리드 */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, #faf2f5 0%, #fff7f9 100%);
+  border: 1px solid #f0e6e8;
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(138, 75, 75, 0.1);
+}
+
+.stat-value {
+  font-size: 3rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #4a1f2f 0%, #8a4b4b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  color: #666;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* 최근 집회 목록 */
+.recent-worships {
+  margin-top: 2rem;
+}
+
+.list-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2b1a20;
+  margin-bottom: 1rem;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid #eee;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+.table th {
+  background: #faf2f5;
+  color: #2b1a20;
+  font-weight: 600;
+  text-align: left;
+  padding: 1rem;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table th:first-child {
+  border-radius: 12px 0 0 0;
+}
+
+.table th:last-child {
+  border-radius: 0 12px 0 0;
+}
+
+.table td {
+  padding: 1rem;
+  color: #444;
+  border-bottom: 1px solid #f0e6e8;
+  font-size: 0.95rem;
+}
+
+.table tbody tr {
+  transition: background 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background: #faf8f9;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.title-cell {
+  font-weight: 500;
+  color: #2b1a20;
+}
+
+/* 로딩 및 빈 상태 */
+.loading,
+.empty {
+  text-align: center;
+  padding: 3rem;
+  color: #888;
+  font-size: 1.1rem;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.loading::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f0e6e8;
+  border-top-color: #8a4b4b;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 반응형 */
+@media (max-width: 900px) {
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .admin-links {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .stat-value {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .section-title {
+    font-size: 1.75rem;
+  }
+
+  .section-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .dashboard-section {
+    padding: 1.25rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .stat-card {
+    padding: 1.25rem;
+  }
+
+  .stat-value {
+    font-size: 2.5rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .admin-card {
+    padding: 1.5rem;
+  }
+
+  .admin-card h3 {
+    font-size: 1.1rem;
+  }
+}

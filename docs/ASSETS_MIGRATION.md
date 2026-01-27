@@ -1,4 +1,4 @@
-# Assets 파일 백엔드 이관 가이드
+# Assets 파일 이관 가이드
 
 이 문서는 `client/src/assets` 폴더의 파일들을 Google Cloud Storage로 이관하는 가이드입니다.
 
@@ -77,7 +77,7 @@ client/src/assets/icons/
 
 #### 1.1 백엔드 API 사용
 
-**자동화 스크립트** (`test-server/scripts/upload-member-photos.ts`):
+**자동화 스크립트** (예정):
 
 ```typescript
 import { memberApi } from '../src/api/members';
@@ -315,7 +315,7 @@ GCS Bucket (obed-worship-files):
 전체 이관을 자동화하려면:
 
 ```bash
-# test-server/scripts/migrate-assets.sh
+# migrate-assets.sh (예정)
 
 #!/bin/bash
 

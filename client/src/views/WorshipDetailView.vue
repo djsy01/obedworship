@@ -71,16 +71,18 @@
             >
               안내
             </button>
+            <!-- 영상/사진 탭: 관리자는 항상 보임, 일반 사용자는 날짜 지나고 콘텐츠 있을 때만 -->
             <button
+              v-if="isAdmin || (isWorshipDatePassed && hasGalleryContent)"
               class="tab-button"
               :class="{ active: activeTab === 'gallery' }"
               @click="activeTab = 'gallery'"
             >
               영상/사진
             </button>
-            <!-- Show sheet music tab only after rally date -->
+            <!-- 악보 탭: 관리자는 항상 보임, 일반 사용자는 날짜 지나고 악보 있을 때만 -->
             <button
-              v-if="isWorshipDatePassed"
+              v-if="isAdmin || (isWorshipDatePassed && hasScoreContent)"
               class="tab-button"
               :class="{ active: activeTab === 'scores' }"
               @click="activeTab = 'scores'"
@@ -96,11 +98,8 @@
               <div v-if="worship.poster_url || editMode" class="poster-section">
                 <h2 class="section-subtitle">🖼️ 집회 포스터</h2>
                 <div v-if="editMode" class="poster-edit-actions">
-                  <button
-                    class="btn small primary"
-                    @click="openPosterUpload"
-                  >
-                    {{ worship.poster_url ? '포스터 변경' : '포스터 업로드' }}
+                  <button class="btn small primary" @click="openPosterUpload">
+                    {{ worship.poster_url ? "포스터 변경" : "포스터 업로드" }}
                   </button>
                   <button
                     v-if="worship.poster_url"
@@ -115,14 +114,23 @@
                   class="poster-image clickable-poster"
                   @click="openPosterFullscreen"
                 >
-                  <img :src="worship.poster_url" :alt="`${worship.title} 포스터`" />
+                  <img
+                    :src="worship.poster_url"
+                    :alt="`${worship.title} 포스터`"
+                  />
                   <div class="poster-overlay">
                     <div class="poster-overlay-icon">🔍</div>
                     <p>클릭하여 크게 보기</p>
                   </div>
                 </div>
-                <div v-else-if="worship.poster_url && editMode" class="poster-preview">
-                  <img :src="worship.poster_url" :alt="`${worship.title} 포스터`" />
+                <div
+                  v-else-if="worship.poster_url && editMode"
+                  class="poster-preview"
+                >
+                  <img
+                    :src="worship.poster_url"
+                    :alt="`${worship.title} 포스터`"
+                  />
                 </div>
               </div>
 
@@ -280,8 +288,6 @@
               >
                 <h2 class="section-subtitle">🎵 미리듣기</h2>
                 <p class="songs-intro">
-                  함께 부르게 될 곡들의 배우기 음원 링크를 아래에
-                  보내드립니다.<br />
                   예배 전 충분히 듣고 익혀 오신다면, 당일 예배가 더욱 깊고
                   풍성하게 채워질 것입니다.
                 </p>
@@ -373,8 +379,8 @@
           <!-- Video/Photo tab contents -->
           <div v-show="activeTab === 'gallery'" class="tab-content">
             <div class="detail-content">
-              <!-- Rally videos -->
-              <div class="worship-video-section">
+              <!-- Rally videos: 관리자이거나 영상이 있을 때만 표시 -->
+              <div v-if="isAdmin || (videos && videos.length > 0)" class="worship-video-section">
                 <div class="section-header-with-action">
                   <h2 class="section-subtitle">🎬 집회 영상</h2>
                   <button
@@ -422,13 +428,13 @@
                     </div>
                   </div>
                 </div>
-                <p v-else class="empty-message">
+                <p v-else-if="isAdmin" class="empty-message">
                   아직 업로드된 영상이 없습니다.
                 </p>
               </div>
 
-              <!-- On-site photos -->
-              <div class="photos-section">
+              <!-- On-site photos: 관리자이거나 사진이 있을 때만 표시 -->
+              <div v-if="isAdmin || (photos && photos.length > 0)" class="photos-section">
                 <div class="section-header-with-action">
                   <h2 class="section-subtitle">📷 현장 사진</h2>
                   <button
@@ -462,17 +468,14 @@
                     />
                   </div>
                 </div>
-                <p v-else class="empty-message">
+                <p v-else-if="isAdmin" class="empty-message">
                   아직 업로드된 사진이 없습니다.
                 </p>
               </div>
 
-              <!-- When there is no video/picture -->
+              <!-- When there is no video/picture (관리자만 보임) -->
               <div
-                v-if="
-                  (!videos || videos.length === 0) &&
-                  (!photos || photos.length === 0)
-                "
+                v-if="isAdmin && !hasGalleryContent"
                 class="empty-gallery"
               >
                 <p>집회 영상과 사진은 집회 후 업데이트 예정입니다.</p>
@@ -538,10 +541,7 @@
 
                     <!-- PDF preview / Thumbnail -->
                     <div class="score-preview-large">
-                      <div
-                        v-if="worship.poster_url"
-                        class="score-thumbnail"
-                      >
+                      <div v-if="worship.poster_url" class="score-thumbnail">
                         <img
                           :src="worship.poster_url"
                           :alt="worship.title + ' 포스터'"
@@ -550,7 +550,9 @@
                       <div v-else class="score-placeholder-large">
                         <div class="pdf-icon-large">📋</div>
                         <p class="placeholder-title">악보 포스터</p>
-                        <p class="placeholder-subtitle">업로드된 포스터가 없습니다</p>
+                        <p class="placeholder-subtitle">
+                          업로드된 포스터가 없습니다
+                        </p>
                       </div>
                     </div>
 
@@ -604,12 +606,13 @@
                   </div>
                 </div>
 
-                <div v-else class="score-empty-state">
+                <!-- 악보 빈 상태: 관리자만 보임 -->
+                <div v-else-if="isAdmin" class="score-empty-state">
                   <div class="empty-icon">📋</div>
                   <h3>아직 업로드된 악보가 없습니다</h3>
                   <p>집회 후 송폼과 악보가 업데이트 예정입니다.</p>
                   <button
-                    v-if="isAdmin && editMode"
+                    v-if="editMode"
                     @click="openScoreUpload"
                     class="btn primary"
                   >
@@ -841,10 +844,7 @@
         @click="closeScorePosterFullscreen"
       >
         <div class="fullscreen-content">
-          <button
-            class="fullscreen-close"
-            @click="closeScorePosterFullscreen"
-          >
+          <button class="fullscreen-close" @click="closeScorePosterFullscreen">
             ✕
           </button>
           <img
@@ -1264,6 +1264,16 @@ const isWorshipDatePassed = computed(() => {
   const worshipDate = new Date(worship.value.date);
   const today = new Date();
   return worshipDate < today;
+});
+
+// 영상/사진 콘텐츠가 있는지 확인
+const hasGalleryContent = computed(() => {
+  return (videos.value && videos.value.length > 0) || (photos.value && photos.value.length > 0);
+});
+
+// 악보 콘텐츠가 있는지 확인
+const hasScoreContent = computed(() => {
+  return scores.value && scores.value.length > 0;
 });
 
 // 영상 추가 모달 열기

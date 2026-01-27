@@ -25,41 +25,69 @@
       <div class="team-description">
         <div class="highlight-box">
           빠르게 변화해가는 세상 속에서 주님을 향해 두려움을 내려놓고 목소리로
-          주님과 소통하는 찬양팀
+          주님과 소통하는 예배
         </div>
         <div class="highlight-box">
-          청중들과 함께 소통하며 예배의 중심이 주님께 내려놓는 찬양팀
+          청중들과 함께 소통하며 예배의 중심이 주님께 내려놓는 예배
         </div>
         <div class="highlight-box">
           집회를 준비하는 과정에서 역할에 따라 무엇이 중요한지 고민하며, 다음
-          세대를 위로하고 함께 성장하기 위함
+          세대를 위로하고 함께 성장하기 위한는 예배
         </div>
         <div class="highlight-box">
           주님의 사랑을 잊고 살아가는 사람들에게 "너희는 잊어도 그리스도이신
-          주님께서는 아직도 우릴 찾고 있다"는 것을 다시금 깨닫게 하기 위해
+          주님께서는 아직도 우릴 찾고 있다"는 것을 다시금 깨닫게 하기 위한 예배
         </div>
       </div>
 
       <div class="team-member-section">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+          "
+        >
           <h2 class="section-title-sub">팀원 소개</h2>
 
           <!-- 관리자 모드 토글 -->
           <button
             @click="isAdmin = !isAdmin"
-            style="padding: 0.5rem 1rem; background: #4a1f2f; color: white; border: none; border-radius: 4px; cursor: pointer;"
+            style="
+              padding: 0.5rem 1rem;
+              background: #4a1f2f;
+              color: white;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+            "
           >
-            {{ isAdmin ? '👤 관리자 모드 OFF' : '🔒 관리자 모드 ON' }}
+            {{ isAdmin ? "👤 관리자 모드 OFF" : "🔒 관리자 모드 ON" }}
           </button>
         </div>
 
         <!-- 관리자 모드: 새 멤버 추가 버튼 -->
-        <div v-if="isAdmin" style="margin-bottom: 1rem;">
+        <div v-if="isAdmin" style="margin-bottom: 1rem">
           <button
             @click="openAddModal"
-            style="padding: 0.75rem 1.5rem; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: background 0.2s;"
-            @mouseenter="($event.target as HTMLElement).style.background = '#45a049'"
-            @mouseleave="($event.target as HTMLElement).style.background = '#4caf50'"
+            style="
+              padding: 0.75rem 1.5rem;
+              background: #4caf50;
+              color: white;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+              font-weight: bold;
+              font-size: 1rem;
+              transition: background 0.2s;
+            "
+            @mouseenter="
+              ($event.target as HTMLElement).style.background = '#45a049'
+            "
+            @mouseleave="
+              ($event.target as HTMLElement).style.background = '#4caf50'
+            "
           >
             ➕ 새 멤버 추가
           </button>
@@ -179,9 +207,7 @@
           </button>
         </div>
 
-        <div v-if="loading" class="loading">
-          로딩 중...
-        </div>
+        <div v-if="loading" class="loading">로딩 중...</div>
 
         <div v-else class="member-grid">
           <div
@@ -276,16 +302,37 @@
               </div>
 
               <!-- 관리자 모드: 수정/삭제 버튼 -->
-              <div v-if="isAdmin" style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+              <div
+                v-if="isAdmin"
+                style="margin-top: 1rem; display: flex; gap: 0.5rem"
+              >
                 <button
                   @click="openEditModal(member)"
-                  style="flex: 1; padding: 0.5rem; background: #4a7c59; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;"
+                  style="
+                    flex: 1;
+                    padding: 0.5rem;
+                    background: #4a7c59;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 0.85rem;
+                  "
                 >
                   ✏️ 수정
                 </button>
                 <button
                   @click="deleteMemberConfirm(member)"
-                  style="flex: 1; padding: 0.5rem; background: #c0392b; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;"
+                  style="
+                    flex: 1;
+                    padding: 0.5rem;
+                    background: #c0392b;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 0.85rem;
+                  "
                 >
                   🗑️ 삭제
                 </button>
@@ -354,7 +401,7 @@ const members = ref<Member[]>([]);
 const logo = ref<string>("");
 
 // Convert enum underscores back to spaces for display
-const convertFromEnum = (value: string) => value.replace(/_/g, ' ');
+const convertFromEnum = (value: string) => value.replace(/_/g, " ");
 
 // Load members from API
 const loadMembers = async () => {
@@ -370,9 +417,16 @@ const loadMembers = async () => {
       photo_url: apiMember.photo_url || logo.value, // Use logo as fallback
       instagram_url: apiMember.instagram_url || null,
       youtube_url: apiMember.youtube_url || null,
-      roles: apiMember.member_roles?.map((r) => convertFromEnum(r.role_type)) || [],
-      worship_positions: apiMember.member_worship_positions?.map((p) => convertFromEnum(p.position_type)) || [],
-      step_positions: apiMember.member_step_positions?.map((p) => convertFromEnum(p.position_type)) || [],
+      roles:
+        apiMember.member_roles?.map((r) => convertFromEnum(r.role_type)) || [],
+      worship_positions:
+        apiMember.member_worship_positions?.map((p) =>
+          convertFromEnum(p.position_type),
+        ) || [],
+      step_positions:
+        apiMember.member_step_positions?.map((p) =>
+          convertFromEnum(p.position_type),
+        ) || [],
       description: apiMember.description || "",
       display_order: apiMember.display_order ?? 0,
     }));
@@ -398,7 +452,7 @@ const filteredMembers = computed(() => {
   if (filter.value === "worship" && worshipFilter.value) {
     if (worshipFilter.value === "Piano") {
       filtered = filtered.filter((m) =>
-        m.worship_positions.some((p) => ["Piano", "Synthesizer"].includes(p))
+        m.worship_positions.some((p) => ["Piano", "Synthesizer"].includes(p)),
       );
     } else if (worshipFilter.value === "Guitar") {
       filtered = filtered.filter((m) =>
@@ -408,12 +462,12 @@ const filteredMembers = computed(() => {
             "Lead Guitar",
             "Backing Guitar",
             "Bass Guitar",
-          ].includes(p)
-        )
+          ].includes(p),
+        ),
       );
     } else {
       filtered = filtered.filter((m) =>
-        m.worship_positions.includes(worshipFilter.value)
+        m.worship_positions.includes(worshipFilter.value),
       );
     }
   }
@@ -423,7 +477,7 @@ const filteredMembers = computed(() => {
       filtered = filtered.filter(
         (m) =>
           m.step_positions.includes("Accounting Team") ||
-          m.roles.includes("Accounting Leader")
+          m.roles.includes("Accounting Leader"),
       );
     } else if (stepFilter.value === "Planning Team") {
       filtered = filtered.filter(
@@ -432,7 +486,7 @@ const filteredMembers = computed(() => {
           m.step_positions.includes("Instagram Manager") ||
           m.step_positions.includes("Poster Designer") ||
           m.step_positions.includes("Guidebook Designer") ||
-          m.roles.includes("Planning Leader")
+          m.roles.includes("Planning Leader"),
       );
     } else if (stepFilter.value === "Media Team") {
       filtered = filtered.filter(
@@ -444,7 +498,7 @@ const filteredMembers = computed(() => {
           m.step_positions.includes("Mix Engineer") ||
           m.step_positions.includes("Master Engineer") ||
           m.step_positions.includes("Music Producer") ||
-          m.roles.includes("Media Leader")
+          m.roles.includes("Media Leader"),
       );
     } else if (stepFilter.value === "Stage Team") {
       filtered = filtered.filter(
@@ -455,13 +509,13 @@ const filteredMembers = computed(() => {
           m.step_positions.includes("Lighting Operator") ||
           m.step_positions.includes("Audio Setup") ||
           m.step_positions.includes("Preproduction") ||
-          m.roles.includes("Stage Leader")
+          m.roles.includes("Stage Leader"),
       );
     } else if (stepFilter.value === "Prayer Team") {
       filtered = filtered.filter(
         (m) =>
           m.step_positions.includes("Prayer Team") ||
-          m.roles.includes("Prayer Leader")
+          m.roles.includes("Prayer Leader"),
       );
     }
   }
@@ -551,7 +605,7 @@ const handleMemberSaved = async () => {
     const updatedMember = response.data;
 
     // Find and update the member in the list
-    const index = members.value.findIndex(m => m.id === updatedMember.id);
+    const index = members.value.findIndex((m) => m.id === updatedMember.id);
     if (index !== -1) {
       members.value[index] = {
         id: updatedMember.id,
@@ -560,9 +614,18 @@ const handleMemberSaved = async () => {
         photo_url: updatedMember.photo_url || logo.value,
         instagram_url: updatedMember.instagram_url || null,
         youtube_url: updatedMember.youtube_url || null,
-        roles: updatedMember.member_roles?.map((r) => convertFromEnum(r.role_type)) || [],
-        worship_positions: updatedMember.member_worship_positions?.map((p) => convertFromEnum(p.position_type)) || [],
-        step_positions: updatedMember.member_step_positions?.map((p) => convertFromEnum(p.position_type)) || [],
+        roles:
+          updatedMember.member_roles?.map((r) =>
+            convertFromEnum(r.role_type),
+          ) || [],
+        worship_positions:
+          updatedMember.member_worship_positions?.map((p) =>
+            convertFromEnum(p.position_type),
+          ) || [],
+        step_positions:
+          updatedMember.member_step_positions?.map((p) =>
+            convertFromEnum(p.position_type),
+          ) || [],
         description: updatedMember.description || "",
         display_order: updatedMember.display_order ?? 0,
       };
@@ -580,7 +643,8 @@ const deleteMemberConfirm = (member: Member) => {
     return;
   }
 
-  memberApi.delete(member.id)
+  memberApi
+    .delete(member.id)
     .then(() => {
       alert("멤버가 삭제되었습니다!");
       // Reload members from API

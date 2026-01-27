@@ -168,6 +168,33 @@
   padding: 2rem;
 }
 
+/* 로딩 상태 */
+.loading {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.1rem;
+  color: #666;
+}
+
+/* 에러 상태 */
+.error-message {
+  text-align: center;
+  padding: 3rem;
+  background: #fff7f7;
+  border-radius: 0.75rem;
+  border: 1px solid #ffdddd;
+}
+
+.error-message p {
+  font-size: 1.1rem;
+  color: #c0392b;
+  margin-bottom: 1rem;
+}
+
+.error-message .btn {
+  margin-top: 0.5rem;
+}
+
 @media (max-width: 768px) {
   .log-grid {
     grid-template-columns: 1fr;

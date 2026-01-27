@@ -92,6 +92,7 @@ import { RouterLink } from "vue-router";
 import { useAuth } from "@/composables/useAuth";
 import { worshipApi, type Worship } from "@/api/worship";
 import AssetManager from "@/components/AssetManager.vue";
+import "../styles/Admin.css";
 
 const { isAdmin } = useAuth();
 const worships = ref<Worship[]>([]);

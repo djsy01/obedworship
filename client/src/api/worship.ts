@@ -22,6 +22,10 @@ export interface Worship {
   opening_songs?: string[];
   celebration_songs?: string[];
   excluded_songs?: string[];
+  // 집회 신청 관련 필드
+  application_enabled?: boolean;
+  max_capacity?: number;
+  application_deadline?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -47,6 +51,10 @@ export interface CreateWorshipDto {
   opening_songs?: string[];
   celebration_songs?: string[];
   excluded_songs?: string[];
+  // 집회 신청 관련 필드
+  application_enabled?: boolean;
+  max_capacity?: number;
+  application_deadline?: string;
 }
 
 export interface UpdateWorshipDto {
@@ -70,6 +78,10 @@ export interface UpdateWorshipDto {
   opening_songs?: string[];
   celebration_songs?: string[];
   excluded_songs?: string[];
+  // 집회 신청 관련 필드
+  application_enabled?: boolean;
+  max_capacity?: number;
+  application_deadline?: string;
 }
 
 export const worshipApi = {

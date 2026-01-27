@@ -14,21 +14,39 @@
             v-if="isAdmin"
             class="btn primary"
             type="button"
-            @click="openAddWorshipModal"
+            @click="openAddTicketModal"
           >
-            + 집회 추가
+            + 티켓 추가
           </button>
         </div>
       </div>
 
-      <!-- Admin only: Add rally modal -->
+      <!-- Admin only: Add ticket modal -->
       <div v-if="showAddModal && isAdmin" class="panel">
-        <h2 class="panel-title">새 집회 추가</h2>
-        <form class="form-grid" @submit.prevent="handleAddWorship">
+        <h2 class="panel-title">새 티켓 추가</h2>
+        <form class="form-grid" @submit.prevent="handleAddTicket">
+          <!-- 집회 안내 연동 선택 -->
+          <label class="field field--full">
+            <span class="field-label">집회 안내에서 불러오기 (선택)</span>
+            <select v-model="selectedWorshipId" @change="onWorshipSelect">
+              <option :value="null">직접 입력</option>
+              <option
+                v-for="worship in worships"
+                :key="worship.id"
+                :value="worship.id"
+              >
+                {{ worship.title }} ({{ worship.date }})
+              </option>
+            </select>
+            <p class="field-hint">
+              ※ 집회 안내 페이지의 정보를 불러와 자동으로 채웁니다
+            </p>
+          </label>
+
           <label class="field">
             <span class="field-label">집회명</span>
             <input
-              v-model="newWorship.title"
+              v-model="newTicket.title"
               type="text"
               placeholder="집회명을 입력하세요"
               required
@@ -38,7 +56,7 @@
           <label class="field">
             <span class="field-label">날짜</span>
             <input
-              v-model="newWorship.date"
+              v-model="newTicket.date"
               type="text"
               placeholder="예: 2025-03-15 (토) 19:00"
               required
@@ -48,7 +66,7 @@
           <label class="field">
             <span class="field-label">연도</span>
             <input
-              v-model.number="newWorship.year"
+              v-model.number="newTicket.year"
               type="number"
               placeholder="예: 2025"
               required
@@ -58,7 +76,7 @@
           <label class="field">
             <span class="field-label">장소</span>
             <input
-              v-model="newWorship.place"
+              v-model="newTicket.place"
               type="text"
               placeholder="예: 예수인교회 본관 지하 2층"
               required
@@ -68,7 +86,7 @@
           <label class="field">
             <span class="field-label">설교자</span>
             <input
-              v-model="newWorship.preacher"
+              v-model="newTicket.preacher"
               type="text"
               placeholder="예: 박훈 목사"
               required
@@ -78,22 +96,28 @@
           <label class="field field--full">
             <span class="field-label">집회 설명</span>
             <textarea
-              v-model="newWorship.description"
+              v-model="newTicket.description"
               rows="3"
               placeholder="집회에 대한 간단한 설명을 입력하세요"
               required
             ></textarea>
           </label>
 
-          <label class="field field--full">
+          <div class="field field--full">
             <span class="field-label">포스터 이미지</span>
+            <div v-if="newTicket.poster_url" class="poster-preview">
+              <img :src="newTicket.poster_url" alt="포스터 미리보기" />
+              <p class="field-hint">※ 집회 안내에서 불러온 포스터입니다</p>
+            </div>
             <input type="file" @change="handlePosterUpload" accept="image/*" />
-            <p class="field-hint">※ 포스터 이미지를 업로드하세요 (선택사항)</p>
-          </label>
+            <p class="field-hint">
+              {{ newTicket.poster_url ? "※ 새 이미지를 업로드하면 교체됩니다" : "※ 포스터 이미지를 업로드하세요 (선택사항)" }}
+            </p>
+          </div>
 
           <label class="field">
             <span class="field-label">상태</span>
-            <select v-model="newWorship.status" required>
+            <select v-model="newTicket.status" required>
               <option value="OPEN">예매 중</option>
               <option value="CLOSED">마감</option>
               <option value="CANCELED">취소</option>
@@ -109,51 +133,60 @@
         </form>
       </div>
 
-      <!-- List of rallies -->
-      <div class="tickets-grid">
+      <!-- 로딩 상태 -->
+      <div v-if="loading" class="loading">로딩 중...</div>
+
+      <!-- 에러 상태 -->
+      <div v-else-if="error" class="error-message">
+        <p>정보를 가져오지 못했습니다.</p>
+        <button class="btn primary" @click="fetchTickets">다시 시도</button>
+      </div>
+
+      <!-- List of tickets -->
+      <div v-else class="tickets-grid">
         <article
-          v-for="worship in sortedWorships"
-          :key="worship.id"
+          v-for="ticket in sortedTickets"
+          :key="ticket.id"
           class="ticket-card"
-          :class="{ 'ticket-closed': worship.status !== 'OPEN' }"
+          :class="{ 'ticket-closed': ticket.status !== 'OPEN' }"
         >
           <!-- Poster image -->
-          <div v-if="worship.poster_url" class="ticket-poster">
-            <img :src="worship.poster_url" :alt="worship.title + ' 포스터'" />
+          <div v-if="ticket.poster_url" class="ticket-poster">
+            <img :src="ticket.poster_url" :alt="ticket.title + ' 포스터'" />
           </div>
 
           <div class="ticket-content">
             <div class="ticket-header">
-              <span class="ticket-status" :data-status="worship.status">
-                {{ getStatusText(worship.status) }}
+              <span class="ticket-status" :data-status="ticket.status">
+                {{ getStatusText(ticket.status) }}
               </span>
-              <p class="ticket-date">{{ worship.date }}</p>
+              <p class="ticket-date">{{ ticket.date }}</p>
             </div>
 
-            <h2 class="ticket-title">{{ worship.title }}</h2>
+            <h2 class="ticket-title">{{ ticket.title }}</h2>
             <p class="ticket-meta">
               <span class="meta-item">
                 <span class="meta-icon">📍</span>
-                {{ worship.place }}
+                {{ ticket.place }}
               </span>
               <span class="meta-item">
                 <span class="meta-icon">🎤</span>
-                {{ worship.preacher }}
+                {{ ticket.preacher }}
               </span>
             </p>
-            <p class="ticket-description">{{ worship.description }}</p>
+            <p class="ticket-description">{{ ticket.description }}</p>
 
             <!-- Administrator-only action -->
             <div v-if="isAdmin" class="admin-actions">
-              <button class="btn small" @click="editWorship(worship)">
+              <button class="btn small" @click="editTicket(ticket)">
                 ✏️ 수정
               </button>
-              <button class="btn small" @click="completeWorship(worship.id)">
-                ✅ 완료
+              <button class="btn small" @click="closeTicket(ticket.id)">
+                ✅ 마감
               </button>
               <button
                 class="btn small danger"
-                @click="deleteWorship(worship.id)"
+                @click="deleteTicket(ticket.id)"
               >
                 🗑️ 삭제
               </button>
@@ -162,21 +195,21 @@
             <!-- Apply Button -->
             <div class="ticket-actions">
               <button
-                v-if="worship.status === 'OPEN'"
+                v-if="ticket.status === 'OPEN'"
                 class="btn primary apply-btn"
-                @click="openApplicationModal(worship)"
+                @click="openApplicationModal(ticket)"
               >
                 신청하기
               </button>
               <button v-else class="btn disabled apply-btn" disabled>
-                {{ worship.status === "CLOSED" ? "마감됨" : "취소됨" }}
+                {{ ticket.status === "CLOSED" ? "마감됨" : "취소됨" }}
               </button>
             </div>
           </div>
         </article>
 
-        <p v-if="sortedWorships.length === 0" class="empty-text">
-          현재 진행 중인 집회가 없습니다.
+        <p v-if="sortedTickets.length === 0" class="empty-text">
+          현재 신청 가능한 집회가 없습니다.
         </p>
       </div>
 
@@ -189,7 +222,7 @@
         <div class="modal-content application-modal" @click.stop>
           <div class="modal-header">
             <h2 class="modal-title">
-              집회 신청 - {{ selectedWorship?.title }}
+              집회 신청 - {{ selectedTicket?.title }}
             </h2>
             <button class="modal-close" @click="closeApplicationModal">
               ✕
@@ -330,36 +363,36 @@
       >
         <div class="modal-content edit-modal" @click.stop>
           <div class="modal-header">
-            <h2 class="modal-title">집회 수정</h2>
+            <h2 class="modal-title">티켓 수정</h2>
             <button class="modal-close" @click="closeEditModal">✕</button>
           </div>
 
           <div class="modal-body">
-            <form class="form-grid" @submit.prevent="handleUpdateWorship">
+            <form class="form-grid" @submit.prevent="handleUpdateTicket">
               <label class="field">
                 <span class="field-label">집회명</span>
-                <input v-model="editingWorship.title" type="text" required />
+                <input v-model="editingTicket.title" type="text" required />
               </label>
 
               <label class="field">
                 <span class="field-label">날짜</span>
-                <input v-model="editingWorship.date" type="text" required />
+                <input v-model="editingTicket.date" type="text" required />
               </label>
 
               <label class="field">
                 <span class="field-label">장소</span>
-                <input v-model="editingWorship.place" type="text" required />
+                <input v-model="editingTicket.place" type="text" required />
               </label>
 
               <label class="field">
                 <span class="field-label">설교자</span>
-                <input v-model="editingWorship.preacher" type="text" required />
+                <input v-model="editingTicket.preacher" type="text" required />
               </label>
 
               <label class="field field--full">
                 <span class="field-label">집회 설명</span>
                 <textarea
-                  v-model="editingWorship.description"
+                  v-model="editingTicket.description"
                   rows="3"
                   required
                 ></textarea>
@@ -379,7 +412,7 @@
 
               <label class="field">
                 <span class="field-label">상태</span>
-                <select v-model="editingWorship.status" required>
+                <select v-model="editingTicket.status" required>
                   <option value="OPEN">예매 중</option>
                   <option value="CLOSED">마감</option>
                   <option value="CANCELED">취소</option>
@@ -404,57 +437,30 @@
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuth } from "@/composables/useAuth";
+import { ticketApi, ticketApplicationApi, worshipApi } from "@/api/axios";
+import type { Ticket, TicketStatus } from "@/api/tickets";
+import type { Worship } from "@/api/worship";
 import "../styles/Tickets.css";
-
-type WorshipStatus = "OPEN" | "CLOSED" | "CANCELED";
-
-type Worship = {
-  id: number;
-  title: string;
-  date: string;
-  year: number;
-  place: string;
-  preacher: string;
-  description: string;
-  poster_url?: string;
-  status: WorshipStatus;
-};
 
 const router = useRouter();
 const { isLoggedIn, isAdmin } = useAuth();
 
-//state management
-const worships = ref<Worship[]>([
-  {
-    id: 1,
-    title: "하나됨",
-    date: "2025-03-22 (토) 19:00",
-    year: 2025,
-    place: "예수인교회 본관 지하 2층",
-    preacher: "민찬기 목사",
-    description: "호흡있는 모든 자들은 찬양하라",
-    status: "CLOSED",
-  },
-  {
-    id: 2,
-    title: "샬롬",
-    date: "2025-12-06 (금) 18:30",
-    year: 2025,
-    place: "예수인교회 본관 지하 2층",
-    preacher: "박훈 목사",
-    description: "너희는 마음에 근심하지도 말고 두려워하지도 말라",
-    status: "OPEN",
-  },
-]);
+// 상태 관리
+const tickets = ref<Ticket[]>([]);
+const worships = ref<Worship[]>([]); // 집회 안내 목록 (연동용)
+const loading = ref(true);
+const error = ref(false);
+const submitting = ref(false);
+const selectedWorshipId = ref<number | null>(null); // 선택된 집회 ID
 
 const showAddModal = ref(false);
 const showApplicationModal = ref(false);
 const showEditModal = ref(false);
-const selectedWorship = ref<Worship | null>(null);
-const editingWorship = ref<Worship | null>(null);
+const selectedTicket = ref<Ticket | null>(null);
+const editingTicket = ref<Ticket | null>(null);
 
-// new rally data
-const newWorship = ref({
+// 새 티켓 데이터
+const newTicket = ref({
   title: "",
   date: "",
   year: new Date().getFullYear(),
@@ -462,14 +468,16 @@ const newWorship = ref({
   preacher: "",
   description: "",
   poster_url: "",
-  status: "OPEN" as WorshipStatus,
+  status: "OPEN" as TicketStatus,
 });
 
-// User information (Mock - actually taken from Redis)
-const userName = ref("홍길동");
-const userEmail = ref("user@example.com");
+// 사용자 정보 (localStorage에서 가져옴)
+const userName = ref("");
+const userEmail = ref("");
+const userPhone = ref("");
+const userId = ref<number | null>(null);
 
-// ticket quantity
+// 티켓 수량
 const ticketCounts = ref({
   infant_child: 0,
   teen: 0,
@@ -480,12 +488,81 @@ const ticketCounts = ref({
 const specialNote = ref("");
 const privacyAgreed = ref(false);
 
-// Sorted list of meetings
-const sortedWorships = computed(() => {
-  return [...worships.value].sort((a, b) => b.id - a.id);
+// 티켓 목록 조회
+const fetchTickets = async () => {
+  loading.value = true;
+  error.value = false;
+  try {
+    const response = await ticketApi.getAll();
+    tickets.value = response.data;
+  } catch (err) {
+    console.error("티켓 조회 실패:", err);
+    error.value = true;
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 집회 안내 목록 조회 (티켓 연동용)
+const fetchWorships = async () => {
+  try {
+    const response = await worshipApi.getAll();
+    worships.value = response.data;
+  } catch (err) {
+    console.error("집회 목록 조회 실패:", err);
+  }
+};
+
+// 집회 선택 시 폼 자동 채우기
+const onWorshipSelect = () => {
+  if (!selectedWorshipId.value) {
+    // 선택 해제 시 폼 초기화
+    newTicket.value = {
+      title: "",
+      date: "",
+      year: new Date().getFullYear(),
+      place: "",
+      preacher: "",
+      description: "",
+      poster_url: "",
+      status: "OPEN",
+    };
+    return;
+  }
+
+  const worship = worships.value.find((w) => w.id === selectedWorshipId.value);
+  if (worship) {
+    newTicket.value = {
+      title: worship.title,
+      date: worship.date,
+      year: worship.year,
+      place: worship.location || "",
+      preacher: worship.preacher,
+      description: worship.description,
+      poster_url: worship.poster_url || "",
+      status: "OPEN",
+    };
+  }
+};
+
+// 사용자 정보 로드
+const loadUserInfo = () => {
+  const userStr = localStorage.getItem("user");
+  if (userStr) {
+    const user = JSON.parse(userStr);
+    userId.value = user.userId ? parseInt(user.userId) : null;
+    userName.value = user.name || localStorage.getItem("userName") || "";
+    userEmail.value = user.email || "";
+    userPhone.value = user.phone || "";
+  }
+};
+
+// 정렬된 티켓 목록
+const sortedTickets = computed(() => {
+  return [...tickets.value].sort((a, b) => b.id - a.id);
 });
 
-// total number of tickets
+// 총 티켓 수량
 const totalTickets = computed(() => {
   return Object.values(ticketCounts.value).reduce(
     (sum, count) => sum + count,
@@ -493,7 +570,7 @@ const totalTickets = computed(() => {
   );
 });
 
-// calculate total amount
+// 총 금액 계산
 const totalAmount = computed(() => {
   return (
     ticketCounts.value.teen * 5000 +
@@ -502,16 +579,16 @@ const totalAmount = computed(() => {
   );
 });
 
-// Availability for submission
+// 제출 가능 여부
 const canSubmit = computed(() => {
-  return totalTickets.value > 0 && privacyAgreed.value;
+  return totalTickets.value > 0 && privacyAgreed.value && !submitting.value;
 });
 
-// status text
-const getStatusText = (status: WorshipStatus) => {
+// 상태 텍스트
+const getStatusText = (status: TicketStatus) => {
   switch (status) {
     case "OPEN":
-      return "예매 중";
+      return "신청 중";
     case "CLOSED":
       return "마감";
     case "CANCELED":
@@ -519,19 +596,18 @@ const getStatusText = (status: WorshipStatus) => {
   }
 };
 
-// Check login
+// 초기 로드
 onMounted(() => {
-  // Mock: Actually, Redis user information is retrieved here
-  if (isLoggedIn.value) {
-    // userName.value = fetchedName
-    // userEmail.value = fetchedEmail
-  }
+  fetchTickets();
+  fetchWorships(); // 관리자용 집회 목록 로드
+  loadUserInfo();
 });
 
-//Add rally modal
-const openAddWorshipModal = () => {
+// 티켓 추가 모달
+const openAddTicketModal = () => {
   showAddModal.value = true;
-  newWorship.value = {
+  selectedWorshipId.value = null;
+  newTicket.value = {
     title: "",
     date: "",
     year: new Date().getFullYear(),
@@ -551,35 +627,45 @@ const handlePosterUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
   const file = target.files?.[0];
   if (file) {
-    // TODO: actually calls the file upload API
     console.log("포스터 업로드:", file.name);
-    // Mock URL
-    newWorship.value.poster_url = URL.createObjectURL(file);
+    newTicket.value.poster_url = URL.createObjectURL(file);
   }
 };
 
-const handleAddWorship = () => {
-  const newId = Math.max(...worships.value.map((w) => w.id), 0) + 1;
-  worships.value.push({
-    id: newId,
-    ...newWorship.value,
-  });
-  alert("집회가 추가되었습니다!");
-  closeAddModal();
+const handleAddTicket = async () => {
+  try {
+    await ticketApi.create({
+      worship_id: selectedWorshipId.value || undefined,
+      title: newTicket.value.title,
+      date: newTicket.value.date,
+      year: newTicket.value.year,
+      preacher: newTicket.value.preacher,
+      description: newTicket.value.description,
+      place: newTicket.value.place,
+      poster_url: newTicket.value.poster_url || undefined,
+      status: newTicket.value.status,
+    });
+    alert("티켓이 추가되었습니다!");
+    closeAddModal();
+    await fetchTickets();
+  } catch (err) {
+    console.error("티켓 추가 실패:", err);
+    alert("티켓 추가에 실패했습니다.");
+  }
 };
 
-// application modal
-const openApplicationModal = (worship: Worship) => {
+// 신청 모달
+const openApplicationModal = (ticket: Ticket) => {
   if (!isLoggedIn.value) {
     alert("로그인이 필요한 서비스입니다.");
     router.push("/login");
     return;
   }
 
-  selectedWorship.value = worship;
+  selectedTicket.value = ticket;
   showApplicationModal.value = true;
 
-  // reset
+  // 초기화
   ticketCounts.value = {
     infant_child: 0,
     teen: 0,
@@ -592,7 +678,7 @@ const openApplicationModal = (worship: Worship) => {
 
 const closeApplicationModal = () => {
   showApplicationModal.value = false;
-  selectedWorship.value = null;
+  selectedTicket.value = null;
 };
 
 const handleSubmitApplication = async () => {
@@ -601,85 +687,102 @@ const handleSubmitApplication = async () => {
     return;
   }
 
-  try {
-    const applicationData = {
-      worship_id: selectedWorship.value?.id,
-      user_name: userName.value,
-      user_email: userEmail.value,
-      infant_child_count: ticketCounts.value.infant_child,
-      teen_count: ticketCounts.value.teen,
-      military_count: ticketCounts.value.military,
-      adult_count: ticketCounts.value.adult,
-      total_amount: totalAmount.value,
-      special_note: specialNote.value || null,
-      privacy_agreed: privacyAgreed.value,
-    };
+  if (!userId.value || !selectedTicket.value) {
+    alert("사용자 정보를 확인할 수 없습니다. 다시 로그인해주세요.");
+    return;
+  }
 
-    // TODO: API call
-    console.log("신청 데이터:", applicationData);
+  submitting.value = true;
+  try {
+    await ticketApplicationApi.create({
+      ticket_id: selectedTicket.value.id,
+      user_id: userId.value,
+      applicant_name: userName.value,
+      applicant_phone: userPhone.value || "미등록",
+      applicant_email: userEmail.value,
+      party_size: totalTickets.value,
+      memo: specialNote.value || undefined,
+    });
 
     alert(
-      `집회 신청이 완료되었습니다!\n\n총 ${totalTickets.value}장 / ${totalAmount.value.toLocaleString()}원`
+      `집회 신청이 완료되었습니다!\n\n총 ${totalTickets.value}명`
     );
     closeApplicationModal();
-  } catch (error) {
-    console.error("신청 실패:", error);
-    alert("신청 처리 중 오류가 발생했습니다.");
+  } catch (err: any) {
+    console.error("신청 실패:", err);
+    const message =
+      err.response?.data?.message || "신청 처리 중 오류가 발생했습니다.";
+    alert(message);
+  } finally {
+    submitting.value = false;
   }
 };
 
-// edit modal
-const editWorship = (worship: Worship) => {
-  editingWorship.value = { ...worship };
+// 수정 모달
+const editTicket = (ticket: Ticket) => {
+  editingTicket.value = { ...ticket };
   showEditModal.value = true;
 };
 
 const closeEditModal = () => {
   showEditModal.value = false;
-  editingWorship.value = null;
+  editingTicket.value = null;
 };
 
 const handleEditPosterUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
   const file = target.files?.[0];
-  if (file && editingWorship.value) {
+  if (file && editingTicket.value) {
     console.log("포스터 수정 업로드:", file.name);
-    editingWorship.value.poster_url = URL.createObjectURL(file);
+    editingTicket.value.poster_url = URL.createObjectURL(file);
   }
 };
 
-const handleUpdateWorship = () => {
-  if (!editingWorship.value) return;
+const handleUpdateTicket = async () => {
+  if (!editingTicket.value) return;
 
-  const index = worships.value.findIndex(
-    (w) => w.id === editingWorship.value!.id
-  );
-  if (index !== -1) {
-    worships.value[index] = { ...editingWorship.value };
-    alert("집회 정보가 수정되었습니다!");
+  try {
+    await ticketApi.update(editingTicket.value.id, {
+      title: editingTicket.value.title,
+      date: editingTicket.value.date,
+      preacher: editingTicket.value.preacher,
+      description: editingTicket.value.description,
+      place: editingTicket.value.place,
+    });
+    alert("티켓 정보가 수정되었습니다!");
     closeEditModal();
+    await fetchTickets();
+  } catch (err) {
+    console.error("티켓 수정 실패:", err);
+    alert("티켓 수정에 실패했습니다.");
   }
 };
 
-// completion processing
-const completeWorship = (id: number) => {
-  if (!confirm("이 집회를 완료 처리하시겠습니까?")) return;
+// 마감 처리
+const closeTicket = async (id: number) => {
+  if (!confirm("이 티켓을 마감 처리하시겠습니까?")) return;
 
-  const worship = worships.value.find((w) => w.id === id);
-  if (worship) {
-    worship.status = "CLOSED";
-    alert("집회가 완료 처리되었습니다!");
+  try {
+    await ticketApi.close(id);
+    alert("티켓이 마감 처리되었습니다!");
+    await fetchTickets();
+  } catch (err) {
+    console.error("티켓 마감 실패:", err);
+    alert("티켓 마감에 실패했습니다.");
   }
 };
 
-// delete
-const deleteWorship = (id: number) => {
-  if (!confirm("정말 이 집회를 삭제하시겠습니까?")) return;
+// 삭제
+const deleteTicket = async (id: number) => {
+  if (!confirm("정말 이 티켓을 삭제하시겠습니까?")) return;
 
-  const index = worships.value.findIndex((w) => w.id === id);
-  if (index !== -1) {
-    worships.value.splice(index, 1);
-    alert("집회가 삭제되었습니다!");
+  try {
+    await ticketApi.delete(id);
+    alert("티켓이 삭제되었습니다!");
+    await fetchTickets();
+  } catch (err) {
+    console.error("티켓 삭제 실패:", err);
+    alert("티켓 삭제에 실패했습니다.");
   }
 };
 </script>

@@ -112,7 +112,19 @@
         </p>
       </div>
 
-      <div class="log-grid">
+      <!-- 로딩 상태 -->
+      <div v-if="loading" class="loading">
+        로딩 중...
+      </div>
+
+      <!-- 에러 상태 -->
+      <div v-else-if="error" class="error-message">
+        <p>정보를 가져오지 못했습니다.</p>
+        <button class="btn primary" @click="fetchWorships">다시 시도</button>
+      </div>
+
+      <!-- 집회 목록 -->
+      <div v-else class="log-grid">
         <article
           v-for="w in filteredLogs"
           :key="w.id"
@@ -177,7 +189,8 @@ const { isAdmin } = useAuth();
 const logs = ref<Worship[]>([]);
 const selectedYear = ref<string>("");
 const showAddModal = ref(false);
-const loading = ref(false);
+const loading = ref(true);
+const error = ref(false);
 
 // new rally data
 const newWorship = ref({
@@ -193,11 +206,13 @@ const newWorship = ref({
 // 집회 조회
 const fetchWorships = async () => {
   loading.value = true;
+  error.value = false;
   try {
     const response = await worshipApi.getAll();
     logs.value = response.data;
-  } catch (error) {
-    console.error("집회 조회 실패:", error);
+  } catch (err) {
+    console.error("집회 조회 실패:", err);
+    error.value = true;
   } finally {
     loading.value = false;
   }

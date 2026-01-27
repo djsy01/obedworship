@@ -50,7 +50,13 @@
 
         <div class="input-group">
           <label htmlFor="name">사용자 이름</label>
-          <input type="text" id="name" v-model="formData.name" required />
+          <input
+            type="text"
+            id="name"
+            v-model="formData.name"
+            placeholder="name"
+            required
+          />
         </div>
 
         <div class="input-group">
@@ -70,6 +76,7 @@
             type="password"
             id="password"
             v-model="formData.password"
+            placeholder="password"
             required
           />
         </div>
@@ -79,6 +86,7 @@
             type="password"
             id="confirmPassword"
             v-model="formData.confirmPassword"
+            placeholder="confirm password"
             required
           />
         </div>
@@ -120,7 +128,7 @@ const handleSendVerification = async () => {
 
   // Actual implementation: await apiClient.post("/auth/send-verification", { email: formData.email });
   alert(
-    "인증 코드가 발송되었습니다. 이메일을 확인해주세요. (프론트엔드 테스트)"
+    "인증 코드가 발송되었습니다. 이메일을 확인해주세요. (프론트엔드 테스트)",
   );
 };
 

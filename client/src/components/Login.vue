@@ -5,11 +5,23 @@
       <form class="login-form" @submit.prevent="handleSubmit">
         <div class="input-group">
           <label htmlFor="email">이메일</label>
-          <input type="email" id="email" v-model="email" required />
+          <input
+            type="email"
+            id="email"
+            v-model="email"
+            placeholder="example@email.com"
+            required
+          />
         </div>
         <div class="input-group">
           <label htmlFor="password">비밀번호</label>
-          <input type="password" id="password" v-model="password" required />
+          <input
+            type="password"
+            id="password"
+            v-model="password"
+            placeholder="password"
+            required
+          />
         </div>
 
         <button type="submit" class="btn primary login-btn">로그인</button>

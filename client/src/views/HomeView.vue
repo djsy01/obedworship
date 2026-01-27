@@ -12,9 +12,7 @@
           </p>
 
           <div class="hero-actions">
-            <RouterLink to="/tickets" class="btn primary">
-              다음 집회 보기
-            </RouterLink>
+            <RouterLink to="/vision" class="btn primary"> 비전 </RouterLink>
             <RouterLink to="/worship-log" class="btn ghost">
               지난 집회 기록
             </RouterLink>
@@ -36,6 +34,7 @@
     <section class="section features-section">
       <h2 class="section-title">무엇을 할 수 있나요?</h2>
       <div class="card-grid">
+        <!-- Feature Cards 
         <article class="card feature-card">
           <div class="card-icon">📅</div>
           <h3 class="card-title">집회 일정 안내</h3>
@@ -47,6 +46,7 @@
             집회신청 페이지로 이동 →
           </RouterLink>
         </article>
+        -->
 
         <article class="card feature-card">
           <div class="card-icon">🎼</div>
