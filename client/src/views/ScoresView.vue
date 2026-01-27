@@ -9,20 +9,15 @@ const { isLoggedIn, isAdmin } = useAuth();
 // List of available Keys
 const availableKeys = [
   "C",
-  "C#",
   "Db",
   "D",
-  "D#",
   "Eb",
   "E",
   "F",
-  "F#",
   "Gb",
   "G",
-  "G#",
   "Ab",
   "A",
-  "A#",
   "Bb",
   "B",
 ];
