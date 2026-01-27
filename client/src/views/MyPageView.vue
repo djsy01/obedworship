@@ -1,3 +1,364 @@
+<script setup lang="ts">
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useAuth } from "@/composables/useAuth";
+import { mypageApi, ticketApplicationApi, worshipApi } from "@/api/axios";
+import type { UserProfile, UserQna, ScoreDownload } from "@/api/mypage";
+import "../styles/MyPage.css";
+
+type ApplicationStatus = "PENDING" | "CONFIRMED" | "CANCELLED";
+
+type DisplayApplication = {
+  id: number;
+  worship_id: number;
+  worship_title: string;
+  worship_date: string;
+  worship_place: string;
+  user_name: string;
+  user_email: string;
+  party_size: number;
+  status: ApplicationStatus;
+  memo?: string;
+  applied_at: string;
+  created_at: string;
+};
+
+const router = useRouter();
+const { isLoggedIn, isAdmin } = useAuth();
+
+//state management
+const loading = ref(true);
+const error = ref(false);
+
+// user information
+const profile = ref<UserProfile | null>(null);
+const userId = ref<number | null>(null);
+
+// Application details
+const myApplications = ref<DisplayApplication[]>([]);
+const allApplications = ref<DisplayApplication[]>([]);
+
+// Q&A and download
+const myQnas = ref<UserQna[]>([]);
+const myDownloads = ref<ScoreDownload[]>([]);
+
+//statistics
+const stats = ref({
+  totalApplications: 0,
+  confirmedApplications: 0,
+  totalQnas: 0,
+  answeredQnas: 0,
+  totalDownloads: 0,
+});
+
+const userName = computed(() => profile.value?.name || "");
+const userEmail = computed(() => profile.value?.email || "");
+const userPhone = computed(() => profile.value?.phone || "");
+const userAffiliation = computed(
+  () => profile.value?.members?.[0]?.affiliation || "",
+);
+const userJoinDate = computed(() => {
+  if (!profile.value?.created_at) return "";
+  return new Date(profile.value.created_at).toLocaleDateString("ko-KR");
+});
+const userInitial = computed(() => userName.value.charAt(0) || "?");
+
+// modal state
+const showEditProfile = ref(false);
+const showChangePassword = ref(false);
+const showAdminApplications = ref(false);
+const showDetailModal = ref(false);
+
+// filter
+const applicationFilter = ref<"all" | ApplicationStatus>("all");
+
+// form data
+const editForm = ref({
+  name: "",
+  phone: "",
+  affiliation: "",
+});
+
+const passwordForm = ref({
+  current: "",
+  new: "",
+  confirm: "",
+});
+
+const selectedApplication = ref<DisplayApplication | null>(null);
+
+// load user id
+const loadUserId = () => {
+  const userStr = localStorage.getItem("user");
+  if (userStr) {
+    const user = JSON.parse(userStr);
+    userId.value = user.userId ? parseInt(user.userId) : null;
+  }
+};
+
+// load data
+const fetchDashboard = async () => {
+  if (!userId.value) {
+    error.value = true;
+    loading.value = false;
+    return;
+  }
+
+  loading.value = true;
+  error.value = false;
+
+  try {
+    const response = await mypageApi.getDashboard(userId.value);
+    const data = response.data;
+
+    profile.value = data.profile;
+    stats.value = data.stats;
+    myQnas.value = data.qnas;
+    myDownloads.value = data.downloads;
+
+    // Convert application details
+    myApplications.value = data.applications.map((app) => ({
+      id: app.id,
+      worship_id: app.ticket_id,
+      worship_title: app.tickets?.title || "집회",
+      worship_date: app.tickets?.date || "",
+      worship_place: app.tickets?.place || "예수인교회 본관 지하 2층",
+      user_name: app.applicant_name,
+      user_email: app.applicant_email || "",
+      party_size: app.party_size,
+      status: app.status,
+      memo: app.memo,
+      applied_at: app.created_at,
+      created_at: app.created_at,
+    }));
+
+    // Form initialization
+    editForm.value = {
+      name: profile.value?.name || "",
+      phone: profile.value?.phone || "",
+      affiliation: profile.value?.members?.[0]?.affiliation || "",
+    };
+  } catch (err) {
+    console.error("대시보드 로드 실패:", err);
+    error.value = true;
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Total application status (for administrator)
+const fetchAllApplications = async () => {
+  try {
+    const response = await ticketApplicationApi.getAll();
+    allApplications.value = response.data.map((app) => ({
+      id: app.id,
+      worship_id: app.ticket_id,
+      worship_title: app.tickets?.title || "집회",
+      worship_date: app.tickets?.date || "",
+      worship_place: app.tickets?.place || "예수인교회 본관 지하 2층",
+      user_name: app.applicant_name,
+      user_email: app.applicant_email || "",
+      party_size: app.party_size,
+      status: app.status,
+      memo: app.memo,
+      applied_at: app.created_at,
+      created_at: app.created_at,
+    }));
+  } catch (err) {
+    console.error("전체 신청 현황 로드 실패:", err);
+  }
+};
+
+// Filtered application details
+const filteredApplications = computed(() => {
+  if (applicationFilter.value === "all") {
+    return myApplications.value;
+  }
+  return myApplications.value.filter(
+    (app) => app.status === applicationFilter.value,
+  );
+});
+
+// Admin Statistics
+const totalWorships = ref(0);
+const totalApplications = computed(() => allApplications.value.length);
+const totalPartySize = computed(() =>
+  allApplications.value.reduce((sum, app) => sum + app.party_size, 0),
+);
+
+// initial load
+onMounted(async () => {
+  if (!isLoggedIn.value) {
+    router.push("/login");
+    return;
+  }
+
+  loadUserId();
+  await fetchDashboard();
+
+  if (isAdmin.value) {
+    await fetchAllApplications();
+    // Fetch total worship count for admin dashboard
+    try {
+      const worshipRes = await worshipApi.getAll();
+      totalWorships.value = worshipRes.data.length;
+    } catch (err) {
+      console.error("Failed to fetch worship count:", err);
+    }
+  }
+});
+
+// empty message
+const emptyMessage = computed(() => {
+  if (applicationFilter.value === "all") {
+    return "아직 신청한 집회가 없습니다";
+  }
+  const statusText: Record<ApplicationStatus, string> = {
+    PENDING: "대기중인",
+    CONFIRMED: "승인완료된",
+    CANCELLED: "취소된",
+  };
+  return `${statusText[applicationFilter.value]} 신청 내역이 없습니다`;
+});
+
+// status text
+const getStatusText = (status: ApplicationStatus) => {
+  switch (status) {
+    case "PENDING":
+      return "대기중";
+    case "CONFIRMED":
+      return "승인완료";
+    case "CANCELLED":
+      return "취소됨";
+  }
+};
+
+// date format
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleString("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+// edit information
+const closeEditProfile = () => {
+  showEditProfile.value = false;
+};
+
+const handleUpdateProfile = async () => {
+  if (!userId.value) return;
+
+  try {
+    await mypageApi.updateProfile(userId.value, {
+      name: editForm.value.name,
+      phone: editForm.value.phone,
+    });
+
+    // update local state
+    if (profile.value) {
+      profile.value.name = editForm.value.name;
+      profile.value.phone = editForm.value.phone;
+    }
+
+    // also update localStorage
+    localStorage.setItem("userName", editForm.value.name);
+
+    alert("정보가 수정되었습니다!");
+    closeEditProfile();
+  } catch (err) {
+    console.error("프로필 수정 실패:", err);
+    alert("정보 수정에 실패했습니다.");
+  }
+};
+
+// change password
+const closeChangePassword = () => {
+  showChangePassword.value = false;
+  passwordForm.value = { current: "", new: "", confirm: "" };
+};
+
+const handleChangePassword = () => {
+  if (passwordForm.value.new !== passwordForm.value.confirm) {
+    alert("새 비밀번호가 일치하지 않습니다.");
+    return;
+  }
+
+  // TODO: Implementation after completion of authentication API
+  alert("비밀번호 변경 기능은 준비 중입니다.");
+  closeChangePassword();
+};
+
+// Cancel application
+const cancelApplication = async (id: number) => {
+  if (!confirm("정말 이 신청을 취소하시겠습니까?")) return;
+
+  try {
+    await ticketApplicationApi.cancel(id);
+    const app = myApplications.value.find((a) => a.id === id);
+    if (app) {
+      app.status = "CANCELLED";
+    }
+    alert("신청이 취소되었습니다.");
+  } catch (err) {
+    console.error("신청 취소 실패:", err);
+    alert("신청 취소에 실패했습니다.");
+  }
+};
+
+// Administrator: Approval of application
+const approveApplication = async (id: number) => {
+  try {
+    await ticketApplicationApi.updateStatus(id, "CONFIRMED");
+    const app = allApplications.value.find((a) => a.id === id);
+    if (app) {
+      app.status = "CONFIRMED";
+    }
+    alert("신청이 승인되었습니다.");
+  } catch (err) {
+    console.error("신청 승인 실패:", err);
+    alert("신청 승인에 실패했습니다.");
+  }
+};
+
+// Administrator: Cancel application
+const cancelApplicationAdmin = async (id: number) => {
+  if (!confirm("이 신청을 취소하시겠습니까?")) return;
+
+  try {
+    await ticketApplicationApi.updateStatus(id, "CANCELLED");
+    const app = allApplications.value.find((a) => a.id === id);
+    if (app) {
+      app.status = "CANCELLED";
+    }
+    alert("신청이 취소되었습니다.");
+  } catch (err) {
+    console.error("신청 취소 실패:", err);
+    alert("신청 취소에 실패했습니다.");
+  }
+};
+
+// Administrator application status modal
+const closeAdminApplications = () => {
+  showAdminApplications.value = false;
+};
+
+// View details
+const viewApplicationDetail = (app: DisplayApplication) => {
+  selectedApplication.value = app;
+  showDetailModal.value = true;
+};
+
+const closeDetailModal = () => {
+  showDetailModal.value = false;
+  selectedApplication.value = null;
+};
+</script>
+
 <template>
   <div class="page">
     <section class="section">
@@ -10,8 +371,17 @@
         </div>
       </div>
 
+      <!-- Loading status -->
+      <div v-if="loading" class="loading">로딩 중...</div>
+
+      <!-- Error status -->
+      <div v-else-if="error" class="error-message">
+        <p>정보를 가져오지 못했습니다.</p>
+        <button class="btn primary" @click="fetchDashboard">다시 시도</button>
+      </div>
+
       <!-- Basic information section -->
-      <div class="mypage-grid">
+      <div v-else class="mypage-grid">
         <!-- profile card -->
         <div class="profile-card">
           <div class="profile-header">
@@ -81,8 +451,8 @@
             <div class="stat-box">
               <div class="stat-icon">🎫</div>
               <div class="stat-info">
-                <span class="stat-label">총 티켓</span>
-                <span class="stat-value">{{ totalTickets }}</span>
+                <span class="stat-label">총 인원</span>
+                <span class="stat-value">{{ totalPartySize }}</span>
               </div>
             </div>
           </div>
@@ -126,8 +496,8 @@
             </button>
             <button
               class="filter-tab"
-              :class="{ active: applicationFilter === 'CANCELED' }"
-              @click="applicationFilter = 'CANCELED'"
+              :class="{ active: applicationFilter === 'CANCELLED' }"
+              @click="applicationFilter = 'CANCELLED'"
             >
               취소됨
             </button>
@@ -166,42 +536,14 @@
                 </div>
               </div>
 
-              <div class="ticket-summary">
-                <h4 class="ticket-summary-title">티켓 내역</h4>
-                <div class="ticket-items">
-                  <div v-if="app.infant_child_count > 0" class="ticket-item">
-                    <span class="ticket-type">영유아</span>
-                    <span class="ticket-count"
-                      >{{ app.infant_child_count }}장</span
-                    >
-                  </div>
-                  <div v-if="app.teen_count > 0" class="ticket-item">
-                    <span class="ticket-type">청소년</span>
-                    <span class="ticket-count">{{ app.teen_count }}장</span>
-                  </div>
-                  <div v-if="app.military_count > 0" class="ticket-item">
-                    <span class="ticket-type">군인</span>
-                    <span class="ticket-count">{{ app.military_count }}장</span>
-                  </div>
-                  <div v-if="app.adult_count > 0" class="ticket-item">
-                    <span class="ticket-type">어른</span>
-                    <span class="ticket-count">{{ app.adult_count }}장</span>
-                  </div>
-                </div>
-              </div>
-
               <div class="application-total">
-                <span class="total-label">총 티켓</span>
-                <span class="total-value">{{ app.total_ticket_count }}장</span>
-                <span class="total-label">총 금액</span>
-                <span class="total-value amount"
-                  >{{ app.total_amount.toLocaleString() }}원</span
-                >
+                <span class="total-label">신청 인원</span>
+                <span class="total-value">{{ app.party_size }}명</span>
               </div>
 
-              <div v-if="app.special_note" class="special-note">
-                <span class="note-label">특이사항:</span>
-                <span class="note-value">{{ app.special_note }}</span>
+              <div v-if="app.memo" class="special-note">
+                <span class="note-label">메모:</span>
+                <span class="note-value">{{ app.memo }}</span>
               </div>
             </div>
 
@@ -260,7 +602,6 @@
                 <option value="">선택하세요</option>
                 <option value="영아부">영아부</option>
                 <option value="유치부">유치부</option>
-                <option value="유년부">유년부</option>
                 <option value="초등부">초등부</option>
                 <option value="중등부">중등부</option>
                 <option value="고등부">고등부</option>
@@ -348,8 +689,7 @@
                   {{ app.worship_title }} ({{ app.worship_date }})
                 </p>
                 <p class="admin-app-tickets">
-                  총 {{ app.total_ticket_count }}장 /
-                  {{ app.total_amount.toLocaleString() }}원
+                  신청 인원: {{ app.party_size }}명
                 </p>
               </div>
               <div class="admin-app-actions">
@@ -406,85 +746,18 @@
           </div>
 
           <div class="detail-section">
-            <h3 class="detail-section-title">티켓 정보</h3>
-            <div class="ticket-detail-list">
-              <div
-                v-if="selectedApplication.infant_child_count > 0"
-                class="ticket-detail-item"
-              >
-                <span class="ticket-type">영유아</span>
-                <span class="ticket-count"
-                  >{{ selectedApplication.infant_child_count }}장</span
-                >
-                <span class="ticket-price">0원</span>
-              </div>
-              <div
-                v-if="selectedApplication.teen_count > 0"
-                class="ticket-detail-item"
-              >
-                <span class="ticket-type">청소년</span>
-                <span class="ticket-count"
-                  >{{ selectedApplication.teen_count }}장</span
-                >
-                <span class="ticket-price"
-                  >{{
-                    (selectedApplication.teen_count * 5000).toLocaleString()
-                  }}원</span
-                >
-              </div>
-              <div
-                v-if="selectedApplication.military_count > 0"
-                class="ticket-detail-item"
-              >
-                <span class="ticket-type">군인</span>
-                <span class="ticket-count"
-                  >{{ selectedApplication.military_count }}장</span
-                >
-                <span class="ticket-price"
-                  >{{
-                    (
-                      selectedApplication.military_count * 5000
-                    ).toLocaleString()
-                  }}원</span
-                >
-              </div>
-              <div
-                v-if="selectedApplication.adult_count > 0"
-                class="ticket-detail-item"
-              >
-                <span class="ticket-type">어른</span>
-                <span class="ticket-count"
-                  >{{ selectedApplication.adult_count }}장</span
-                >
-                <span class="ticket-price"
-                  >{{
-                    (selectedApplication.adult_count * 10000).toLocaleString()
-                  }}원</span
-                >
-              </div>
-            </div>
-            <div class="ticket-total">
-              <span>총 {{ selectedApplication.total_ticket_count }}장</span>
-              <span class="total-amount"
-                >{{ selectedApplication.total_amount.toLocaleString() }}원</span
-              >
-            </div>
-          </div>
-
-          <div v-if="selectedApplication.special_note" class="detail-section">
-            <h3 class="detail-section-title">특이사항</h3>
-            <p class="special-note-text">
-              {{ selectedApplication.special_note }}
-            </p>
-          </div>
-
-          <div class="detail-section">
             <h3 class="detail-section-title">신청 정보</h3>
             <div class="detail-grid">
               <div class="detail-item-full">
+                <span class="detail-label">신청 인원</span>
+                <span class="detail-value"
+                  >{{ selectedApplication.party_size }}명</span
+                >
+              </div>
+              <div class="detail-item-full">
                 <span class="detail-label">신청일</span>
                 <span class="detail-value">{{
-                  formatDate(selectedApplication.applied_at)
+                  formatDate(selectedApplication.created_at)
                 }}</span>
               </div>
               <div class="detail-item-full">
@@ -498,264 +771,15 @@
               </div>
             </div>
           </div>
+
+          <div v-if="selectedApplication.memo" class="detail-section">
+            <h3 class="detail-section-title">메모</h3>
+            <p class="special-note-text">
+              {{ selectedApplication.memo }}
+            </p>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, computed } from "vue";
-import { useAuth } from "@/composables/useAuth";
-import "../styles/MyPage.css";
-
-type ApplicationStatus = "PENDING" | "CONFIRMED" | "CANCELED";
-
-type Application = {
-  id: number;
-  worship_id: number;
-  worship_title: string;
-  worship_date: string;
-  worship_place: string;
-  user_name: string;
-  user_email: string;
-  infant_child_count: number;
-  teen_count: number;
-  military_count: number;
-  adult_count: number;
-  total_ticket_count: number;
-  total_amount: number;
-  status: ApplicationStatus;
-  special_note?: string;
-  applied_at: string;
-};
-
-const { isAdmin } = useAuth();
-
-// User information (Mock - actually taken from Redis)
-const userName = ref("홍길동");
-const userEmail = ref("user@example.com");
-const userPhone = ref("010-1234-5678");
-const userAffiliation = ref("청년");
-const userJoinDate = ref("2024-01-15");
-
-const userInitial = computed(() => userName.value.charAt(0));
-
-// modal state
-const showEditProfile = ref(false);
-const showChangePassword = ref(false);
-const showAdminApplications = ref(false);
-const showDetailModal = ref(false);
-
-// filter
-const applicationFilter = ref<"all" | ApplicationStatus>("all");
-
-// form data
-const editForm = ref({
-  name: userName.value,
-  phone: userPhone.value,
-  affiliation: userAffiliation.value,
-});
-
-const passwordForm = ref({
-  current: "",
-  new: "",
-  confirm: "",
-});
-
-// Mock application data
-const myApplications = ref<Application[]>([
-  {
-    id: 1,
-    worship_id: 2,
-    worship_title: "샬롬",
-    worship_date: "2025-12-06 (금) 18:30",
-    worship_place: "예수인교회 본관 지하 2층",
-    user_name: "홍길동",
-    user_email: "user@example.com",
-    infant_child_count: 2,
-    teen_count: 1,
-    military_count: 0,
-    adult_count: 2,
-    total_ticket_count: 5,
-    total_amount: 25000,
-    status: "CONFIRMED",
-    special_note: "주차 공간 필요합니다",
-    applied_at: "2025-11-20T14:30:00",
-  },
-  {
-    id: 2,
-    worship_id: 1,
-    worship_title: "하나됨",
-    worship_date: "2025-03-22 (토) 19:00",
-    worship_place: "예수인교회 본관 지하 2층",
-    user_name: "홍길동",
-    user_email: "user@example.com",
-    infant_child_count: 0,
-    teen_count: 0,
-    military_count: 0,
-    adult_count: 1,
-    total_ticket_count: 1,
-    total_amount: 10000,
-    status: "PENDING",
-    applied_at: "2025-03-10T10:15:00",
-  },
-]);
-
-// Full application data for administrator
-const allApplications = ref<Application[]>([
-  ...myApplications.value,
-  {
-    id: 3,
-    worship_id: 2,
-    worship_title: "샬롬",
-    worship_date: "2025-12-06 (금) 18:30",
-    worship_place: "예수인교회 본관 지하 2층",
-    user_name: "김철수",
-    user_email: "kim@example.com",
-    infant_child_count: 1,
-    teen_count: 2,
-    military_count: 1,
-    adult_count: 2,
-    total_ticket_count: 6,
-    total_amount: 35000,
-    status: "PENDING",
-    applied_at: "2025-11-25T09:20:00",
-  },
-]);
-
-const selectedApplication = ref<Application | null>(null);
-
-// Filtered application details
-const filteredApplications = computed(() => {
-  if (applicationFilter.value === "all") {
-    return myApplications.value;
-  }
-  return myApplications.value.filter(
-    (app) => app.status === applicationFilter.value
-  );
-});
-
-// Admin Statistics
-const totalWorships = computed(() => 2); // Mock
-const totalApplications = computed(() => allApplications.value.length);
-const totalTickets = computed(() =>
-  allApplications.value.reduce((sum, app) => sum + app.total_ticket_count, 0)
-);
-
-// empty message
-const emptyMessage = computed(() => {
-  if (applicationFilter.value === "all") {
-    return "아직 신청한 집회가 없습니다";
-  }
-  const statusText = {
-    PENDING: "대기중인",
-    CONFIRMED: "승인완료된",
-    CANCELED: "취소된",
-  };
-  return `${statusText[applicationFilter.value]} 신청 내역이 없습니다`;
-});
-
-// status text
-const getStatusText = (status: ApplicationStatus) => {
-  switch (status) {
-    case "PENDING":
-      return "대기중";
-    case "CONFIRMED":
-      return "승인완료";
-    case "CANCELED":
-      return "취소됨";
-  }
-};
-
-// date format
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleString("ko-KR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-
-// edit information
-const closeEditProfile = () => {
-  showEditProfile.value = false;
-};
-
-const handleUpdateProfile = () => {
-  userName.value = editForm.value.name;
-  userPhone.value = editForm.value.phone;
-  userAffiliation.value = editForm.value.affiliation;
-
-  // TODO: API call
-  alert("정보가 수정되었습니다!");
-  closeEditProfile();
-};
-
-// change password
-const closeChangePassword = () => {
-  showChangePassword.value = false;
-  passwordForm.value = { current: "", new: "", confirm: "" };
-};
-
-const handleChangePassword = () => {
-  if (passwordForm.value.new !== passwordForm.value.confirm) {
-    alert("새 비밀번호가 일치하지 않습니다.");
-    return;
-  }
-
-  // TODO: API call
-  alert("비밀번호가 변경되었습니다!");
-  closeChangePassword();
-};
-
-// Cancel application
-const cancelApplication = (id: number) => {
-  if (!confirm("정말 이 신청을 취소하시겠습니까?")) return;
-
-  const app = myApplications.value.find((a) => a.id === id);
-  if (app) {
-    app.status = "CANCELED";
-    alert("신청이 취소되었습니다.");
-  }
-};
-
-// Administrator: Approval of application
-const approveApplication = (id: number) => {
-  const app = allApplications.value.find((a) => a.id === id);
-  if (app) {
-    app.status = "CONFIRMED";
-    alert("신청이 승인되었습니다.");
-  }
-};
-
-// Administrator: Cancel application
-const cancelApplicationAdmin = (id: number) => {
-  if (!confirm("이 신청을 취소하시겠습니까?")) return;
-
-  const app = allApplications.value.find((a) => a.id === id);
-  if (app) {
-    app.status = "CANCELED";
-    alert("신청이 취소되었습니다.");
-  }
-};
-
-// Administrator application status modal
-const closeAdminApplications = () => {
-  showAdminApplications.value = false;
-};
-
-// View details
-const viewApplicationDetail = (app: Application) => {
-  selectedApplication.value = app;
-  showDetailModal.value = true;
-};
-
-const closeDetailModal = () => {
-  showDetailModal.value = false;
-  selectedApplication.value = null;
-};
-</script>
