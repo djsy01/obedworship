@@ -355,6 +355,8 @@
   outline: none;
   transition: all 0.2s ease-out;
   font-weight: 600;
+  background: var(--ow-surface-2);
+  color: var(--ow-text-strong);
 }
 
 .ticket-input:focus {
@@ -362,9 +364,16 @@
   box-shadow: 0 0 0 3px rgba(74, 31, 47, 0.1);
 }
 
+.ticket-input::placeholder {
+  color: var(--ow-text-faint);
+}
+
 /* Total amount section */
 .total-section {
-  background: linear-gradient(135deg, var(--ow-border-accent) 0%, #fae8f0 100%);
+  background: light-dark(
+    linear-gradient(135deg, var(--ow-border-accent) 0%, #fae8f0 100%),
+    linear-gradient(135deg, #2a2228 0%, #1f1b20 100%)
+  );
   border-radius: 0.75rem;
   padding: 1.5rem;
   display: flex;
@@ -381,7 +390,7 @@
 
 .total-item.total-amount-item {
   padding-top: 0.75rem;
-  border-top: 2px solid rgba(74, 31, 47, 0.2);
+  border-top: 2px solid var(--ow-border-strong);
 }
 
 .total-label {
@@ -404,6 +413,13 @@
   width: 100%;
   min-height: 80px;
   resize: vertical;
+  background: var(--ow-surface-2);
+  color: var(--ow-text-strong);
+  border: 1px solid var(--ow-border-stronger);
+}
+
+.special-note-section textarea::placeholder {
+  color: var(--ow-text-faint);
 }
 
 /* Personal information consent */

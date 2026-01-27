@@ -37,7 +37,7 @@ import youtubeIcon from "@/assets/icons/Youtube.png";
 type Member = {
   id: number;
   name: string;
-  affiliation: string;           // Church position: 목사, 장로, 청년부, etc.
+  affiliation: string;           // Church position: 목사, 장로, 청년, etc.
   photo_url: string;
   instagram_url: string | null;
   youtube_url: string | null;

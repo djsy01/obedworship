@@ -180,15 +180,38 @@ CREATE TABLE score_downloads (
 
 ---
 
-### 3. 멤버 정보 테이블
+### 3. 사용자 테이블
 
-#### 3.1 members (팀원 기본 정보)
+#### 3.1 users (사용자)
+
+```sql
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  name VARCHAR(100) NOT NULL,
+  role ENUM('admin', 'member', 'user') NOT NULL DEFAULT 'user',
+  is_active BOOLEAN DEFAULT TRUE,
+  email_verified BOOLEAN DEFAULT FALSE,
+  phone VARCHAR(20) DEFAULT NULL,
+  profile_photo_url VARCHAR(500) DEFAULT NULL,
+  last_login_at TIMESTAMP NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+---
+
+### 4. 멤버 정보 테이블
+
+#### 4.1 members (팀원 기본 정보)
 
 ```sql
 CREATE TABLE members (
   id INT PRIMARY KEY AUTO_INCREMENT,
   name VARCHAR(100) NOT NULL COMMENT '이름',
-  affiliation ENUM('목사', '장로', '집사', '장년부', '청년부', '고등부', '중등부') NOT NULL COMMENT '소속',
+  affiliation ENUM('목사', '장로', '집사', '영유아', '청소년', '청년', '장년') NOT NULL COMMENT '소속',
 
   -- SNS 및 미디어
   photo_url VARCHAR(500) DEFAULT NULL COMMENT '프로필 사진 URL',
@@ -208,7 +231,7 @@ CREATE TABLE members (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-#### 3.2 member_teams (멤버 팀)
+#### 4.2 member_teams (멤버 팀)
 
 ```sql
 CREATE TABLE member_teams (
@@ -234,7 +257,7 @@ CREATE TABLE member_teams (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-#### 3.3 member_roles (리더 역할 - Leader 필터용)
+#### 4.3 member_roles (리더 역할 - Leader 필터용)
 
 ```sql
 CREATE TABLE member_roles (
@@ -263,7 +286,7 @@ CREATE TABLE member_roles (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-#### 3.4 member_worship_positions (Worship 포지션 - 싱어 + 세션)
+#### 4.4 member_worship_positions (Worship 포지션 - 싱어 + 세션)
 
 ```sql
 CREATE TABLE member_worship_positions (
@@ -289,7 +312,7 @@ CREATE TABLE member_worship_positions (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-#### 3.5 member_step_positions (Step 포지션 - 홍보팀, 영상팀, 무대팀 세부 역할)
+#### 4.5 member_step_positions (Step 포지션 - 홍보팀, 영상팀, 무대팀 세부 역할)
 
 ```sql
 CREATE TABLE member_step_positions (
@@ -335,9 +358,9 @@ CREATE TABLE member_step_positions (
 
 ---
 
-### 4. Q&A 정보 테이블
+### 5. Q&A 정보 테이블
 
-#### 4.1 qna (질문 및 답변)
+#### 5.1 qna (질문 및 답변)
 
 ```sql
 CREATE TABLE qna (
@@ -360,9 +383,9 @@ CREATE TABLE qna (
 
 ---
 
-### 5. 집회 신청(티켓) 테이블
+### 6. 집회 신청(티켓) 테이블
 
-#### 5.1 tickets (집회 신청용 티켓)
+#### 6.1 tickets (집회 신청용 티켓)
 
 ```sql
 CREATE TABLE tickets (
@@ -389,7 +412,7 @@ CREATE TABLE tickets (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-#### 5.2 ticket_applications (티켓 신청 내역)
+#### 6.2 ticket_applications (티켓 신청 내역)
 
 ```sql
 CREATE TABLE ticket_applications (

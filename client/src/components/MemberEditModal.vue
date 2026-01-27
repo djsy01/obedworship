@@ -29,10 +29,10 @@
               <option value="목사">목사</option>
               <option value="장로">장로</option>
               <option value="집사">집사</option>
-              <option value="장년부">장년부</option>
-              <option value="청년부">청년부</option>
-              <option value="고등부">고등부</option>
-              <option value="중등부">중등부</option>
+              <option value="영유아">영유아</option>
+              <option value="청소년">청소년</option>
+              <option value="청년">청년</option>
+              <option value="장년">장년</option>
             </select>
           </div>
 

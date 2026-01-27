@@ -366,7 +366,9 @@ const closeDetailModal = () => {
         <div>
           <h1 class="section-title">마이페이지</h1>
           <p class="section-subtitle">
-            내 정보와 집회 신청 내역을 확인하고 관리할 수 있습니다.
+            내 정보를
+            <!--와 집회 신청 내역을-->
+            확인하고 관리할 수 있습니다.
           </p>
         </div>
       </div>
@@ -468,7 +470,7 @@ const closeDetailModal = () => {
         </div>
       </div>
 
-      <!-- Meeting application details -->
+      <!-- Meeting application details - Added later 
       <div class="applications-section">
         <div class="section-header-inline">
           <h2 class="section-title-sub">내 신청 내역</h2>
@@ -503,6 +505,7 @@ const closeDetailModal = () => {
             </button>
           </div>
         </div>
+        
 
         <div v-if="filteredApplications.length > 0" class="applications-list">
           <div
@@ -571,6 +574,7 @@ const closeDetailModal = () => {
           </RouterLink>
         </div>
       </div>
+      -->
     </section>
 
     <!-- Edit Info Modal -->
@@ -600,13 +604,10 @@ const closeDetailModal = () => {
               <span class="field-label">소속</span>
               <select v-model="editForm.affiliation">
                 <option value="">선택하세요</option>
-                <option value="영아부">영아부</option>
-                <option value="유치부">유치부</option>
-                <option value="초등부">초등부</option>
-                <option value="중등부">중등부</option>
-                <option value="고등부">고등부</option>
-                <option value="청년부">청년부</option>
-                <option value="장년부">장년부</option>
+                <option value="영유아">영유아</option>
+                <option value="청소년">청소년</option>
+                <option value="청년">청년</option>
+                <option value="장년">장년</option>
               </select>
             </label>
 

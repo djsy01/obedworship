@@ -605,7 +605,7 @@ const deleteTicket = async (id: number) => {
                   <div class="ticket-type-info">
                     <span class="type-name">영유아</span>
                     <span class="type-price free">무료</span>
-                    <span class="type-desc">(영아부~초등부)</span>
+                    <span class="type-desc">(영유아)</span>
                   </div>
                   <input
                     v-model.number="ticketCounts.infant_child"
@@ -620,7 +620,7 @@ const deleteTicket = async (id: number) => {
                   <div class="ticket-type-info">
                     <span class="type-name">청소년</span>
                     <span class="type-price">5,000원</span>
-                    <span class="type-desc">(중고등부)</span>
+                    <span class="type-desc">(청소년)</span>
                   </div>
                   <input
                     v-model.number="ticketCounts.teen"
@@ -649,7 +649,7 @@ const deleteTicket = async (id: number) => {
                   <div class="ticket-type-info">
                     <span class="type-name">어른</span>
                     <span class="type-price">10,000원</span>
-                    <span class="type-desc">(청년부, 장년부)</span>
+                    <span class="type-desc">(어른)</span>
                   </div>
                   <input
                     v-model.number="ticketCounts.adult"
