@@ -34,7 +34,7 @@ export const worshipPhotoApi = {
 
   getOne: (id: number) => axios.get<WorshipPhoto>(`${BASE_URL}/${id}`),
 
-  // 파일 업로드 (photos 엔드포인트 사용)
+  // Upload file (using photos endpoint)
   uploadFile: (file: File) => {
     const formData = new FormData();
     formData.append("file", file);

@@ -1,3 +1,29 @@
+<script setup lang="ts">
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useAuth } from "@/composables/useAuth";
+import "../styles/Login.css";
+
+const router = useRouter();
+const { login } = useAuth();
+
+const email = ref("");
+const password = ref("");
+
+const handleSubmit = async () => {
+  try {
+    // Calling the login function of useAuth
+    login(email.value, password.value);
+
+    // Upon success
+    alert("로그인에 성공했습니다!");
+    router.push("/");
+  } catch (error: any) {
+    alert(`로그인에 실패했습니다. ${error.message || "다시 시도해주세요."}`);
+  }
+};
+</script>
+
 <template>
   <div class="login-container">
     <div class="login-box">
@@ -37,29 +63,3 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref } from "vue";
-import { useRouter } from "vue-router";
-import { useAuth } from "@/composables/useAuth";
-import "../styles/Login.css";
-
-const router = useRouter();
-const { login } = useAuth();
-
-const email = ref("");
-const password = ref("");
-
-const handleSubmit = async () => {
-  try {
-    // Calling the login function of useAuth
-    login(email.value, password.value);
-
-    // Upon success
-    alert("로그인에 성공했습니다!");
-    router.push("/");
-  } catch (error: any) {
-    alert(`로그인에 실패했습니다. ${error.message || "다시 시도해주세요."}`);
-  }
-};
-</script>

@@ -27,7 +27,7 @@ const availableKeys = [
   "B",
 ];
 
-// API에서 가져온 데이터
+// data retrieved from API
 const scores = ref<Score[]>([]);
 const loading = ref(false);
 
@@ -55,10 +55,10 @@ const currentPage = ref(1);
 const itemsPerPage = 10;
 
 // ========================================
-// API 호출 함수들
+// API call functions
 // ========================================
 
-// 전체 악보 조회
+// View entire sheet music
 const fetchScores = async () => {
   loading.value = true;
   try {
@@ -72,7 +72,7 @@ const fetchScores = async () => {
   }
 };
 
-// 검색
+// search
 const handleSearch = async () => {
   if (!keyword.value.trim()) {
     await fetchScores();
@@ -90,7 +90,7 @@ const handleSearch = async () => {
   }
 };
 
-// 카테고리별 조회
+// Search by category
 const fetchByCategory = async (category: string) => {
   loading.value = true;
   try {
@@ -103,7 +103,7 @@ const fetchByCategory = async (category: string) => {
   }
 };
 
-// Key별 조회
+// Search by Key
 const fetchByKey = async (key: string) => {
   if (!key) {
     await fetchScores();
@@ -125,7 +125,7 @@ const fetchByKey = async (key: string) => {
 const filteredScores = computed(() => {
   let result = [...scores.value];
 
-  // Key filter (프론트엔드에서 추가 필터링)
+  // Key filter (additional filtering in frontend)
   if (selectedKey.value) {
     result = result.filter((s) => s.song_key === selectedKey.value);
   }
@@ -178,7 +178,7 @@ watch([keyword, selectedKey, sortBy], () => {
   currentPage.value = 1;
 });
 
-// Key 변경 시 API 호출
+// API call when key changes
 watch(selectedKey, (newKey) => {
   if (newKey) {
     fetchByKey(newKey);
@@ -187,7 +187,7 @@ watch(selectedKey, (newKey) => {
   }
 });
 
-// 검색어 변경 시 디바운스
+// Debounce when search term changes
 let searchTimeout: NodeJS.Timeout;
 watch(keyword, (newKeyword) => {
   clearTimeout(searchTimeout);
@@ -197,7 +197,7 @@ watch(keyword, (newKeyword) => {
     } else {
       fetchScores();
     }
-  }, 500); // 500ms 디바운스
+  }, 500); // 500ms debounce
 });
 
 // add sheet music
@@ -223,7 +223,7 @@ const handleAddScore = async () => {
 
   loading.value = true;
   try {
-    // 파일 업로드 (선택된 파일이 있을 경우)
+    // Upload file (if there is a selected file)
     const fileInput = document.querySelector(
       'input[type="file"]',
     ) as HTMLInputElement;
@@ -237,11 +237,11 @@ const handleAddScore = async () => {
       return;
     }
 
-    // 악보 정보 저장
+    // Save sheet music information
     await scoreApi.create(newScore.value);
     alert("악보가 추가되었습니다!");
     cancelAdd();
-    await fetchScores(); // 목록 새로고침
+    await fetchScores(); // Refresh list
   } catch (error) {
     console.error("❌ 악보 추가 실패:", error);
     alert("악보 추가에 실패했습니다");
@@ -300,7 +300,7 @@ const handleDelete = async (id: number) => {
   try {
     await scoreApi.delete(id);
     alert("악보가 삭제되었습니다!");
-    await fetchScores(); // 목록 새로고침
+    await fetchScores(); // Refresh list
   } catch (error) {
     console.error("❌ 악보 삭제 실패:", error);
     alert("악보 삭제에 실패했습니다");
@@ -317,10 +317,10 @@ const handleDownload = async (score: Score) => {
   }
 
   try {
-    // DB에서 파일을 다운로드 (다운로드 수도 자동 증가)
+    // Download files from DB (number of downloads automatically increases)
     const response = await scoreApi.downloadFile(score.id);
 
-    // Blob 데이터를 다운로드
+    // Download blob data
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement("a");
     link.href = url;
@@ -335,7 +335,7 @@ const handleDownload = async (score: Score) => {
   }
 };
 
-// 초기 로드
+// initial load
 onMounted(() => {
   fetchScores();
 });
@@ -401,7 +401,7 @@ onMounted(() => {
             />
           </label>
 
-          <!-- 로딩 -->
+          <!-- Loading -->
           <div v-if="loading" class="loading">
             <div class="loading-spinner"></div>
             <p>불러오는 중...</p>
@@ -519,7 +519,7 @@ onMounted(() => {
         <div class="results-info">총 {{ filteredScores.length }}개의 악보</div>
       </div>
 
-      <!-- 로딩 -->
+      <!-- Loading -->
       <div v-if="loading" class="loading">
         <div class="loading-spinner"></div>
         <p>불러오는 중...</p>

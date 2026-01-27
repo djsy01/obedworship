@@ -1,18 +1,18 @@
 import axios from "./axios";
 
-// 티켓 상태
+// ticket status
 export type TicketStatus = "OPEN" | "CLOSED" | "CANCELED";
 
-// 신청 상태
+// application status
 export type ApplicationStatus = "PENDING" | "CONFIRMED" | "CANCELLED";
 
-// 결제 상태
+// payment status
 export type PaymentStatus = "UNPAID" | "PAID" | "FREE";
 
-// 티켓 (집회 신청용)
+// Ticket (for meeting application)
 export interface Ticket {
   id: number;
-  worship_id?: number; // worship_logs 연결 (선택적)
+  worship_id?: number; //Connect worship_logs (optional)
   title: string;
   date: string;
   year: number;
@@ -25,7 +25,7 @@ export interface Ticket {
   application_deadline?: string;
   created_at: string;
   updated_at: string;
-  // 관계 데이터
+  // relationship data
   worship_logs?: {
     id: number;
     title: string;
@@ -37,7 +37,7 @@ export interface Ticket {
   };
 }
 
-// 티켓 생성 DTO
+// create ticket DTO
 export interface CreateTicketDto {
   worship_id?: number;
   title: string;
@@ -52,7 +52,7 @@ export interface CreateTicketDto {
   application_deadline?: string;
 }
 
-// 티켓 수정 DTO
+// modify ticket DTO
 export interface UpdateTicketDto {
   title?: string;
   date?: string;
@@ -66,7 +66,7 @@ export interface UpdateTicketDto {
   application_deadline?: string;
 }
 
-// 티켓 신청
+// Apply for ticket
 export interface TicketApplication {
   id: number;
   ticket_id: number;
@@ -80,7 +80,7 @@ export interface TicketApplication {
   memo?: string;
   created_at: string;
   updated_at: string;
-  // 관계 데이터
+  // relationship data
   tickets?: Ticket;
   users?: {
     id: number;
@@ -90,7 +90,7 @@ export interface TicketApplication {
   };
 }
 
-// 티켓 신청 생성 DTO
+// Generate ticket request DTO
 export interface CreateTicketApplicationDto {
   ticket_id: number;
   user_id: number;
@@ -101,7 +101,7 @@ export interface CreateTicketApplicationDto {
   memo?: string;
 }
 
-// 티켓 신청 수정 DTO
+// Modify ticket application DTO
 export interface UpdateTicketApplicationDto {
   applicant_name?: string;
   applicant_phone?: string;
@@ -110,7 +110,7 @@ export interface UpdateTicketApplicationDto {
   memo?: string;
 }
 
-// 신청 통계
+// application statistics
 export interface ApplicationStats {
   total: number;
   confirmed: number;
@@ -119,93 +119,96 @@ export interface ApplicationStats {
 }
 
 // ==========================================
-// 티켓 API
+// Ticket API
 // ==========================================
 export const ticketApi = {
-  // 전체 티켓 조회
+  // View all tickets
   getAll: () => axios.get<Ticket[]>("/tickets"),
 
-  // 열린 티켓만 조회 (신청 가능한 것)
+  // Check only open tickets (those that can be applied for)
   getOpen: () => axios.get<Ticket[]>("/tickets?status=OPEN"),
 
-  // 연도별 티켓 조회
+  // Check tickets by year
   getByYear: (year: number) => axios.get<Ticket[]>(`/tickets?year=${year}`),
 
-  // 특정 티켓 조회
+  // Look up a specific ticket
   getById: (id: number) => axios.get<Ticket>(`/tickets/${id}`),
 
-  // 티켓 생성
+  // create ticket
   create: (data: CreateTicketDto) => axios.post<Ticket>("/tickets", data),
 
-  // 티켓 수정
+  // edit ticket
   update: (id: number, data: UpdateTicketDto) =>
     axios.patch<Ticket>(`/tickets/${id}`, data),
 
-  // 티켓 삭제
+  // delete ticket
   delete: (id: number) => axios.delete(`/tickets/${id}`),
 
-  // 티켓 마감
+  // Ticket Deadline
   close: (id: number) =>
     axios.patch<Ticket>(`/tickets/${id}`, { status: "CLOSED" }),
 
-  // 티켓 취소
+  // Cancel ticket
   cancel: (id: number) =>
     axios.patch<Ticket>(`/tickets/${id}`, { status: "CANCELED" }),
 
-  // worship_logs에서 티켓 생성 (기존 집회 정보 연결)
+  // Create ticket from worship_logs (link to existing rally information)
   createFromWorship: (worshipId: number, data: Partial<CreateTicketDto>) =>
-    axios.post<Ticket>("/tickets/from-worship", { worship_id: worshipId, ...data }),
+    axios.post<Ticket>("/tickets/from-worship", {
+      worship_id: worshipId,
+      ...data,
+    }),
 };
 
 // ==========================================
-// 티켓 신청 API
+// Ticket Application API
 // ==========================================
 export const ticketApplicationApi = {
-  // 전체 신청 조회
+  // View all applications
   getAll: () => axios.get<TicketApplication[]>("/ticket-applications"),
 
-  // 사용자별 신청 조회
+  // View applications by user
   getByUser: (userId: number) =>
     axios.get<TicketApplication[]>(`/ticket-applications?user_id=${userId}`),
 
-  // 티켓별 신청 조회
+  // View applications by ticket
   getByTicket: (ticketId: number) =>
     axios.get<TicketApplication[]>(
-      `/ticket-applications?ticket_id=${ticketId}`
+      `/ticket-applications?ticket_id=${ticketId}`,
     ),
 
-  // 특정 신청 조회
+  // Check specific application
   getById: (id: number) =>
     axios.get<TicketApplication>(`/ticket-applications/${id}`),
 
-  // 티켓별 통계
+  // application statistics
   getStats: (ticketId: number) =>
     axios.get<ApplicationStats>(`/ticket-applications/stats/${ticketId}`),
 
-  // 신청 생성
+  // create application
   create: (data: CreateTicketApplicationDto) =>
     axios.post<TicketApplication>("/ticket-applications", data),
 
-  // 신청 수정
+  // edit application
   update: (id: number, data: UpdateTicketApplicationDto) =>
     axios.patch<TicketApplication>(`/ticket-applications/${id}`, data),
 
-  // 신청 취소
+  // Cancel application
   cancel: (id: number) =>
     axios.patch<TicketApplication>(`/ticket-applications/${id}/cancel`),
 
-  // 상태 변경 (관리자)
+  // change state (admin)
   updateStatus: (id: number, status: ApplicationStatus) =>
     axios.patch<TicketApplication>(`/ticket-applications/${id}/status`, {
       status,
     }),
 
-  // 결제 상태 변경 (관리자)
+  // Change payment status (Administrator)
   updatePaymentStatus: (id: number, paymentStatus: PaymentStatus) =>
     axios.patch<TicketApplication>(`/ticket-applications/${id}/payment`, {
       payment_status: paymentStatus,
     }),
 
-  // 신청 삭제
+  // Delete application
   delete: (id: number) => axios.delete(`/ticket-applications/${id}`),
 };

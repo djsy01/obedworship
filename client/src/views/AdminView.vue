@@ -1,3 +1,65 @@
+<script setup lang="ts">
+import { ref, onMounted, computed } from "vue";
+import { RouterLink } from "vue-router";
+import { useAuth } from "@/composables/useAuth";
+import { worshipApi, type Worship } from "@/api/worship";
+import AssetManager from "@/components/AssetManager.vue";
+import "../styles/Admin.css";
+
+const { isAdmin } = useAuth();
+const worships = ref<Worship[]>([]);
+const loading = ref(false);
+
+const currentYear = new Date().getFullYear();
+
+// Assembly query
+const fetchWorships = async () => {
+  loading.value = true;
+  try {
+    const response = await worshipApi.getAll();
+    worships.value = response.data;
+  } catch (error) {
+    console.error("집회 조회 실패:", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+// date formatting
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("ko-KR");
+};
+
+// Statistical calculations
+const totalWorships = computed(() => worships.value.length);
+
+const currentYearWorships = computed(
+  () => worships.value.filter((w) => w.year === currentYear).length,
+);
+
+const upcomingWorships = computed(() => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return worships.value.filter((w) => new Date(w.date) >= today).length;
+});
+
+const recentWorships = computed(() =>
+  worships.value
+    .slice(0, 10)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+);
+
+// initial load
+onMounted(() => {
+  if (!isAdmin.value) {
+    alert("관리자만 접근 가능합니다");
+    window.history.back();
+  }
+  fetchWorships();
+});
+</script>
+
 <template>
   <div class="page">
     <section class="section">
@@ -11,7 +73,7 @@
         </div>
       </div>
 
-      <!-- 관리 링크 -->
+      <!-- Admin Link -->
       <div class="admin-links">
         <RouterLink to="/vision" class="admin-card">
           <h3>👥 비전 관리</h3>
@@ -32,7 +94,7 @@
       <!-- Asset Manager -->
       <AssetManager />
 
-      <!-- 집회 현황 -->
+      <!-- Rally Status -->
       <div class="dashboard-section">
         <h2 class="section-title-sub">집회 현황</h2>
 
@@ -57,7 +119,7 @@
           </div>
         </div>
 
-        <!-- 최근 집회 목록 -->
+        <!-- List of recent rallies -->
         <div class="recent-worships">
           <h3 class="list-title">최근 집회</h3>
           <div class="table-wrapper">
@@ -85,65 +147,3 @@
     </section>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
-import { RouterLink } from "vue-router";
-import { useAuth } from "@/composables/useAuth";
-import { worshipApi, type Worship } from "@/api/worship";
-import AssetManager from "@/components/AssetManager.vue";
-import "../styles/Admin.css";
-
-const { isAdmin } = useAuth();
-const worships = ref<Worship[]>([]);
-const loading = ref(false);
-
-const currentYear = new Date().getFullYear();
-
-// 집회 조회
-const fetchWorships = async () => {
-  loading.value = true;
-  try {
-    const response = await worshipApi.getAll();
-    worships.value = response.data;
-  } catch (error) {
-    console.error("집회 조회 실패:", error);
-  } finally {
-    loading.value = false;
-  }
-};
-
-// 날짜 포맷팅
-const formatDate = (dateString: string): string => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("ko-KR");
-};
-
-// 통계 계산
-const totalWorships = computed(() => worships.value.length);
-
-const currentYearWorships = computed(
-  () => worships.value.filter((w) => w.year === currentYear).length,
-);
-
-const upcomingWorships = computed(() => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return worships.value.filter((w) => new Date(w.date) >= today).length;
-});
-
-const recentWorships = computed(() =>
-  worships.value
-    .slice(0, 10)
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
-);
-
-// 초기 로드
-onMounted(() => {
-  if (!isAdmin.value) {
-    alert("관리자만 접근 가능합니다");
-    window.history.back();
-  }
-  fetchWorships();
-});
-</script>

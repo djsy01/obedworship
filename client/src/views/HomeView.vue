@@ -1,3 +1,27 @@
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
+import { assetApi } from "@/api/assets";
+import "../styles/Home.css";
+
+const teamPhoto = ref<string>("");
+
+// DB에서 팀 사진 로드
+const loadTeamPhoto = async () => {
+  try {
+    const response = await assetApi.getByKey("home_team_photo");
+    if (response.data.file_url) {
+      teamPhoto.value = response.data.file_url;
+    }
+  } catch (error) {
+    console.error("Team photo not found in DB:", error);
+  }
+};
+
+onMounted(() => {
+  loadTeamPhoto();
+});
+</script>
+
 <template>
   <div class="page">
     <!-- Hero Section -->
@@ -75,27 +99,3 @@
     </section>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { assetApi } from "@/api/assets";
-import "../styles/Home.css";
-
-const teamPhoto = ref<string>("");
-
-// DB에서 팀 사진 로드
-const loadTeamPhoto = async () => {
-  try {
-    const response = await assetApi.getByKey("home_team_photo");
-    if (response.data.file_url) {
-      teamPhoto.value = response.data.file_url;
-    }
-  } catch (error) {
-    console.error("Team photo not found in DB:", error);
-  }
-};
-
-onMounted(() => {
-  loadTeamPhoto();
-});
-</script>

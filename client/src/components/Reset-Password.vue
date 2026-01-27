@@ -1,3 +1,80 @@
+<script setup lang="ts">
+import { reactive, ref, computed } from "vue";
+import { useRouter } from "vue-router";
+import "../styles/Login.css";
+import "../styles/Register.css";
+
+const router = useRouter();
+// 1: Authentication, 2: Change password
+const step = ref(1);
+const isEmailVerified = ref(false);
+// Mock authentication code
+const mockEmailCode = "222222";
+
+const formData = reactive({
+  email: "",
+  name: "",
+  phoneNumber: "",
+  verificationCode: "",
+  newPassword: "",
+  confirmNewPassword: "",
+});
+
+// Mock API: Send email authentication number
+const handleSendEmail = async () => {
+  if (!formData.email || !formData.name || !formData.phoneNumber) {
+    alert("이메일, 이름, 전화번호를 모두 입력해주세요.");
+    return;
+  }
+
+  // Actual implementation: Server API call (verifies user with input information and sends authentication number)
+  alert(
+    `[Mock] 인증번호(${mockEmailCode})가 ${formData.email}로 발송되었습니다. (사용자 정보 확인 완료 가정)`,
+  );
+};
+
+// Mock API: Check email authentication number
+const handleVerifyEmail = () => {
+  if (formData.verificationCode === mockEmailCode) {
+    alert("이메일 인증이 완료되었습니다. 다음 단계로 이동합니다.");
+    isEmailVerified.value = true;
+    // Go to password change step
+    step.value = 2;
+  } else {
+    alert("인증번호가 일치하지 않습니다.");
+  }
+};
+
+// Mock API: Reset final password
+const handleSubmit = async () => {
+  if (formData.newPassword !== formData.confirmNewPassword) {
+    alert("새 비밀번호가 일치하지 않습니다.");
+    return;
+  }
+
+  // Actual implementation: Server API call
+  // Assuming the password reset was successful
+  alert(
+    "비밀번호 재설정이 완료되었습니다! 새로운 비밀번호로 로그인해주세요. (프론트엔드 테스트)",
+  );
+  router.push("/login");
+};
+</script>
+
+<style scoped>
+.panel-hint {
+  font-size: 0.8rem;
+  color: #4a1f2f;
+  margin-top: 1rem;
+  font-weight: 500;
+}
+.section-subtitle {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+</style>
+
 <template>
   <div class="login-container">
     <div class="login-box">
@@ -111,80 +188,3 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { reactive, ref, computed } from "vue";
-import { useRouter } from "vue-router";
-import "../styles/Login.css";
-import "../styles/Register.css";
-
-const router = useRouter();
-// 1: Authentication, 2: Change password
-const step = ref(1);
-const isEmailVerified = ref(false);
-// Mock authentication code
-const mockEmailCode = "222222";
-
-const formData = reactive({
-  email: "",
-  name: "",
-  phoneNumber: "",
-  verificationCode: "",
-  newPassword: "",
-  confirmNewPassword: "",
-});
-
-// Mock API: Send email authentication number
-const handleSendEmail = async () => {
-  if (!formData.email || !formData.name || !formData.phoneNumber) {
-    alert("이메일, 이름, 전화번호를 모두 입력해주세요.");
-    return;
-  }
-
-  // Actual implementation: Server API call (verifies user with input information and sends authentication number)
-  alert(
-    `[Mock] 인증번호(${mockEmailCode})가 ${formData.email}로 발송되었습니다. (사용자 정보 확인 완료 가정)`,
-  );
-};
-
-// Mock API: Check email authentication number
-const handleVerifyEmail = () => {
-  if (formData.verificationCode === mockEmailCode) {
-    alert("이메일 인증이 완료되었습니다. 다음 단계로 이동합니다.");
-    isEmailVerified.value = true;
-    // Go to password change step
-    step.value = 2;
-  } else {
-    alert("인증번호가 일치하지 않습니다.");
-  }
-};
-
-// Mock API: Reset final password
-const handleSubmit = async () => {
-  if (formData.newPassword !== formData.confirmNewPassword) {
-    alert("새 비밀번호가 일치하지 않습니다.");
-    return;
-  }
-
-  // Actual implementation: Server API call
-  // Assuming the password reset was successful
-  alert(
-    "비밀번호 재설정이 완료되었습니다! 새로운 비밀번호로 로그인해주세요. (프론트엔드 테스트)",
-  );
-  router.push("/login");
-};
-</script>
-
-<style scoped>
-.panel-hint {
-  font-size: 0.8rem;
-  color: #4a1f2f;
-  margin-top: 1rem;
-  font-weight: 500;
-}
-.section-subtitle {
-  margin: 0 0 1rem;
-  font-size: 0.9rem;
-  color: #555;
-}
-</style>

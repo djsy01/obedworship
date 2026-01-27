@@ -53,23 +53,23 @@ export interface UpdateScoreDto {
 }
 
 export const scoreApi = {
-  // 전체 조회
+  // View all
   getAll: () => axios.get<Score[]>("/scores"),
 
-  // 카테고리별 조회
+  // Search by category
   getByCategory: (category: string) =>
     axios.get<Score[]>(`/scores?category=${category}`),
 
-  // 음계별 조회
+  // Search by scale
   getByKey: (key: string) => axios.get<Score[]>(`/scores?key=${key}`),
 
-  // 검색
+  // search
   search: (keyword: string) => axios.get<Score[]>(`/scores?search=${keyword}`),
 
-  // 특정 악보 조회
+  // Look up specific sheet music
   getOne: (id: number) => axios.get<Score>(`/scores/${id}`),
 
-  // 파일 업로드
+  // file upload
   upload: (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -78,17 +78,17 @@ export const scoreApi = {
     });
   },
 
-  // 악보 생성
+  // Generate sheet music
   create: (data: CreateScoreDto) => axios.post<Score>("/scores", data),
 
-  // 악보 수정
+  // Edit sheet music
   update: (id: number, data: UpdateScoreDto) =>
     axios.patch<Score>(`/scores/${id}`, data),
 
-  // 파일 다운로드 (DB에서 조회)
+  // Download file (search in DB)
   downloadFile: (id: number) =>
     axios.get(`/scores/download/${id}`, { responseType: "blob" }),
 
-  // 악보 삭제
+  // Delete sheet music
   delete: (id: number) => axios.delete(`/scores/${id}`),
 };

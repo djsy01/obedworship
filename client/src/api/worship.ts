@@ -78,29 +78,29 @@ export interface UpdateWorshipDto {
   opening_songs?: string[];
   celebration_songs?: string[];
   excluded_songs?: string[];
-  // 집회 신청 관련 필드
+  // Fields related to meeting application
   application_enabled?: boolean;
   max_capacity?: number;
   application_deadline?: string;
 }
 
 export const worshipApi = {
-  // 전체 집회 조회
+  // View all meetings
   getAll: () => axios.get<Worship[]>("/worship"),
 
-  // 연도별 집회 조회
+  // View meetings by year
   getByYear: (year: number) => axios.get<Worship[]>(`/worship?year=${year}`),
 
-  // 특정 집회 조회
+  // Check specific meeting
   getOne: (id: number) => axios.get<Worship>(`/worship/${id}`),
 
-  // 집회 생성
+  // create assembly
   create: (data: CreateWorshipDto) => axios.post<Worship>("/worship", data),
 
-  // 집회 수정
+  // Modify rally
   update: (id: number, data: UpdateWorshipDto) =>
     axios.patch<Worship>(`/worship/${id}`, data),
 
-  // 집회 삭제
+  // Delete meeting
   delete: (id: number) => axios.delete(`/worship/${id}`),
 };

@@ -1,3 +1,355 @@
+<script setup lang="ts">
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useAuth } from "@/composables/useAuth";
+import { ticketApi, ticketApplicationApi, worshipApi } from "@/api/axios";
+import type { Ticket, TicketStatus } from "@/api/tickets";
+import type { Worship } from "@/api/worship";
+import "../styles/Tickets.css";
+
+const router = useRouter();
+const { isLoggedIn, isAdmin } = useAuth();
+
+//state management
+const tickets = ref<Ticket[]>([]);
+const worships = ref<Worship[]>([]); // Meeting information list (for linking)
+const loading = ref(true);
+const error = ref(false);
+const submitting = ref(false);
+const selectedWorshipId = ref<number | null>(null); // selected assembly ID
+
+const showAddModal = ref(false);
+const showApplicationModal = ref(false);
+const showEditModal = ref(false);
+const selectedTicket = ref<Ticket | null>(null);
+const editingTicket = ref<Ticket | null>(null);
+
+// new ticket data
+const newTicket = ref({
+  title: "",
+  date: "",
+  year: new Date().getFullYear(),
+  place: "",
+  preacher: "",
+  description: "",
+  poster_url: "",
+  status: "OPEN" as TicketStatus,
+});
+
+//User information (taken from localStorage)
+const userName = ref("");
+const userEmail = ref("");
+const userPhone = ref("");
+const userId = ref<number | null>(null);
+
+// ticket quantity
+const ticketCounts = ref({
+  infant_child: 0,
+  teen: 0,
+  military: 0,
+  adult: 0,
+});
+
+const specialNote = ref("");
+const privacyAgreed = ref(false);
+
+// Check ticket list
+const fetchTickets = async () => {
+  loading.value = true;
+  error.value = false;
+  try {
+    const response = await ticketApi.getAll();
+    tickets.value = response.data;
+  } catch (err) {
+    console.error("티켓 조회 실패:", err);
+    error.value = true;
+  } finally {
+    loading.value = false;
+  }
+};
+
+// View rally information list (for ticket linking)
+const fetchWorships = async () => {
+  try {
+    const response = await worshipApi.getAll();
+    worships.value = response.data;
+  } catch (err) {
+    console.error("집회 목록 조회 실패:", err);
+  }
+};
+
+// Auto-fill form when meeting is selected
+const onWorshipSelect = () => {
+  if (!selectedWorshipId.value) {
+    // Initialize form when selection is cleared
+    newTicket.value = {
+      title: "",
+      date: "",
+      year: new Date().getFullYear(),
+      place: "",
+      preacher: "",
+      description: "",
+      poster_url: "",
+      status: "OPEN",
+    };
+    return;
+  }
+
+  const worship = worships.value.find((w) => w.id === selectedWorshipId.value);
+  if (worship) {
+    newTicket.value = {
+      title: worship.title,
+      date: worship.date,
+      year: worship.year,
+      place: worship.location || "",
+      preacher: worship.preacher,
+      description: worship.description,
+      poster_url: worship.poster_url || "",
+      status: "OPEN",
+    };
+  }
+};
+
+// load user information
+const loadUserInfo = () => {
+  const userStr = localStorage.getItem("user");
+  if (userStr) {
+    const user = JSON.parse(userStr);
+    userId.value = user.userId ? parseInt(user.userId) : null;
+    userName.value = user.name || localStorage.getItem("userName") || "";
+    userEmail.value = user.email || "";
+    userPhone.value = user.phone || "";
+  }
+};
+
+// sorted ticket list
+const sortedTickets = computed(() => {
+  return [...tickets.value].sort((a, b) => b.id - a.id);
+});
+
+// total number of tickets
+const totalTickets = computed(() => {
+  return Object.values(ticketCounts.value).reduce(
+    (sum, count) => sum + count,
+    0,
+  );
+});
+
+// calculate total amount
+const totalAmount = computed(() => {
+  return (
+    ticketCounts.value.teen * 5000 +
+    ticketCounts.value.military * 5000 +
+    ticketCounts.value.adult * 10000
+  );
+});
+
+// Availability for submission
+const canSubmit = computed(() => {
+  return totalTickets.value > 0 && privacyAgreed.value && !submitting.value;
+});
+
+// status text
+const getStatusText = (status: TicketStatus) => {
+  switch (status) {
+    case "OPEN":
+      return "신청 중";
+    case "CLOSED":
+      return "마감";
+    case "CANCELED":
+      return "취소";
+  }
+};
+
+// initial load
+onMounted(() => {
+  fetchTickets();
+  fetchWorships(); // Load rally list for administrator
+  loadUserInfo();
+});
+
+// Add ticket modal
+const openAddTicketModal = () => {
+  showAddModal.value = true;
+  selectedWorshipId.value = null;
+  newTicket.value = {
+    title: "",
+    date: "",
+    year: new Date().getFullYear(),
+    place: "",
+    preacher: "",
+    description: "",
+    poster_url: "",
+    status: "OPEN",
+  };
+};
+
+const closeAddModal = () => {
+  showAddModal.value = false;
+};
+
+const handlePosterUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (file) {
+    console.log("포스터 업로드:", file.name);
+    newTicket.value.poster_url = URL.createObjectURL(file);
+  }
+};
+
+const handleAddTicket = async () => {
+  try {
+    await ticketApi.create({
+      worship_id: selectedWorshipId.value || undefined,
+      title: newTicket.value.title,
+      date: newTicket.value.date,
+      year: newTicket.value.year,
+      preacher: newTicket.value.preacher,
+      description: newTicket.value.description,
+      place: newTicket.value.place,
+      poster_url: newTicket.value.poster_url || undefined,
+      status: newTicket.value.status,
+    });
+    alert("티켓이 추가되었습니다!");
+    closeAddModal();
+    await fetchTickets();
+  } catch (err) {
+    console.error("티켓 추가 실패:", err);
+    alert("티켓 추가에 실패했습니다.");
+  }
+};
+
+// application modal
+const openApplicationModal = (ticket: Ticket) => {
+  if (!isLoggedIn.value) {
+    alert("로그인이 필요한 서비스입니다.");
+    router.push("/login");
+    return;
+  }
+
+  selectedTicket.value = ticket;
+  showApplicationModal.value = true;
+
+  // reset
+  ticketCounts.value = {
+    infant_child: 0,
+    teen: 0,
+    military: 0,
+    adult: 0,
+  };
+  specialNote.value = "";
+  privacyAgreed.value = false;
+};
+
+const closeApplicationModal = () => {
+  showApplicationModal.value = false;
+  selectedTicket.value = null;
+};
+
+const handleSubmitApplication = async () => {
+  if (!canSubmit.value) {
+    alert("최소 1장 이상의 티켓을 선택하고 개인정보 수집에 동의해주세요.");
+    return;
+  }
+
+  if (!userId.value || !selectedTicket.value) {
+    alert("사용자 정보를 확인할 수 없습니다. 다시 로그인해주세요.");
+    return;
+  }
+
+  submitting.value = true;
+  try {
+    await ticketApplicationApi.create({
+      ticket_id: selectedTicket.value.id,
+      user_id: userId.value,
+      applicant_name: userName.value,
+      applicant_phone: userPhone.value || "미등록",
+      applicant_email: userEmail.value,
+      party_size: totalTickets.value,
+      memo: specialNote.value || undefined,
+    });
+
+    alert(`집회 신청이 완료되었습니다!\n\n총 ${totalTickets.value}명`);
+    closeApplicationModal();
+  } catch (err: any) {
+    console.error("신청 실패:", err);
+    const message =
+      err.response?.data?.message || "신청 처리 중 오류가 발생했습니다.";
+    alert(message);
+  } finally {
+    submitting.value = false;
+  }
+};
+
+// edit modal
+const editTicket = (ticket: Ticket) => {
+  editingTicket.value = { ...ticket };
+  showEditModal.value = true;
+};
+
+const closeEditModal = () => {
+  showEditModal.value = false;
+  editingTicket.value = null;
+};
+
+const handleEditPosterUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (file && editingTicket.value) {
+    console.log("포스터 수정 업로드:", file.name);
+    editingTicket.value.poster_url = URL.createObjectURL(file);
+  }
+};
+
+const handleUpdateTicket = async () => {
+  if (!editingTicket.value) return;
+
+  try {
+    await ticketApi.update(editingTicket.value.id, {
+      title: editingTicket.value.title,
+      date: editingTicket.value.date,
+      preacher: editingTicket.value.preacher,
+      description: editingTicket.value.description,
+      place: editingTicket.value.place,
+    });
+    alert("티켓 정보가 수정되었습니다!");
+    closeEditModal();
+    await fetchTickets();
+  } catch (err) {
+    console.error("티켓 수정 실패:", err);
+    alert("티켓 수정에 실패했습니다.");
+  }
+};
+
+// finishing
+const closeTicket = async (id: number) => {
+  if (!confirm("이 티켓을 마감 처리하시겠습니까?")) return;
+
+  try {
+    await ticketApi.close(id);
+    alert("티켓이 마감 처리되었습니다!");
+    await fetchTickets();
+  } catch (err) {
+    console.error("티켓 마감 실패:", err);
+    alert("티켓 마감에 실패했습니다.");
+  }
+};
+
+// delete
+const deleteTicket = async (id: number) => {
+  if (!confirm("정말 이 티켓을 삭제하시겠습니까?")) return;
+
+  try {
+    await ticketApi.delete(id);
+    alert("티켓이 삭제되었습니다!");
+    await fetchTickets();
+  } catch (err) {
+    console.error("티켓 삭제 실패:", err);
+    alert("티켓 삭제에 실패했습니다.");
+  }
+};
+</script>
+
 <template>
   <div class="page">
     <section class="section">
@@ -25,7 +377,7 @@
       <div v-if="showAddModal && isAdmin" class="panel">
         <h2 class="panel-title">새 티켓 추가</h2>
         <form class="form-grid" @submit.prevent="handleAddTicket">
-          <!-- 집회 안내 연동 선택 -->
+          <!-- Select rally information integration -->
           <label class="field field--full">
             <span class="field-label">집회 안내에서 불러오기 (선택)</span>
             <select v-model="selectedWorshipId" @change="onWorshipSelect">
@@ -111,7 +463,11 @@
             </div>
             <input type="file" @change="handlePosterUpload" accept="image/*" />
             <p class="field-hint">
-              {{ newTicket.poster_url ? "※ 새 이미지를 업로드하면 교체됩니다" : "※ 포스터 이미지를 업로드하세요 (선택사항)" }}
+              {{
+                newTicket.poster_url
+                  ? "※ 새 이미지를 업로드하면 교체됩니다"
+                  : "※ 포스터 이미지를 업로드하세요 (선택사항)"
+              }}
             </p>
           </div>
 
@@ -133,10 +489,10 @@
         </form>
       </div>
 
-      <!-- 로딩 상태 -->
+      <!-- Loading status -->
       <div v-if="loading" class="loading">로딩 중...</div>
 
-      <!-- 에러 상태 -->
+      <!-- Error status -->
       <div v-else-if="error" class="error-message">
         <p>정보를 가져오지 못했습니다.</p>
         <button class="btn primary" @click="fetchTickets">다시 시도</button>
@@ -184,10 +540,7 @@
               <button class="btn small" @click="closeTicket(ticket.id)">
                 ✅ 마감
               </button>
-              <button
-                class="btn small danger"
-                @click="deleteTicket(ticket.id)"
-              >
+              <button class="btn small danger" @click="deleteTicket(ticket.id)">
                 🗑️ 삭제
               </button>
             </div>
@@ -221,9 +574,7 @@
       >
         <div class="modal-content application-modal" @click.stop>
           <div class="modal-header">
-            <h2 class="modal-title">
-              집회 신청 - {{ selectedTicket?.title }}
-            </h2>
+            <h2 class="modal-title">집회 신청 - {{ selectedTicket?.title }}</h2>
             <button class="modal-close" @click="closeApplicationModal">
               ✕
             </button>
@@ -432,357 +783,3 @@
     </section>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { useAuth } from "@/composables/useAuth";
-import { ticketApi, ticketApplicationApi, worshipApi } from "@/api/axios";
-import type { Ticket, TicketStatus } from "@/api/tickets";
-import type { Worship } from "@/api/worship";
-import "../styles/Tickets.css";
-
-const router = useRouter();
-const { isLoggedIn, isAdmin } = useAuth();
-
-// 상태 관리
-const tickets = ref<Ticket[]>([]);
-const worships = ref<Worship[]>([]); // 집회 안내 목록 (연동용)
-const loading = ref(true);
-const error = ref(false);
-const submitting = ref(false);
-const selectedWorshipId = ref<number | null>(null); // 선택된 집회 ID
-
-const showAddModal = ref(false);
-const showApplicationModal = ref(false);
-const showEditModal = ref(false);
-const selectedTicket = ref<Ticket | null>(null);
-const editingTicket = ref<Ticket | null>(null);
-
-// 새 티켓 데이터
-const newTicket = ref({
-  title: "",
-  date: "",
-  year: new Date().getFullYear(),
-  place: "",
-  preacher: "",
-  description: "",
-  poster_url: "",
-  status: "OPEN" as TicketStatus,
-});
-
-// 사용자 정보 (localStorage에서 가져옴)
-const userName = ref("");
-const userEmail = ref("");
-const userPhone = ref("");
-const userId = ref<number | null>(null);
-
-// 티켓 수량
-const ticketCounts = ref({
-  infant_child: 0,
-  teen: 0,
-  military: 0,
-  adult: 0,
-});
-
-const specialNote = ref("");
-const privacyAgreed = ref(false);
-
-// 티켓 목록 조회
-const fetchTickets = async () => {
-  loading.value = true;
-  error.value = false;
-  try {
-    const response = await ticketApi.getAll();
-    tickets.value = response.data;
-  } catch (err) {
-    console.error("티켓 조회 실패:", err);
-    error.value = true;
-  } finally {
-    loading.value = false;
-  }
-};
-
-// 집회 안내 목록 조회 (티켓 연동용)
-const fetchWorships = async () => {
-  try {
-    const response = await worshipApi.getAll();
-    worships.value = response.data;
-  } catch (err) {
-    console.error("집회 목록 조회 실패:", err);
-  }
-};
-
-// 집회 선택 시 폼 자동 채우기
-const onWorshipSelect = () => {
-  if (!selectedWorshipId.value) {
-    // 선택 해제 시 폼 초기화
-    newTicket.value = {
-      title: "",
-      date: "",
-      year: new Date().getFullYear(),
-      place: "",
-      preacher: "",
-      description: "",
-      poster_url: "",
-      status: "OPEN",
-    };
-    return;
-  }
-
-  const worship = worships.value.find((w) => w.id === selectedWorshipId.value);
-  if (worship) {
-    newTicket.value = {
-      title: worship.title,
-      date: worship.date,
-      year: worship.year,
-      place: worship.location || "",
-      preacher: worship.preacher,
-      description: worship.description,
-      poster_url: worship.poster_url || "",
-      status: "OPEN",
-    };
-  }
-};
-
-// 사용자 정보 로드
-const loadUserInfo = () => {
-  const userStr = localStorage.getItem("user");
-  if (userStr) {
-    const user = JSON.parse(userStr);
-    userId.value = user.userId ? parseInt(user.userId) : null;
-    userName.value = user.name || localStorage.getItem("userName") || "";
-    userEmail.value = user.email || "";
-    userPhone.value = user.phone || "";
-  }
-};
-
-// 정렬된 티켓 목록
-const sortedTickets = computed(() => {
-  return [...tickets.value].sort((a, b) => b.id - a.id);
-});
-
-// 총 티켓 수량
-const totalTickets = computed(() => {
-  return Object.values(ticketCounts.value).reduce(
-    (sum, count) => sum + count,
-    0
-  );
-});
-
-// 총 금액 계산
-const totalAmount = computed(() => {
-  return (
-    ticketCounts.value.teen * 5000 +
-    ticketCounts.value.military * 5000 +
-    ticketCounts.value.adult * 10000
-  );
-});
-
-// 제출 가능 여부
-const canSubmit = computed(() => {
-  return totalTickets.value > 0 && privacyAgreed.value && !submitting.value;
-});
-
-// 상태 텍스트
-const getStatusText = (status: TicketStatus) => {
-  switch (status) {
-    case "OPEN":
-      return "신청 중";
-    case "CLOSED":
-      return "마감";
-    case "CANCELED":
-      return "취소";
-  }
-};
-
-// 초기 로드
-onMounted(() => {
-  fetchTickets();
-  fetchWorships(); // 관리자용 집회 목록 로드
-  loadUserInfo();
-});
-
-// 티켓 추가 모달
-const openAddTicketModal = () => {
-  showAddModal.value = true;
-  selectedWorshipId.value = null;
-  newTicket.value = {
-    title: "",
-    date: "",
-    year: new Date().getFullYear(),
-    place: "",
-    preacher: "",
-    description: "",
-    poster_url: "",
-    status: "OPEN",
-  };
-};
-
-const closeAddModal = () => {
-  showAddModal.value = false;
-};
-
-const handlePosterUpload = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0];
-  if (file) {
-    console.log("포스터 업로드:", file.name);
-    newTicket.value.poster_url = URL.createObjectURL(file);
-  }
-};
-
-const handleAddTicket = async () => {
-  try {
-    await ticketApi.create({
-      worship_id: selectedWorshipId.value || undefined,
-      title: newTicket.value.title,
-      date: newTicket.value.date,
-      year: newTicket.value.year,
-      preacher: newTicket.value.preacher,
-      description: newTicket.value.description,
-      place: newTicket.value.place,
-      poster_url: newTicket.value.poster_url || undefined,
-      status: newTicket.value.status,
-    });
-    alert("티켓이 추가되었습니다!");
-    closeAddModal();
-    await fetchTickets();
-  } catch (err) {
-    console.error("티켓 추가 실패:", err);
-    alert("티켓 추가에 실패했습니다.");
-  }
-};
-
-// 신청 모달
-const openApplicationModal = (ticket: Ticket) => {
-  if (!isLoggedIn.value) {
-    alert("로그인이 필요한 서비스입니다.");
-    router.push("/login");
-    return;
-  }
-
-  selectedTicket.value = ticket;
-  showApplicationModal.value = true;
-
-  // 초기화
-  ticketCounts.value = {
-    infant_child: 0,
-    teen: 0,
-    military: 0,
-    adult: 0,
-  };
-  specialNote.value = "";
-  privacyAgreed.value = false;
-};
-
-const closeApplicationModal = () => {
-  showApplicationModal.value = false;
-  selectedTicket.value = null;
-};
-
-const handleSubmitApplication = async () => {
-  if (!canSubmit.value) {
-    alert("최소 1장 이상의 티켓을 선택하고 개인정보 수집에 동의해주세요.");
-    return;
-  }
-
-  if (!userId.value || !selectedTicket.value) {
-    alert("사용자 정보를 확인할 수 없습니다. 다시 로그인해주세요.");
-    return;
-  }
-
-  submitting.value = true;
-  try {
-    await ticketApplicationApi.create({
-      ticket_id: selectedTicket.value.id,
-      user_id: userId.value,
-      applicant_name: userName.value,
-      applicant_phone: userPhone.value || "미등록",
-      applicant_email: userEmail.value,
-      party_size: totalTickets.value,
-      memo: specialNote.value || undefined,
-    });
-
-    alert(
-      `집회 신청이 완료되었습니다!\n\n총 ${totalTickets.value}명`
-    );
-    closeApplicationModal();
-  } catch (err: any) {
-    console.error("신청 실패:", err);
-    const message =
-      err.response?.data?.message || "신청 처리 중 오류가 발생했습니다.";
-    alert(message);
-  } finally {
-    submitting.value = false;
-  }
-};
-
-// 수정 모달
-const editTicket = (ticket: Ticket) => {
-  editingTicket.value = { ...ticket };
-  showEditModal.value = true;
-};
-
-const closeEditModal = () => {
-  showEditModal.value = false;
-  editingTicket.value = null;
-};
-
-const handleEditPosterUpload = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0];
-  if (file && editingTicket.value) {
-    console.log("포스터 수정 업로드:", file.name);
-    editingTicket.value.poster_url = URL.createObjectURL(file);
-  }
-};
-
-const handleUpdateTicket = async () => {
-  if (!editingTicket.value) return;
-
-  try {
-    await ticketApi.update(editingTicket.value.id, {
-      title: editingTicket.value.title,
-      date: editingTicket.value.date,
-      preacher: editingTicket.value.preacher,
-      description: editingTicket.value.description,
-      place: editingTicket.value.place,
-    });
-    alert("티켓 정보가 수정되었습니다!");
-    closeEditModal();
-    await fetchTickets();
-  } catch (err) {
-    console.error("티켓 수정 실패:", err);
-    alert("티켓 수정에 실패했습니다.");
-  }
-};
-
-// 마감 처리
-const closeTicket = async (id: number) => {
-  if (!confirm("이 티켓을 마감 처리하시겠습니까?")) return;
-
-  try {
-    await ticketApi.close(id);
-    alert("티켓이 마감 처리되었습니다!");
-    await fetchTickets();
-  } catch (err) {
-    console.error("티켓 마감 실패:", err);
-    alert("티켓 마감에 실패했습니다.");
-  }
-};
-
-// 삭제
-const deleteTicket = async (id: number) => {
-  if (!confirm("정말 이 티켓을 삭제하시겠습니까?")) return;
-
-  try {
-    await ticketApi.delete(id);
-    alert("티켓이 삭제되었습니다!");
-    await fetchTickets();
-  } catch (err) {
-    console.error("티켓 삭제 실패:", err);
-    alert("티켓 삭제에 실패했습니다.");
-  }
-};
-</script>

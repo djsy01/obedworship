@@ -43,40 +43,40 @@ export interface UpdateAssetDto {
 }
 
 export const assetApi = {
-  // 전체 조회
+  // View all
   getAll: () => axios.get<Asset[]>("/assets"),
 
-  // 카테고리별 조회
+  // Search by category
   getByCategory: (category: string) =>
     axios.get<Asset[]>(`/assets?category=${category}`),
 
-  // 키로 조회
+  // Search by key
   getByKey: (key: string) => axios.get<Asset>(`/assets/key/${key}`),
 
-  // ID로 조회
+  // Search by ID
   getOne: (id: number) => axios.get<Asset>(`/assets/${id}`),
 
-  // 생성
+  // create
   create: (data: CreateAssetDto) => axios.post<Asset>("/assets", data),
 
-  // 수정
+  // correction
   update: (id: number, data: UpdateAssetDto) =>
     axios.patch<Asset>(`/assets/${id}`, data),
 
-  // 키로 수정
+  // edit with key
   updateByKey: (key: string, data: UpdateAssetDto) =>
     axios.patch<Asset>(`/assets/key/${key}`, data),
 
-  // 삭제
+  // delete
   delete: (id: number) => axios.delete(`/assets/${id}`),
 
-  // 파일 업로드 (새 자산 또는 기존 자산 업데이트)
+  // Upload file (new asset or update existing asset)
   uploadFile: (
     file: File,
     assetKey: string,
     category: string,
     title?: string,
-    description?: string
+    description?: string,
   ) => {
     const formData = new FormData();
     formData.append("file", file);

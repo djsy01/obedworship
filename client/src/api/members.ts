@@ -40,49 +40,53 @@ export interface UpdateMemberDto {
 }
 
 export const memberApi = {
-  // 전체 멤버 조회
+  // Check all members
   getAll: () => axios.get<Member[]>("/members"),
 
-  // 활동중인 멤버만 조회
+  // Search only active members
   getActive: () => axios.get<Member[]>("/members?active=true"),
 
-  // 소속별 멤버 조회
+  // Check members by affiliation
   getByAffiliation: (affiliation: string) =>
     axios.get<Member[]>(`/members?affiliation=${affiliation}`),
 
-  // 특정 멤버 조회
+  // Look up specific members
   getOne: (id: number) => axios.get<Member>(`/members/${id}`),
 
-  // 멤버 생성
+  // create member
   create: (data: CreateMemberDto) => axios.post<Member>("/members", data),
 
-  // 멤버 수정
+  // edit member
   update: (id: number, data: UpdateMemberDto) =>
     axios.patch<Member>(`/members/${id}`, data),
 
-  // 멤버 삭제
+  // delete member
   delete: (id: number) => axios.delete(`/members/${id}`),
 
-  // 사진 업로드
+  // upload photo
   uploadPhoto: (file: File) => {
     const formData = new FormData();
     formData.append("photo", file);
-    return axios.post<{ photo_url: string }>("/members/upload-photo", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
+    return axios.post<{ photo_url: string }>(
+      "/members/upload-photo",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       },
-    });
+    );
   },
 
-  // 역할(Roles) 업데이트
+  // Update roles
   updateRoles: (memberId: number, roleTypes: string[]) =>
     axios.post(`/members/${memberId}/roles`, { roleTypes }),
 
-  // Worship 포지션 업데이트
+  // Worship position update
   updateWorshipPositions: (memberId: number, positionTypes: string[]) =>
     axios.post(`/members/${memberId}/worship-positions`, { positionTypes }),
 
-  // Step 포지션 업데이트
+  // Step position update
   updateStepPositions: (memberId: number, positionTypes: string[]) =>
     axios.post(`/members/${memberId}/step-positions`, { positionTypes }),
 };

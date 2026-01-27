@@ -1,3 +1,81 @@
+<script setup lang="ts">
+import { reactive, ref } from "vue";
+import { useRouter } from "vue-router";
+import "../styles/Register.css";
+
+const router = useRouter();
+const isVerified = ref(false);
+
+const formData = reactive({
+  email: "",
+  verificationCode: "",
+  name: "",
+  phoneNumber: "",
+  password: "",
+  confirmPassword: "",
+});
+
+// Mock API: ‘Authentication Request’ button click handler
+const handleSendVerification = async () => {
+  if (!formData.email) {
+    alert("이메일을 입력해주세요.");
+    return;
+  }
+
+  // Actual implementation: await apiClient.post("/auth/send-verification", { email: formData.email });
+  alert(
+    "인증 코드가 발송되었습니다. 이메일을 확인해주세요. (프론트엔드 테스트)",
+  );
+};
+
+// Mock API: ‘Confirm’ button (verification number verification) click handler
+const handleVerifyCode = async () => {
+  if (!formData.verificationCode) {
+    alert("인증 코드를 입력해주세요.");
+    return;
+  }
+
+  // Actual implementation: await apiClient.post("/auth/verify-code", { email: formData.email, code: formData.verificationCode });
+  if (formData.verificationCode === "123456") {
+    // Mock authentication code
+    alert("이메일 인증이 완료되었습니다. (프론트엔드 테스트)");
+    // Change status when authentication is successful
+    isVerified.value = true;
+  } else {
+    alert("인증 코드가 올바르지 않습니다.");
+  }
+};
+
+// Mock API: ‘Sign up’ button click handler
+const handleSubmit = async () => {
+  if (!isVerified.value) {
+    alert("이메일 인증을 먼저 완료해주세요.");
+    return;
+  }
+  if (formData.password !== formData.confirmPassword) {
+    alert("비밀번호가 일치하지 않습니다.");
+    return;
+  }
+
+  try {
+    const userData = {
+      email: formData.email,
+      name: formData.name,
+      phoneNumber: formData.phoneNumber,
+      password: formData.password,
+    };
+
+    // Actual implementation: await apiClient.post("/auth/register", userData);
+    console.log("Mock Registration Data:", userData);
+
+    alert("회원가입이 완료되었습니다! (프론트엔드 테스트)");
+    router.push("/login");
+  } catch (error: any) {
+    alert(`회원가입 실패: ${error.message || "다시 시도해주세요."}`);
+  }
+};
+</script>
+
 <template>
   <div class="register-container">
     <div class="register-box">
@@ -101,81 +179,3 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { reactive, ref } from "vue";
-import { useRouter } from "vue-router";
-import "../styles/Register.css";
-
-const router = useRouter();
-const isVerified = ref(false);
-
-const formData = reactive({
-  email: "",
-  verificationCode: "",
-  name: "",
-  phoneNumber: "",
-  password: "",
-  confirmPassword: "",
-});
-
-// Mock API: ‘Authentication Request’ button click handler
-const handleSendVerification = async () => {
-  if (!formData.email) {
-    alert("이메일을 입력해주세요.");
-    return;
-  }
-
-  // Actual implementation: await apiClient.post("/auth/send-verification", { email: formData.email });
-  alert(
-    "인증 코드가 발송되었습니다. 이메일을 확인해주세요. (프론트엔드 테스트)",
-  );
-};
-
-// Mock API: ‘Confirm’ button (verification number verification) click handler
-const handleVerifyCode = async () => {
-  if (!formData.verificationCode) {
-    alert("인증 코드를 입력해주세요.");
-    return;
-  }
-
-  // Actual implementation: await apiClient.post("/auth/verify-code", { email: formData.email, code: formData.verificationCode });
-  if (formData.verificationCode === "123456") {
-    // Mock authentication code
-    alert("이메일 인증이 완료되었습니다. (프론트엔드 테스트)");
-    // Change status when authentication is successful
-    isVerified.value = true;
-  } else {
-    alert("인증 코드가 올바르지 않습니다.");
-  }
-};
-
-// Mock API: ‘Sign up’ button click handler
-const handleSubmit = async () => {
-  if (!isVerified.value) {
-    alert("이메일 인증을 먼저 완료해주세요.");
-    return;
-  }
-  if (formData.password !== formData.confirmPassword) {
-    alert("비밀번호가 일치하지 않습니다.");
-    return;
-  }
-
-  try {
-    const userData = {
-      email: formData.email,
-      name: formData.name,
-      phoneNumber: formData.phoneNumber,
-      password: formData.password,
-    };
-
-    // Actual implementation: await apiClient.post("/auth/register", userData);
-    console.log("Mock Registration Data:", userData);
-
-    alert("회원가입이 완료되었습니다! (프론트엔드 테스트)");
-    router.push("/login");
-  } catch (error: any) {
-    alert(`회원가입 실패: ${error.message || "다시 시도해주세요."}`);
-  }
-};
-</script>

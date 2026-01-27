@@ -1,3 +1,163 @@
+<script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import { useRouter } from "vue-router";
+import { useAuth } from "@/composables/useAuth";
+import { assetApi } from "@/api/assets";
+import soundcloudIcon from "@/assets/icons/Soundcloud.png";
+import instagramIcon from "@/assets/icons/Instargram.png";
+import youtubeIcon from "@/assets/icons/Youtube.png";
+
+const router = useRouter();
+const { isLoggedIn, isAdmin, logout } = useAuth();
+
+const logo = ref<string>("");
+const playlist = ref<string[]>([]);
+const currentTrackIndex = ref(0);
+const audioPlayer = ref<HTMLAudioElement | null>(null);
+const showDropdown = ref(false);
+const showMobileMenu = ref(false);
+const touchStartX = ref(0);
+
+// Username (Mock - actually taken from localStorage or Redis)
+const userName = computed(() => {
+  if (!isLoggedIn.value) return "";
+
+  const storedName = localStorage.getItem("userName");
+  if (storedName) return storedName;
+
+  return isAdmin.value ? "관리자" : "사용자";
+});
+
+const handleEnded = () => {
+  currentTrackIndex.value =
+    (currentTrackIndex.value + 1) % playlist.value.length;
+  setTimeout(() => {
+    if (audioPlayer.value) {
+      audioPlayer.value.play();
+    }
+  }, 50);
+};
+
+const toggleDropdown = () => {
+  showDropdown.value = !showDropdown.value;
+};
+
+const toggleMobileMenu = () => {
+  showMobileMenu.value = !showMobileMenu.value;
+  if (showMobileMenu.value) {
+    document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.width = "100%";
+  } else {
+    document.body.style.overflow = "";
+    document.body.style.position = "";
+    document.body.style.width = "";
+  }
+};
+
+const closeMobileMenu = () => {
+  showMobileMenu.value = false;
+  document.body.style.overflow = "";
+  document.body.style.position = "";
+  document.body.style.width = "";
+};
+
+const goToMyPage = () => {
+  showDropdown.value = false;
+  showMobileMenu.value = false;
+  document.body.style.overflow = "";
+  document.body.style.position = "";
+  document.body.style.width = "";
+  router.push("/mypage");
+};
+
+const goToAdmin = () => {
+  showDropdown.value = false;
+  showMobileMenu.value = false;
+  document.body.style.overflow = "";
+  document.body.style.position = "";
+  document.body.style.width = "";
+  router.push("/admin");
+};
+
+const handleLogout = () => {
+  if (confirm("로그아웃 하시겠습니까?")) {
+    logout();
+    showDropdown.value = false;
+    showMobileMenu.value = false;
+    document.body.style.overflow = "";
+    document.body.style.position = "";
+    document.body.style.width = "";
+    router.push("/");
+  }
+};
+
+const handleTouchStart = (e: TouchEvent) => {
+  touchStartX.value = e.touches[0].clientX;
+};
+
+const handleTouchMove = (e: TouchEvent) => {
+  const touchCurrentX = e.touches[0].clientX;
+  const diff = touchCurrentX - touchStartX.value;
+
+  if (Math.abs(diff) > 10) {
+    e.preventDefault();
+  }
+};
+
+const handleClickOutside = (event: MouseEvent) => {
+  const target = event.target as HTMLElement;
+  if (!target.closest(".user-menu-wrapper")) {
+    showDropdown.value = false;
+  }
+};
+
+// load assets
+const loadAssets = async () => {
+  try {
+    // load logo
+    try {
+      const logoRes = await assetApi.getByKey("home_logo");
+      if (logoRes.data.file_url) {
+        logo.value = logoRes.data.file_url;
+      }
+    } catch (error) {
+      console.error("Logo not found in DB:", error);
+    }
+
+    // load music
+    try {
+      const songsRes = await assetApi.getByCategory("songs");
+      if (
+        songsRes.data &&
+        Array.isArray(songsRes.data) &&
+        songsRes.data.length > 0
+      ) {
+        playlist.value = songsRes.data
+          .filter((song) => song.file_url)
+          .map((song) => song.file_url as string);
+      }
+    } catch (error) {
+      console.error("Songs not found in DB:", error);
+    }
+  } catch (error) {
+    console.error("Failed to load assets:", error);
+  }
+};
+
+onMounted(() => {
+  document.addEventListener("click", handleClickOutside);
+  loadAssets();
+});
+
+onUnmounted(() => {
+  document.removeEventListener("click", handleClickOutside);
+  document.body.style.overflow = "";
+  document.body.style.position = "";
+  document.body.style.width = "";
+});
+</script>
+
 <template>
   <div class="app-root">
     <header class="app-header">
@@ -117,7 +277,7 @@
               @click="closeMobileMenu"
               >악보</RouterLink
             >
-            <!-- 집회신청 - 백엔드 완성 후 주석 해제
+            <!-- Temporarily remove meeting application page
             <RouterLink
               to="/applications"
               class="mobile-nav-link"
@@ -216,163 +376,3 @@
     </footer>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
-import { useRouter } from "vue-router";
-import { useAuth } from "@/composables/useAuth";
-import { assetApi } from "@/api/assets";
-import soundcloudIcon from "@/assets/icons/Soundcloud.png";
-import instagramIcon from "@/assets/icons/Instargram.png";
-import youtubeIcon from "@/assets/icons/Youtube.png";
-
-const router = useRouter();
-const { isLoggedIn, isAdmin, logout } = useAuth();
-
-const logo = ref<string>("");
-const playlist = ref<string[]>([]);
-const currentTrackIndex = ref(0);
-const audioPlayer = ref<HTMLAudioElement | null>(null);
-const showDropdown = ref(false);
-const showMobileMenu = ref(false);
-const touchStartX = ref(0);
-
-// Username (Mock - actually taken from localStorage or Redis)
-const userName = computed(() => {
-  if (!isLoggedIn.value) return "";
-
-  const storedName = localStorage.getItem("userName");
-  if (storedName) return storedName;
-
-  return isAdmin.value ? "관리자" : "사용자";
-});
-
-const handleEnded = () => {
-  currentTrackIndex.value =
-    (currentTrackIndex.value + 1) % playlist.value.length;
-  setTimeout(() => {
-    if (audioPlayer.value) {
-      audioPlayer.value.play();
-    }
-  }, 50);
-};
-
-const toggleDropdown = () => {
-  showDropdown.value = !showDropdown.value;
-};
-
-const toggleMobileMenu = () => {
-  showMobileMenu.value = !showMobileMenu.value;
-  if (showMobileMenu.value) {
-    document.body.style.overflow = "hidden";
-    document.body.style.position = "fixed";
-    document.body.style.width = "100%";
-  } else {
-    document.body.style.overflow = "";
-    document.body.style.position = "";
-    document.body.style.width = "";
-  }
-};
-
-const closeMobileMenu = () => {
-  showMobileMenu.value = false;
-  document.body.style.overflow = "";
-  document.body.style.position = "";
-  document.body.style.width = "";
-};
-
-const goToMyPage = () => {
-  showDropdown.value = false;
-  showMobileMenu.value = false;
-  document.body.style.overflow = "";
-  document.body.style.position = "";
-  document.body.style.width = "";
-  router.push("/mypage");
-};
-
-const goToAdmin = () => {
-  showDropdown.value = false;
-  showMobileMenu.value = false;
-  document.body.style.overflow = "";
-  document.body.style.position = "";
-  document.body.style.width = "";
-  router.push("/admin");
-};
-
-const handleLogout = () => {
-  if (confirm("로그아웃 하시겠습니까?")) {
-    logout();
-    showDropdown.value = false;
-    showMobileMenu.value = false;
-    document.body.style.overflow = "";
-    document.body.style.position = "";
-    document.body.style.width = "";
-    router.push("/");
-  }
-};
-
-const handleTouchStart = (e: TouchEvent) => {
-  touchStartX.value = e.touches[0].clientX;
-};
-
-const handleTouchMove = (e: TouchEvent) => {
-  const touchCurrentX = e.touches[0].clientX;
-  const diff = touchCurrentX - touchStartX.value;
-
-  if (Math.abs(diff) > 10) {
-    e.preventDefault();
-  }
-};
-
-const handleClickOutside = (event: MouseEvent) => {
-  const target = event.target as HTMLElement;
-  if (!target.closest(".user-menu-wrapper")) {
-    showDropdown.value = false;
-  }
-};
-
-// 자산 로드
-const loadAssets = async () => {
-  try {
-    // 로고 로드
-    try {
-      const logoRes = await assetApi.getByKey("home_logo");
-      if (logoRes.data.file_url) {
-        logo.value = logoRes.data.file_url;
-      }
-    } catch (error) {
-      console.error("Logo not found in DB:", error);
-    }
-
-    // 음악 로드
-    try {
-      const songsRes = await assetApi.getByCategory("songs");
-      if (
-        songsRes.data &&
-        Array.isArray(songsRes.data) &&
-        songsRes.data.length > 0
-      ) {
-        playlist.value = songsRes.data
-          .filter((song) => song.file_url)
-          .map((song) => song.file_url as string);
-      }
-    } catch (error) {
-      console.error("Songs not found in DB:", error);
-    }
-  } catch (error) {
-    console.error("Failed to load assets:", error);
-  }
-};
-
-onMounted(() => {
-  document.addEventListener("click", handleClickOutside);
-  loadAssets();
-});
-
-onUnmounted(() => {
-  document.removeEventListener("click", handleClickOutside);
-  document.body.style.overflow = "";
-  document.body.style.position = "";
-  document.body.style.width = "";
-});
-</script>

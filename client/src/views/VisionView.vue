@@ -1,3 +1,322 @@
+<script setup lang="ts">
+import { computed, ref, onMounted } from "vue";
+import { memberApi, type Member as ApiMember } from "@/api/members";
+import { assetApi } from "@/api/assets";
+import MemberEditModal from "@/components/MemberEditModal.vue";
+import "../styles/Vision.css";
+import instagramIcon from "@/assets/icons/Instargram.png";
+import youtubeIcon from "@/assets/icons/Youtube.png";
+
+type Member = {
+  id: number;
+  name: string;
+  affiliation: string;
+  photo_url: string;
+  instagram_url: string | null;
+  youtube_url: string | null;
+  roles: string[];
+  worship_positions: string[];
+  step_positions: string[];
+  description: string;
+  display_order?: number;
+};
+
+//Administrator mode
+const isAdmin = ref(false);
+
+// Modal state
+const isModalOpen = ref(false);
+const selectedMember = ref<ApiMember | null>(null);
+
+// Loading state
+const loading = ref(true);
+
+const filter = ref<"all" | "leader" | "worship" | "step">("all");
+const worshipFilter = ref<string>("");
+const stepFilter = ref<string>("");
+
+// Members data - loaded from API
+const members = ref<Member[]>([]);
+
+// Logo - loaded from DB
+const logo = ref<string>("");
+
+// Convert enum underscores back to spaces for display
+const convertFromEnum = (value: string) => value.replace(/_/g, " ");
+
+// Load members from API
+const loadMembers = async () => {
+  try {
+    loading.value = true;
+    const response = await memberApi.getAll();
+
+    // Transform API response to match component's expected structure
+    members.value = response.data.map((apiMember) => ({
+      id: apiMember.id,
+      name: apiMember.name,
+      affiliation: apiMember.affiliation,
+      photo_url: apiMember.photo_url || logo.value, // Use logo as fallback
+      instagram_url: apiMember.instagram_url || null,
+      youtube_url: apiMember.youtube_url || null,
+      roles:
+        apiMember.member_roles?.map((r) => convertFromEnum(r.role_type)) || [],
+      worship_positions:
+        apiMember.member_worship_positions?.map((p) =>
+          convertFromEnum(p.position_type),
+        ) || [],
+      step_positions:
+        apiMember.member_step_positions?.map((p) =>
+          convertFromEnum(p.position_type),
+        ) || [],
+      description: apiMember.description || "",
+      display_order: apiMember.display_order ?? 0,
+    }));
+  } catch (error) {
+    console.error("Failed to load members:", error);
+    alert("멤버 정보를 불러오는데 실패했습니다.");
+  } finally {
+    loading.value = false;
+  }
+};
+
+const filteredMembers = computed(() => {
+  let filtered = members.value;
+
+  if (filter.value === "leader") {
+    filtered = filtered.filter((m) => m.roles.length > 0);
+  } else if (filter.value === "worship") {
+    filtered = filtered.filter((m) => m.worship_positions.length > 0);
+  } else if (filter.value === "step") {
+    filtered = filtered.filter((m) => m.step_positions.length > 0);
+  }
+
+  if (filter.value === "worship" && worshipFilter.value) {
+    if (worshipFilter.value === "Piano") {
+      filtered = filtered.filter((m) =>
+        m.worship_positions.some((p) => ["Piano", "Synthesizer"].includes(p)),
+      );
+    } else if (worshipFilter.value === "Guitar") {
+      filtered = filtered.filter((m) =>
+        m.worship_positions.some((p) =>
+          [
+            "Acoustic Guitar",
+            "Lead Guitar",
+            "Backing Guitar",
+            "Bass Guitar",
+          ].includes(p),
+        ),
+      );
+    } else {
+      filtered = filtered.filter((m) =>
+        m.worship_positions.includes(worshipFilter.value),
+      );
+    }
+  }
+
+  if (filter.value === "step" && stepFilter.value) {
+    if (stepFilter.value === "Accounting Team") {
+      filtered = filtered.filter(
+        (m) =>
+          m.step_positions.includes("Accounting Team") ||
+          m.roles.includes("Accounting Leader"),
+      );
+    } else if (stepFilter.value === "Planning Team") {
+      filtered = filtered.filter(
+        (m) =>
+          m.step_positions.includes("Planning Team") ||
+          m.step_positions.includes("Instagram Manager") ||
+          m.step_positions.includes("Poster Designer") ||
+          m.step_positions.includes("Guidebook Designer") ||
+          m.roles.includes("Planning Leader"),
+      );
+    } else if (stepFilter.value === "Media Team") {
+      filtered = filtered.filter(
+        (m) =>
+          m.step_positions.includes("Media Team") ||
+          m.step_positions.includes("Camera Operator") ||
+          m.step_positions.includes("Video Editor") ||
+          m.step_positions.includes("YouTube Manager") ||
+          m.step_positions.includes("Mix Engineer") ||
+          m.step_positions.includes("Master Engineer") ||
+          m.step_positions.includes("Music Producer") ||
+          m.roles.includes("Media Leader"),
+      );
+    } else if (stepFilter.value === "Stage Team") {
+      filtered = filtered.filter(
+        (m) =>
+          m.step_positions.includes("Stage Team") ||
+          m.step_positions.includes("Live Engineer") ||
+          m.step_positions.includes("Stage Designer") ||
+          m.step_positions.includes("Lighting Operator") ||
+          m.step_positions.includes("Audio Setup") ||
+          m.step_positions.includes("Preproduction") ||
+          m.roles.includes("Stage Leader"),
+      );
+    } else if (stepFilter.value === "Prayer Team") {
+      filtered = filtered.filter(
+        (m) =>
+          m.step_positions.includes("Prayer Team") ||
+          m.roles.includes("Prayer Leader"),
+      );
+    }
+  }
+
+  // Sort by role priority
+  const roleOrder: { [key: string]: number } = {
+    Pastor: 1,
+    Elder: 2,
+    "Worship Team Leader": 3,
+    "Accounting Leader": 4,
+    "Lead Singer": 5,
+    "Singer Leader": 6,
+    "Session Leader": 7,
+    "Planning Leader": 8,
+    "Media Leader": 9,
+    "Stage Leader": 10,
+    "Prayer Leader": 11,
+  };
+
+  filtered.sort((a, b) => {
+    const getMinOrder = (roles: string[]) => {
+      if (roles.length === 0) return 99;
+      const orders = roles.map((r) => roleOrder[r] || 99);
+      return Math.min(...orders);
+    };
+
+    const orderA = getMinOrder(a.roles);
+    const orderB = getMinOrder(b.roles);
+
+    if (orderA !== orderB) {
+      return orderA - orderB;
+    }
+
+    // If the role is the same, sort by display_order
+    const displayOrderA = a.display_order ?? 0;
+    const displayOrderB = b.display_order ?? 0;
+
+    if (displayOrderA !== displayOrderB) {
+      return displayOrderA - displayOrderB;
+    }
+
+    return a.name.localeCompare(b.name, "ko-KR");
+  });
+
+  return filtered;
+});
+
+const handleMainFilter = (value: "all" | "leader" | "worship" | "step") => {
+  filter.value = value;
+  worshipFilter.value = "";
+  stepFilter.value = "";
+};
+
+// Modal handlers
+const openEditModal = async (member: Member) => {
+  try {
+    // Fetch full member data including roles and positions
+    const response = await memberApi.getOne(member.id);
+    selectedMember.value = response.data;
+    isModalOpen.value = true;
+  } catch (error) {
+    console.error("Failed to load member:", error);
+    alert("멤버 정보를 불러오는데 실패했습니다.");
+  }
+};
+
+const openAddModal = () => {
+  selectedMember.value = null;
+  isModalOpen.value = true;
+};
+
+const closeModal = () => {
+  isModalOpen.value = false;
+  selectedMember.value = null;
+};
+
+const handleMemberSaved = async () => {
+  if (!selectedMember.value) {
+    // New member was added, reload all
+    loadMembers();
+    return;
+  }
+
+  // Update only the edited member to avoid full reload
+  try {
+    const response = await memberApi.getOne(selectedMember.value.id);
+    const updatedMember = response.data;
+
+    // Find and update the member in the list
+    const index = members.value.findIndex((m) => m.id === updatedMember.id);
+    if (index !== -1) {
+      members.value[index] = {
+        id: updatedMember.id,
+        name: updatedMember.name,
+        affiliation: updatedMember.affiliation,
+        photo_url: updatedMember.photo_url || logo.value,
+        instagram_url: updatedMember.instagram_url || null,
+        youtube_url: updatedMember.youtube_url || null,
+        roles:
+          updatedMember.member_roles?.map((r) =>
+            convertFromEnum(r.role_type),
+          ) || [],
+        worship_positions:
+          updatedMember.member_worship_positions?.map((p) =>
+            convertFromEnum(p.position_type),
+          ) || [],
+        step_positions:
+          updatedMember.member_step_positions?.map((p) =>
+            convertFromEnum(p.position_type),
+          ) || [],
+        description: updatedMember.description || "",
+        display_order: updatedMember.display_order ?? 0,
+      };
+    }
+  } catch (error) {
+    console.error("Failed to update member:", error);
+    // Fallback to full reload if update fails
+    loadMembers();
+  }
+};
+
+// Administrator function: Delete member
+const deleteMemberConfirm = (member: Member) => {
+  if (!confirm(`정말로 "${member.name}" 멤버를 삭제하시겠습니까?`)) {
+    return;
+  }
+
+  memberApi
+    .delete(member.id)
+    .then(() => {
+      alert("멤버가 삭제되었습니다!");
+      // Reload members from API
+      loadMembers();
+    })
+    .catch((error) => {
+      console.error("삭제 실패:", error);
+      alert("삭제에 실패했습니다.");
+    });
+};
+
+// Load logo from DB
+const loadLogo = async () => {
+  try {
+    const response = await assetApi.getByKey("home_logo");
+    if (response.data.file_url) {
+      logo.value = response.data.file_url;
+    }
+  } catch (error) {
+    console.error("Logo not found in DB:", error);
+  }
+};
+
+// Load members and logo on component mount
+onMounted(async () => {
+  // Load logo first, then members (so fallback uses the correct logo)
+  await loadLogo();
+  await loadMembers();
+});
+</script>
+
 <template>
   <div class="page">
     <section class="section">
@@ -51,7 +370,7 @@
         >
           <h2 class="section-title-sub">팀원 소개</h2>
 
-          <!-- 관리자 모드 토글 -->
+          <!-- Toggle administrator mode -->
           <button
             @click="isAdmin = !isAdmin"
             style="
@@ -67,7 +386,7 @@
           </button>
         </div>
 
-        <!-- 관리자 모드: 새 멤버 추가 버튼 -->
+        <!-- Administrator mode: Add new member button -->
         <div v-if="isAdmin" style="margin-bottom: 1rem">
           <button
             @click="openAddModal"
@@ -301,7 +620,7 @@
                 </a>
               </div>
 
-              <!-- 관리자 모드: 수정/삭제 버튼 -->
+              <!-- Administrator mode: Edit/Delete button -->
               <div
                 v-if="isAdmin"
                 style="margin-top: 1rem; display: flex; gap: 0.5rem"
@@ -356,322 +675,3 @@
     />
   </div>
 </template>
-
-<script setup lang="ts">
-import { computed, ref, onMounted } from "vue";
-import { memberApi, type Member as ApiMember } from "@/api/members";
-import { assetApi } from "@/api/assets";
-import MemberEditModal from "@/components/MemberEditModal.vue";
-import "../styles/Vision.css";
-import instagramIcon from "@/assets/icons/Instargram.png";
-import youtubeIcon from "@/assets/icons/Youtube.png";
-
-type Member = {
-  id: number;
-  name: string;
-  affiliation: string;
-  photo_url: string;
-  instagram_url: string | null;
-  youtube_url: string | null;
-  roles: string[];
-  worship_positions: string[];
-  step_positions: string[];
-  description: string;
-  display_order?: number;
-};
-
-// 관리자 모드
-const isAdmin = ref(false);
-
-// Modal state
-const isModalOpen = ref(false);
-const selectedMember = ref<ApiMember | null>(null);
-
-// Loading state
-const loading = ref(true);
-
-const filter = ref<"all" | "leader" | "worship" | "step">("all");
-const worshipFilter = ref<string>("");
-const stepFilter = ref<string>("");
-
-// Members data - loaded from API
-const members = ref<Member[]>([]);
-
-// Logo - loaded from DB
-const logo = ref<string>("");
-
-// Convert enum underscores back to spaces for display
-const convertFromEnum = (value: string) => value.replace(/_/g, " ");
-
-// Load members from API
-const loadMembers = async () => {
-  try {
-    loading.value = true;
-    const response = await memberApi.getAll();
-
-    // Transform API response to match component's expected structure
-    members.value = response.data.map((apiMember) => ({
-      id: apiMember.id,
-      name: apiMember.name,
-      affiliation: apiMember.affiliation,
-      photo_url: apiMember.photo_url || logo.value, // Use logo as fallback
-      instagram_url: apiMember.instagram_url || null,
-      youtube_url: apiMember.youtube_url || null,
-      roles:
-        apiMember.member_roles?.map((r) => convertFromEnum(r.role_type)) || [],
-      worship_positions:
-        apiMember.member_worship_positions?.map((p) =>
-          convertFromEnum(p.position_type),
-        ) || [],
-      step_positions:
-        apiMember.member_step_positions?.map((p) =>
-          convertFromEnum(p.position_type),
-        ) || [],
-      description: apiMember.description || "",
-      display_order: apiMember.display_order ?? 0,
-    }));
-  } catch (error) {
-    console.error("Failed to load members:", error);
-    alert("멤버 정보를 불러오는데 실패했습니다.");
-  } finally {
-    loading.value = false;
-  }
-};
-
-const filteredMembers = computed(() => {
-  let filtered = members.value;
-
-  if (filter.value === "leader") {
-    filtered = filtered.filter((m) => m.roles.length > 0);
-  } else if (filter.value === "worship") {
-    filtered = filtered.filter((m) => m.worship_positions.length > 0);
-  } else if (filter.value === "step") {
-    filtered = filtered.filter((m) => m.step_positions.length > 0);
-  }
-
-  if (filter.value === "worship" && worshipFilter.value) {
-    if (worshipFilter.value === "Piano") {
-      filtered = filtered.filter((m) =>
-        m.worship_positions.some((p) => ["Piano", "Synthesizer"].includes(p)),
-      );
-    } else if (worshipFilter.value === "Guitar") {
-      filtered = filtered.filter((m) =>
-        m.worship_positions.some((p) =>
-          [
-            "Acoustic Guitar",
-            "Lead Guitar",
-            "Backing Guitar",
-            "Bass Guitar",
-          ].includes(p),
-        ),
-      );
-    } else {
-      filtered = filtered.filter((m) =>
-        m.worship_positions.includes(worshipFilter.value),
-      );
-    }
-  }
-
-  if (filter.value === "step" && stepFilter.value) {
-    if (stepFilter.value === "Accounting Team") {
-      filtered = filtered.filter(
-        (m) =>
-          m.step_positions.includes("Accounting Team") ||
-          m.roles.includes("Accounting Leader"),
-      );
-    } else if (stepFilter.value === "Planning Team") {
-      filtered = filtered.filter(
-        (m) =>
-          m.step_positions.includes("Planning Team") ||
-          m.step_positions.includes("Instagram Manager") ||
-          m.step_positions.includes("Poster Designer") ||
-          m.step_positions.includes("Guidebook Designer") ||
-          m.roles.includes("Planning Leader"),
-      );
-    } else if (stepFilter.value === "Media Team") {
-      filtered = filtered.filter(
-        (m) =>
-          m.step_positions.includes("Media Team") ||
-          m.step_positions.includes("Camera Operator") ||
-          m.step_positions.includes("Video Editor") ||
-          m.step_positions.includes("YouTube Manager") ||
-          m.step_positions.includes("Mix Engineer") ||
-          m.step_positions.includes("Master Engineer") ||
-          m.step_positions.includes("Music Producer") ||
-          m.roles.includes("Media Leader"),
-      );
-    } else if (stepFilter.value === "Stage Team") {
-      filtered = filtered.filter(
-        (m) =>
-          m.step_positions.includes("Stage Team") ||
-          m.step_positions.includes("Live Engineer") ||
-          m.step_positions.includes("Stage Designer") ||
-          m.step_positions.includes("Lighting Operator") ||
-          m.step_positions.includes("Audio Setup") ||
-          m.step_positions.includes("Preproduction") ||
-          m.roles.includes("Stage Leader"),
-      );
-    } else if (stepFilter.value === "Prayer Team") {
-      filtered = filtered.filter(
-        (m) =>
-          m.step_positions.includes("Prayer Team") ||
-          m.roles.includes("Prayer Leader"),
-      );
-    }
-  }
-
-  // Sort by role priority
-  const roleOrder: { [key: string]: number } = {
-    Pastor: 1,
-    Elder: 2,
-    "Worship Team Leader": 3,
-    "Accounting Leader": 4,
-    "Lead Singer": 5,
-    "Singer Leader": 6,
-    "Session Leader": 7,
-    "Planning Leader": 8,
-    "Media Leader": 9,
-    "Stage Leader": 10,
-    "Prayer Leader": 11,
-  };
-
-  filtered.sort((a, b) => {
-    const getMinOrder = (roles: string[]) => {
-      if (roles.length === 0) return 99;
-      const orders = roles.map((r) => roleOrder[r] || 99);
-      return Math.min(...orders);
-    };
-
-    const orderA = getMinOrder(a.roles);
-    const orderB = getMinOrder(b.roles);
-
-    if (orderA !== orderB) {
-      return orderA - orderB;
-    }
-
-    // 같은 역할이면 display_order로 정렬
-    const displayOrderA = a.display_order ?? 0;
-    const displayOrderB = b.display_order ?? 0;
-
-    if (displayOrderA !== displayOrderB) {
-      return displayOrderA - displayOrderB;
-    }
-
-    return a.name.localeCompare(b.name, "ko-KR");
-  });
-
-  return filtered;
-});
-
-const handleMainFilter = (value: "all" | "leader" | "worship" | "step") => {
-  filter.value = value;
-  worshipFilter.value = "";
-  stepFilter.value = "";
-};
-
-// Modal handlers
-const openEditModal = async (member: Member) => {
-  try {
-    // Fetch full member data including roles and positions
-    const response = await memberApi.getOne(member.id);
-    selectedMember.value = response.data;
-    isModalOpen.value = true;
-  } catch (error) {
-    console.error("Failed to load member:", error);
-    alert("멤버 정보를 불러오는데 실패했습니다.");
-  }
-};
-
-const openAddModal = () => {
-  selectedMember.value = null;
-  isModalOpen.value = true;
-};
-
-const closeModal = () => {
-  isModalOpen.value = false;
-  selectedMember.value = null;
-};
-
-const handleMemberSaved = async () => {
-  if (!selectedMember.value) {
-    // New member was added, reload all
-    loadMembers();
-    return;
-  }
-
-  // Update only the edited member to avoid full reload
-  try {
-    const response = await memberApi.getOne(selectedMember.value.id);
-    const updatedMember = response.data;
-
-    // Find and update the member in the list
-    const index = members.value.findIndex((m) => m.id === updatedMember.id);
-    if (index !== -1) {
-      members.value[index] = {
-        id: updatedMember.id,
-        name: updatedMember.name,
-        affiliation: updatedMember.affiliation,
-        photo_url: updatedMember.photo_url || logo.value,
-        instagram_url: updatedMember.instagram_url || null,
-        youtube_url: updatedMember.youtube_url || null,
-        roles:
-          updatedMember.member_roles?.map((r) =>
-            convertFromEnum(r.role_type),
-          ) || [],
-        worship_positions:
-          updatedMember.member_worship_positions?.map((p) =>
-            convertFromEnum(p.position_type),
-          ) || [],
-        step_positions:
-          updatedMember.member_step_positions?.map((p) =>
-            convertFromEnum(p.position_type),
-          ) || [],
-        description: updatedMember.description || "",
-        display_order: updatedMember.display_order ?? 0,
-      };
-    }
-  } catch (error) {
-    console.error("Failed to update member:", error);
-    // Fallback to full reload if update fails
-    loadMembers();
-  }
-};
-
-// 관리자 기능: 멤버 삭제
-const deleteMemberConfirm = (member: Member) => {
-  if (!confirm(`정말로 "${member.name}" 멤버를 삭제하시겠습니까?`)) {
-    return;
-  }
-
-  memberApi
-    .delete(member.id)
-    .then(() => {
-      alert("멤버가 삭제되었습니다!");
-      // Reload members from API
-      loadMembers();
-    })
-    .catch((error) => {
-      console.error("삭제 실패:", error);
-      alert("삭제에 실패했습니다.");
-    });
-};
-
-// Load logo from DB
-const loadLogo = async () => {
-  try {
-    const response = await assetApi.getByKey("home_logo");
-    if (response.data.file_url) {
-      logo.value = response.data.file_url;
-    }
-  } catch (error) {
-    console.error("Logo not found in DB:", error);
-  }
-};
-
-// Load members and logo on component mount
-onMounted(async () => {
-  // Load logo first, then members (so fallback uses the correct logo)
-  await loadLogo();
-  await loadMembers();
-});
-</script>

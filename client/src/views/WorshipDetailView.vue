@@ -1,3 +1,779 @@
+<script setup lang="ts">
+import { computed, ref, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { useAuth } from "@/composables/useAuth";
+import { worshipApi, type Worship } from "@/api/worship";
+import { worshipScoreApi, type WorshipScore } from "@/api/worship-scores";
+import { worshipVideoApi, type WorshipVideo } from "@/api/worship-videos";
+import { worshipPhotoApi, type WorshipPhoto } from "@/api/worship-photos";
+import "../styles/WorshipDetail.css";
+
+const router = useRouter();
+const route = useRoute();
+const { isAdmin, isLoggedIn } = useAuth();
+
+const activeTab = ref("info");
+const lightboxOpen = ref(false);
+const currentPhotoIndex = ref(0);
+const editMode = ref(false);
+const pdfPreviewOpen = ref(false);
+const currentPdfUrl = ref("");
+const loading = ref(false);
+const uploading = ref(false);
+
+// sheet music upload modal
+const scoreUploadModalOpen = ref(false);
+const selectedScoreFile = ref<File | null>(null);
+const scoreDescription = ref("");
+const scoreFileInput = ref<HTMLInputElement | null>(null);
+
+// Poster/thumbnail upload modal
+const thumbnailUploadModalOpen = ref(false);
+const selectedThumbnailFile = ref<File | null>(null);
+const thumbnailPreviewUrl = ref("");
+const thumbnailFileInput = ref<HTMLInputElement | null>(null);
+
+// rally poster upload modal
+const posterUploadModalOpen = ref(false);
+const selectedPosterFile = ref<File | null>(null);
+const posterPreviewUrl = ref("");
+const posterFileInput = ref<HTMLInputElement | null>(null);
+
+// full screen poster
+const posterFullscreenOpen = ref(false);
+const scorePosterFullscreenOpen = ref(false);
+const scorePosterUrl = ref("");
+
+// API data
+const worship = ref<Worship | null>(null);
+const scores = ref<WorshipScore[]>([]);
+const videos = ref<WorshipVideo[]>([]);
+const photos = ref<WorshipPhoto[]>([]);
+
+//Edit form data
+const editForm = ref({
+  title: "",
+  preacher: "",
+  worship_team: "",
+  guest: "",
+  description: "",
+  poster_url: "",
+  comments: "",
+  entry_time: "",
+  start_time: "",
+  location: "",
+  location_link: "",
+  parking: "",
+  seating: "",
+  promo_video: "",
+  prelisten_video: "",
+  opening_songs_text: "",
+  celebration_songs_text: "",
+  excluded_songs_text: "",
+});
+
+// For file upload
+const scoreFile = ref<File | null>(null);
+const videoUrl = ref("");
+const photoFile = ref<File | null>(null);
+
+const worshipId = computed(() => Number(route.params.id));
+
+// Assembly query
+const fetchWorship = async () => {
+  loading.value = true;
+  try {
+    const response = await worshipApi.getOne(worshipId.value);
+    worship.value = response.data;
+
+    // Fill data into edit form
+    editForm.value = {
+      title: response.data.title || "",
+      preacher: response.data.preacher || "",
+      worship_team: response.data.worship_team || "",
+      guest: response.data.guest || "",
+      description: response.data.description || "",
+      poster_url: response.data.poster_url || "",
+      comments: response.data.comments || "",
+      entry_time: response.data.entry_time || "",
+      start_time: response.data.start_time || "",
+      location: response.data.location || "",
+      location_link: response.data.location_link || "",
+      parking: response.data.parking || "",
+      seating: response.data.seating || "",
+      promo_video: response.data.promo_video || "",
+      prelisten_video: response.data.prelisten_video || "",
+      opening_songs_text: response.data.opening_songs?.join("\n") || "",
+      celebration_songs_text: response.data.celebration_songs?.join("\n") || "",
+      excluded_songs_text: response.data.excluded_songs?.join("\n") || "",
+    };
+
+    // Search sheet music, video, and photos
+    const scoresResponse = await worshipScoreApi.getByWorshipId(
+      worshipId.value,
+    );
+    scores.value = scoresResponse.data;
+
+    const videosResponse = await worshipVideoApi.getByWorshipId(
+      worshipId.value,
+    );
+    videos.value = videosResponse.data;
+
+    const photosResponse = await worshipPhotoApi.getByWorshipId(
+      worshipId.value,
+    );
+    photos.value = photosResponse.data;
+  } catch (error) {
+    console.error("집회 조회 실패:", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const toggleEditMode = async () => {
+  if (editMode.value) {
+    // Save mode: Exit edit mode after saving
+    await saveWorship();
+  } else {
+    // Enter edit mode
+    editMode.value = true;
+  }
+};
+
+const saveWorship = async () => {
+  loading.value = true;
+  try {
+    // Convert text to array
+    const opening_songs = editForm.value.opening_songs_text
+      .split("\n")
+      .map((s) => s.trim())
+      .filter((s) => s);
+    const celebration_songs = editForm.value.celebration_songs_text
+      .split("\n")
+      .map((s) => s.trim())
+      .filter((s) => s);
+    const excluded_songs = editForm.value.excluded_songs_text
+      .split("\n")
+      .map((s) => s.trim())
+      .filter((s) => s);
+
+    await worshipApi.update(worshipId.value, {
+      title: editForm.value.title,
+      preacher: editForm.value.preacher,
+      worship_team: editForm.value.worship_team,
+      guest: editForm.value.guest,
+      description: editForm.value.description,
+      poster_url: editForm.value.poster_url,
+      comments: editForm.value.comments,
+      entry_time: editForm.value.entry_time,
+      start_time: editForm.value.start_time,
+      location: editForm.value.location,
+      location_link: editForm.value.location_link,
+      parking: editForm.value.parking,
+      seating: editForm.value.seating,
+      promo_video: editForm.value.promo_video,
+      prelisten_video: editForm.value.prelisten_video,
+      opening_songs,
+      celebration_songs,
+      excluded_songs,
+    });
+    alert("집회 정보가 저장되었습니다!");
+    editMode.value = false;
+    await fetchWorship();
+  } catch (error) {
+    console.error("저장 실패:", error);
+    alert("저장에 실패했습니다");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// initial load
+onMounted(() => {
+  fetchWorship();
+});
+
+// Utility functions
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+
+// Lightbox related
+const currentPhoto = computed(() => {
+  if (photos.value && photos.value.length > 0) {
+    return photos.value[currentPhotoIndex.value]?.photo_url || "";
+  }
+  return "";
+});
+
+const openLightbox = (index: number) => {
+  currentPhotoIndex.value = index;
+  lightboxOpen.value = true;
+};
+
+const closeLightbox = () => {
+  lightboxOpen.value = false;
+};
+
+const nextPhoto = () => {
+  if (photos.value) {
+    currentPhotoIndex.value =
+      (currentPhotoIndex.value + 1) % photos.value.length;
+  }
+};
+
+const prevPhoto = () => {
+  if (photos.value) {
+    currentPhotoIndex.value =
+      (currentPhotoIndex.value - 1 + photos.value.length) % photos.value.length;
+  }
+};
+
+// PDF preview related
+const previewScore = (score: WorshipScore) => {
+  currentPdfUrl.value = score.file_url;
+  pdfPreviewOpen.value = true;
+};
+
+const closePdfPreview = () => {
+  pdfPreviewOpen.value = false;
+  currentPdfUrl.value = "";
+};
+
+// ==================== Sheet music management ====================
+// add sheet music
+const handleAddScore = async () => {
+  if (!scoreFile.value) {
+    alert("파일을 선택해주세요");
+    return;
+  }
+
+  loading.value = true;
+  try {
+    // Actually, you need to receive the URL after uploading the file.
+    // Temporary file name is used here
+    await worshipScoreApi.create({
+      worship_id: worshipId.value,
+      filename: scoreFile.value.name,
+      file_url: `/uploads/scores/${scoreFile.value.name}`,
+      description: "",
+    });
+    alert("악보가 추가되었습니다!");
+    scoreFile.value = null;
+    await fetchWorship();
+  } catch (error) {
+    console.error("악보 추가 실패:", error);
+    alert("악보 추가에 실패했습니다");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Delete sheet music
+const deleteScore = async (scoreId: number) => {
+  if (!confirm("이 악보를 삭제하시겠습니까?")) return;
+
+  loading.value = true;
+  try {
+    await worshipScoreApi.delete(scoreId);
+    alert("악보가 삭제되었습니다!");
+    await fetchWorship();
+  } catch (error) {
+    console.error("악보 삭제 실패:", error);
+    alert("악보 삭제에 실패했습니다");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// ==================== Video Management ====================
+// add video
+const handleAddVideo = async () => {
+  if (!videoUrl.value) {
+    alert("영상 URL을 입력해주세요");
+    return;
+  }
+
+  loading.value = true;
+  try {
+    await worshipVideoApi.create({
+      worship_id: worshipId.value,
+      video_url: videoUrl.value,
+      video_order: videos.value.length + 1,
+    });
+    alert("영상이 추가되었습니다!");
+    videoUrl.value = "";
+    await fetchWorship();
+  } catch (error) {
+    console.error("영상 추가 실패:", error);
+    alert("영상 추가에 실패했습니다");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Delete video
+const deleteVideo = async (videoId: number) => {
+  if (!confirm("이 영상을 삭제하시겠습니까?")) return;
+
+  loading.value = true;
+  try {
+    await worshipVideoApi.delete(videoId);
+    alert("영상이 삭제되었습니다!");
+    await fetchWorship();
+  } catch (error) {
+    console.error("영상 삭제 실패:", error);
+    alert("영상 삭제에 실패했습니다");
+  } finally {
+    loading.value = false;
+  }
+};
+
+const getYouTubeEmbedUrl = (url: string) => {
+  let videoId = "";
+
+  if (url.includes("youtu.be/")) {
+    videoId = url.split("youtu.be/")[1].split("?")[0];
+  } else if (url.includes("watch?v=")) {
+    videoId = url.split("watch?v=")[1].split("&")[0];
+  }
+
+  return `https://www.youtube.com/embed/${videoId}`;
+};
+
+// ==================== Photo Management ====================
+// add photo
+const handleAddPhoto = async () => {
+  if (!photoFile.value) {
+    alert("파일을 선택해주세요");
+    return;
+  }
+
+  loading.value = true;
+  try {
+    // Actually, you need to receive the URL after uploading the file.
+    await worshipPhotoApi.create({
+      worship_id: worshipId.value,
+      photo_url: `/uploads/photos/${photoFile.value.name}`,
+      file_name: photoFile.value.name,
+      photo_order: photos.value.length + 1,
+    });
+    alert("사진이 추가되었습니다!");
+    photoFile.value = null;
+    await fetchWorship();
+  } catch (error) {
+    console.error("사진 추가 실패:", error);
+    alert("사진 추가에 실패했습니다");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// delete photo
+const deletePhoto = async (photoId: number) => {
+  if (!confirm("이 사진을 삭제하시겠습니까?")) return;
+
+  loading.value = true;
+  try {
+    await worshipPhotoApi.delete(photoId);
+    alert("사진이 삭제되었습니다!");
+    await fetchWorship();
+  } catch (error) {
+    console.error("사진 삭제 실패:", error);
+    alert("사진 삭제에 실패했습니다");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Open photo upload modal
+const openPhotoUpload = () => {
+  // TODO: Open file upload modal
+  console.log("사진 업로드 모달 열기");
+  alert("사진 업로드 기능 구현 예정\n(파일 선택 모달이 열립니다)");
+};
+
+// Check if the meeting date has passed
+const isWorshipDatePassed = computed(() => {
+  if (!worship.value?.date) return false;
+  const worshipDate = new Date(worship.value.date);
+  const today = new Date();
+  return worshipDate < today;
+});
+
+// Check if there is video/photo content
+const hasGalleryContent = computed(() => {
+  return (
+    (videos.value && videos.value.length > 0) ||
+    (photos.value && photos.value.length > 0)
+  );
+});
+
+// Check if there is sheet music content
+const hasScoreContent = computed(() => {
+  return scores.value && scores.value.length > 0;
+});
+
+// Open add video modal
+const openAddVideoModal = () => {
+  const url = prompt("YouTube 영상 URL을 입력해주세요:");
+  if (url) {
+    videoUrl.value = url;
+    handleAddVideo();
+  }
+};
+
+//Open sheet music upload modal
+const openScoreUpload = () => {
+  scoreUploadModalOpen.value = true;
+  selectedScoreFile.value = null;
+  scoreDescription.value = "";
+};
+
+// Close sheet music upload modal
+const closeScoreUploadModal = () => {
+  scoreUploadModalOpen.value = false;
+  selectedScoreFile.value = null;
+  scoreDescription.value = "";
+  if (scoreFileInput.value) {
+    scoreFileInput.value.value = "";
+  }
+};
+
+// Sheet music file selection handler
+const handleScoreFileSelect = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+
+  if (!file) return;
+
+  // Check PDF file
+  if (file.type !== "application/pdf") {
+    alert("PDF 파일만 업로드할 수 있습니다.");
+    target.value = "";
+    return;
+  }
+
+  // Check file size (10MB)
+  if (file.size > 10 * 1024 * 1024) {
+    alert("파일 크기는 10MB를 초과할 수 없습니다.");
+    target.value = "";
+    return;
+  }
+
+  selectedScoreFile.value = file;
+};
+
+// file size format
+const formatFileSize = (bytes: number) => {
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+};
+
+// Upload sheet music
+const uploadScore = async () => {
+  if (!selectedScoreFile.value) {
+    alert("파일을 선택해주세요.");
+    return;
+  }
+
+  uploading.value = true;
+  try {
+    // 1. Upload file
+    const uploadResponse = await worshipScoreApi.uploadFile(
+      selectedScoreFile.value,
+    );
+    const { url, filename } = uploadResponse.data;
+
+    // 2. Create worship_score record
+    await worshipScoreApi.create({
+      worship_id: worshipId.value,
+      filename: filename,
+      file_url: url,
+      description: scoreDescription.value || undefined,
+    });
+
+    alert("악보가 업로드되었습니다!");
+    closeScoreUploadModal();
+    await fetchWorship();
+  } catch (error) {
+    console.error("악보 업로드 실패:", error);
+    alert("악보 업로드에 실패했습니다.");
+  } finally {
+    uploading.value = false;
+  }
+};
+
+// Delete rally sheet music
+const deleteWorshipScore = async () => {
+  if (!scores.value || scores.value.length === 0) return;
+  if (!confirm("이 악보를 삭제하시겠습니까?")) return;
+
+  loading.value = true;
+  try {
+    await worshipScoreApi.delete(scores.value[0].id);
+    alert("악보가 삭제되었습니다!");
+    await fetchWorship();
+  } catch (error) {
+    console.error("악보 삭제 실패:", error);
+    alert("악보 삭제에 실패했습니다");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Download sheet music
+const downloadWorshipScore = () => {
+  if (!isLoggedIn.value) {
+    alert("로그인이 필요합니다.");
+    return;
+  }
+
+  if (!scores.value || scores.value.length === 0) {
+    alert("다운로드할 악보가 없습니다.");
+    return;
+  }
+
+  const score = scores.value[0];
+  // Download actual file
+  const link = document.createElement("a");
+  link.href = score.file_url;
+  link.download = score.filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+const goBack = () => {
+  router.push({ name: "worship-log" });
+};
+
+// ==================== Poster Management ====================
+// Open poster upload modal
+const openPosterUpload = () => {
+  posterUploadModalOpen.value = true;
+  selectedPosterFile.value = null;
+  posterPreviewUrl.value = "";
+};
+
+// Close poster upload modal
+const closePosterUploadModal = () => {
+  posterUploadModalOpen.value = false;
+  selectedPosterFile.value = null;
+  posterPreviewUrl.value = "";
+  if (posterFileInput.value) {
+    posterFileInput.value.value = "";
+  }
+};
+
+// Poster file selection handler
+const handlePosterFileSelect = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+
+  if (!file) return;
+
+  // Check image file
+  if (!file.type.startsWith("image/")) {
+    alert("이미지 파일만 업로드할 수 있습니다.");
+    target.value = "";
+    return;
+  }
+
+  // Check file size (5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    alert("파일 크기는 5MB를 초과할 수 없습니다.");
+    target.value = "";
+    return;
+  }
+
+  selectedPosterFile.value = file;
+
+  // create preview
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    posterPreviewUrl.value = e.target?.result as string;
+  };
+  reader.readAsDataURL(file);
+};
+
+// Upload poster
+const uploadPoster = async () => {
+  if (!selectedPosterFile.value) {
+    alert("파일을 선택해주세요.");
+    return;
+  }
+
+  uploading.value = true;
+  try {
+    // 1. Upload file (using worshipPhotoApi)
+    const uploadResponse = await worshipPhotoApi.uploadFile(
+      selectedPosterFile.value,
+    );
+    const { url } = uploadResponse.data;
+
+    // 2. Update worship record
+    await worshipApi.update(worshipId.value, {
+      poster_url: url,
+    });
+
+    alert("포스터가 업로드되었습니다!");
+    closePosterUploadModal();
+    await fetchWorship();
+  } catch (error) {
+    console.error("포스터 업로드 실패:", error);
+    alert("포스터 업로드에 실패했습니다.");
+  } finally {
+    uploading.value = false;
+  }
+};
+
+// delete poster
+const removePoster = async () => {
+  if (!confirm("포스터를 삭제하시겠습니까?")) return;
+
+  loading.value = true;
+  try {
+    await worshipApi.update(worshipId.value, {
+      poster_url: "",
+    });
+    alert("포스터가 삭제되었습니다!");
+    await fetchWorship();
+  } catch (error) {
+    console.error("포스터 삭제 실패:", error);
+    alert("포스터 삭제에 실패했습니다");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Open poster full screen
+const openPosterFullscreen = () => {
+  posterFullscreenOpen.value = true;
+};
+
+// Close poster full screen
+const closePosterFullscreen = () => {
+  posterFullscreenOpen.value = false;
+};
+
+// Sheet music preview click handler (logged in users only)
+const handleScorePreviewClick = (score: WorshipScore) => {
+  console.log("handleScorePreviewClick called", score);
+  if (!isLoggedIn.value) {
+    alert("악보 미리보기는 로그인 후 이용 가능합니다.");
+    return;
+  }
+  console.log("Opening PDF preview for:", score.file_url);
+  previewScore(score);
+};
+
+// Open sheet music poster full screen
+const openScorePosterFullscreen = (url: string) => {
+  scorePosterUrl.value = url;
+  scorePosterFullscreenOpen.value = true;
+};
+
+// Close sheet music poster full screen
+const closeScorePosterFullscreen = () => {
+  scorePosterFullscreenOpen.value = false;
+  scorePosterUrl.value = "";
+};
+
+// ==================== Thumbnail Management ====================
+//Open thumbnail upload modal
+const openThumbnailUpload = () => {
+  thumbnailUploadModalOpen.value = true;
+  selectedThumbnailFile.value = null;
+  thumbnailPreviewUrl.value = "";
+};
+
+// Close thumbnail upload modal
+const closeThumbnailUploadModal = () => {
+  thumbnailUploadModalOpen.value = false;
+  selectedThumbnailFile.value = null;
+  thumbnailPreviewUrl.value = "";
+  if (thumbnailFileInput.value) {
+    thumbnailFileInput.value.value = "";
+  }
+};
+
+// Thumbnail file selection handler
+const handleThumbnailFileSelect = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+
+  if (!file) return;
+
+  // Check image file
+  if (!file.type.startsWith("image/")) {
+    alert("이미지 파일만 업로드할 수 있습니다.");
+    target.value = "";
+    return;
+  }
+
+  // Check file size (5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    alert("파일 크기는 5MB를 초과할 수 없습니다.");
+    target.value = "";
+    return;
+  }
+
+  selectedThumbnailFile.value = file;
+
+  // create preview
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    thumbnailPreviewUrl.value = e.target?.result as string;
+  };
+  reader.readAsDataURL(file);
+};
+
+// Upload thumbnail
+const uploadThumbnail = async () => {
+  if (!selectedThumbnailFile.value) {
+    alert("파일을 선택해주세요.");
+    return;
+  }
+
+  if (!scores.value || scores.value.length === 0) {
+    alert("악보가 없습니다. 먼저 악보를 업로드해주세요.");
+    return;
+  }
+
+  uploading.value = true;
+  try {
+    // 1. Upload file
+    const uploadResponse = await worshipPhotoApi.uploadFile(
+      selectedThumbnailFile.value,
+    );
+    const { url } = uploadResponse.data;
+
+    // 2. Update worship_score record
+    await worshipScoreApi.update(scores.value[0].id, {
+      thumbnail_url: url,
+    });
+
+    alert("포스터가 업로드되었습니다!");
+    closeThumbnailUploadModal();
+    await fetchWorship();
+  } catch (error) {
+    console.error("포스터 업로드 실패:", error);
+    alert("포스터 업로드에 실패했습니다.");
+  } finally {
+    uploading.value = false;
+  }
+};
+</script>
+
 <template>
   <div class="page">
     <section class="section">
@@ -71,7 +847,7 @@
             >
               안내
             </button>
-            <!-- 영상/사진 탭: 관리자는 항상 보임, 일반 사용자는 날짜 지나고 콘텐츠 있을 때만 -->
+            <!-- Video/Photo tab: Always visible for administrators, only when content is out of date for regular users -->
             <button
               v-if="isAdmin || (isWorshipDatePassed && hasGalleryContent)"
               class="tab-button"
@@ -80,7 +856,7 @@
             >
               영상/사진
             </button>
-            <!-- 악보 탭: 관리자는 항상 보임, 일반 사용자는 날짜 지나고 악보 있을 때만 -->
+            <!-- Sheet music tab: Always visible for administrators, general users only when there is sheet music after the date -->
             <button
               v-if="isAdmin || (isWorshipDatePassed && hasScoreContent)"
               class="tab-button"
@@ -379,8 +1155,11 @@
           <!-- Video/Photo tab contents -->
           <div v-show="activeTab === 'gallery'" class="tab-content">
             <div class="detail-content">
-              <!-- Rally videos: 관리자이거나 영상이 있을 때만 표시 -->
-              <div v-if="isAdmin || (videos && videos.length > 0)" class="worship-video-section">
+              <!-- Rally videos: Show only if you are an administrator or have videos -->
+              <div
+                v-if="isAdmin || (videos && videos.length > 0)"
+                class="worship-video-section"
+              >
                 <div class="section-header-with-action">
                   <h2 class="section-subtitle">🎬 집회 영상</h2>
                   <button
@@ -433,8 +1212,11 @@
                 </p>
               </div>
 
-              <!-- On-site photos: 관리자이거나 사진이 있을 때만 표시 -->
-              <div v-if="isAdmin || (photos && photos.length > 0)" class="photos-section">
+              <!-- On-site photos: Only displayed if you are an administrator or have photos -->
+              <div
+                v-if="isAdmin || (photos && photos.length > 0)"
+                class="photos-section"
+              >
                 <div class="section-header-with-action">
                   <h2 class="section-subtitle">📷 현장 사진</h2>
                   <button
@@ -473,11 +1255,8 @@
                 </p>
               </div>
 
-              <!-- When there is no video/picture (관리자만 보임) -->
-              <div
-                v-if="isAdmin && !hasGalleryContent"
-                class="empty-gallery"
-              >
+              <!-- When there is no video/picture (only visible to administrators) -->
+              <div v-if="isAdmin && !hasGalleryContent" class="empty-gallery">
                 <p>집회 영상과 사진은 집회 후 업데이트 예정입니다.</p>
               </div>
             </div>
@@ -606,7 +1385,7 @@
                   </div>
                 </div>
 
-                <!-- 악보 빈 상태: 관리자만 보임 -->
+                <!-- Sheet music empty: visible only to administrators -->
                 <div v-else-if="isAdmin" class="score-empty-state">
                   <div class="empty-icon">📋</div>
                   <h3>아직 업로드된 악보가 없습니다</h3>
@@ -650,7 +1429,7 @@
         </div>
       </div>
 
-      <!-- 악보 업로드 모달 -->
+      <!-- Sheet music upload modal -->
       <div
         v-if="scoreUploadModalOpen"
         class="modal-overlay"
@@ -711,7 +1490,7 @@
         </div>
       </div>
 
-      <!-- 포스터/썸네일 업로드 모달 -->
+      <!-- Poster/thumbnail upload modal -->
       <div
         v-if="thumbnailUploadModalOpen"
         class="modal-overlay"
@@ -765,7 +1544,7 @@
         </div>
       </div>
 
-      <!-- 집회 포스터 업로드 모달 -->
+      <!-- Rally poster upload modal -->
       <div
         v-if="posterUploadModalOpen"
         class="modal-overlay"
@@ -819,7 +1598,7 @@
         </div>
       </div>
 
-      <!-- 포스터 전체화면 모달 -->
+      <!-- Poster full screen modal -->
       <div
         v-if="posterFullscreenOpen"
         class="fullscreen-modal"
@@ -837,7 +1616,7 @@
         </div>
       </div>
 
-      <!-- 악보 포스터 전체화면 모달 -->
+      <!-- Score poster full screen modal -->
       <div
         v-if="scorePosterFullscreenOpen"
         class="fullscreen-modal"
@@ -857,776 +1636,3 @@
     </section>
   </div>
 </template>
-
-<script setup lang="ts">
-import { computed, ref, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import { useAuth } from "@/composables/useAuth";
-import { worshipApi, type Worship } from "@/api/worship";
-import { worshipScoreApi, type WorshipScore } from "@/api/worship-scores";
-import { worshipVideoApi, type WorshipVideo } from "@/api/worship-videos";
-import { worshipPhotoApi, type WorshipPhoto } from "@/api/worship-photos";
-import "../styles/WorshipDetail.css";
-
-const router = useRouter();
-const route = useRoute();
-const { isAdmin, isLoggedIn } = useAuth();
-
-const activeTab = ref("info");
-const lightboxOpen = ref(false);
-const currentPhotoIndex = ref(0);
-const editMode = ref(false);
-const pdfPreviewOpen = ref(false);
-const currentPdfUrl = ref("");
-const loading = ref(false);
-const uploading = ref(false);
-
-// 악보 업로드 모달
-const scoreUploadModalOpen = ref(false);
-const selectedScoreFile = ref<File | null>(null);
-const scoreDescription = ref("");
-const scoreFileInput = ref<HTMLInputElement | null>(null);
-
-// 포스터/썸네일 업로드 모달
-const thumbnailUploadModalOpen = ref(false);
-const selectedThumbnailFile = ref<File | null>(null);
-const thumbnailPreviewUrl = ref("");
-const thumbnailFileInput = ref<HTMLInputElement | null>(null);
-
-// 집회 포스터 업로드 모달
-const posterUploadModalOpen = ref(false);
-const selectedPosterFile = ref<File | null>(null);
-const posterPreviewUrl = ref("");
-const posterFileInput = ref<HTMLInputElement | null>(null);
-
-// 포스터 전체화면
-const posterFullscreenOpen = ref(false);
-const scorePosterFullscreenOpen = ref(false);
-const scorePosterUrl = ref("");
-
-// API 데이터
-const worship = ref<Worship | null>(null);
-const scores = ref<WorshipScore[]>([]);
-const videos = ref<WorshipVideo[]>([]);
-const photos = ref<WorshipPhoto[]>([]);
-
-// 편집 폼 데이터
-const editForm = ref({
-  title: "",
-  preacher: "",
-  worship_team: "",
-  guest: "",
-  description: "",
-  poster_url: "",
-  comments: "",
-  entry_time: "",
-  start_time: "",
-  location: "",
-  location_link: "",
-  parking: "",
-  seating: "",
-  promo_video: "",
-  prelisten_video: "",
-  opening_songs_text: "",
-  celebration_songs_text: "",
-  excluded_songs_text: "",
-});
-
-// 파일 업로드용
-const scoreFile = ref<File | null>(null);
-const videoUrl = ref("");
-const photoFile = ref<File | null>(null);
-
-const worshipId = computed(() => Number(route.params.id));
-
-// 집회 조회
-const fetchWorship = async () => {
-  loading.value = true;
-  try {
-    const response = await worshipApi.getOne(worshipId.value);
-    worship.value = response.data;
-
-    // 편집 폼에 데이터 채우기
-    editForm.value = {
-      title: response.data.title || "",
-      preacher: response.data.preacher || "",
-      worship_team: response.data.worship_team || "",
-      guest: response.data.guest || "",
-      description: response.data.description || "",
-      poster_url: response.data.poster_url || "",
-      comments: response.data.comments || "",
-      entry_time: response.data.entry_time || "",
-      start_time: response.data.start_time || "",
-      location: response.data.location || "",
-      location_link: response.data.location_link || "",
-      parking: response.data.parking || "",
-      seating: response.data.seating || "",
-      promo_video: response.data.promo_video || "",
-      prelisten_video: response.data.prelisten_video || "",
-      opening_songs_text: response.data.opening_songs?.join("\n") || "",
-      celebration_songs_text: response.data.celebration_songs?.join("\n") || "",
-      excluded_songs_text: response.data.excluded_songs?.join("\n") || "",
-    };
-
-    // 악보, 영상, 사진 조회
-    const scoresResponse = await worshipScoreApi.getByWorshipId(
-      worshipId.value,
-    );
-    scores.value = scoresResponse.data;
-
-    const videosResponse = await worshipVideoApi.getByWorshipId(
-      worshipId.value,
-    );
-    videos.value = videosResponse.data;
-
-    const photosResponse = await worshipPhotoApi.getByWorshipId(
-      worshipId.value,
-    );
-    photos.value = photosResponse.data;
-  } catch (error) {
-    console.error("집회 조회 실패:", error);
-  } finally {
-    loading.value = false;
-  }
-};
-
-const toggleEditMode = async () => {
-  if (editMode.value) {
-    // 저장 모드: 저장 후 편집 모드 종료
-    await saveWorship();
-  } else {
-    // 편집 모드 진입
-    editMode.value = true;
-  }
-};
-
-const saveWorship = async () => {
-  loading.value = true;
-  try {
-    // 텍스트를 배열로 변환
-    const opening_songs = editForm.value.opening_songs_text
-      .split("\n")
-      .map((s) => s.trim())
-      .filter((s) => s);
-    const celebration_songs = editForm.value.celebration_songs_text
-      .split("\n")
-      .map((s) => s.trim())
-      .filter((s) => s);
-    const excluded_songs = editForm.value.excluded_songs_text
-      .split("\n")
-      .map((s) => s.trim())
-      .filter((s) => s);
-
-    await worshipApi.update(worshipId.value, {
-      title: editForm.value.title,
-      preacher: editForm.value.preacher,
-      worship_team: editForm.value.worship_team,
-      guest: editForm.value.guest,
-      description: editForm.value.description,
-      poster_url: editForm.value.poster_url,
-      comments: editForm.value.comments,
-      entry_time: editForm.value.entry_time,
-      start_time: editForm.value.start_time,
-      location: editForm.value.location,
-      location_link: editForm.value.location_link,
-      parking: editForm.value.parking,
-      seating: editForm.value.seating,
-      promo_video: editForm.value.promo_video,
-      prelisten_video: editForm.value.prelisten_video,
-      opening_songs,
-      celebration_songs,
-      excluded_songs,
-    });
-    alert("집회 정보가 저장되었습니다!");
-    editMode.value = false;
-    await fetchWorship();
-  } catch (error) {
-    console.error("저장 실패:", error);
-    alert("저장에 실패했습니다");
-  } finally {
-    loading.value = false;
-  }
-};
-
-// 초기 로드
-onMounted(() => {
-  fetchWorship();
-});
-
-// Utility functions
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("ko-KR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
-
-// Lightbox related
-const currentPhoto = computed(() => {
-  if (photos.value && photos.value.length > 0) {
-    return photos.value[currentPhotoIndex.value]?.photo_url || "";
-  }
-  return "";
-});
-
-const openLightbox = (index: number) => {
-  currentPhotoIndex.value = index;
-  lightboxOpen.value = true;
-};
-
-const closeLightbox = () => {
-  lightboxOpen.value = false;
-};
-
-const nextPhoto = () => {
-  if (photos.value) {
-    currentPhotoIndex.value =
-      (currentPhotoIndex.value + 1) % photos.value.length;
-  }
-};
-
-const prevPhoto = () => {
-  if (photos.value) {
-    currentPhotoIndex.value =
-      (currentPhotoIndex.value - 1 + photos.value.length) % photos.value.length;
-  }
-};
-
-// PDF preview related
-const previewScore = (score: WorshipScore) => {
-  currentPdfUrl.value = score.file_url;
-  pdfPreviewOpen.value = true;
-};
-
-const closePdfPreview = () => {
-  pdfPreviewOpen.value = false;
-  currentPdfUrl.value = "";
-};
-
-// ==================== 악보 관리 ====================
-// 악보 추가
-const handleAddScore = async () => {
-  if (!scoreFile.value) {
-    alert("파일을 선택해주세요");
-    return;
-  }
-
-  loading.value = true;
-  try {
-    // 실제로는 파일 업로드 후 URL 받아야 함
-    // 여기서는 임시로 파일명 사용
-    await worshipScoreApi.create({
-      worship_id: worshipId.value,
-      filename: scoreFile.value.name,
-      file_url: `/uploads/scores/${scoreFile.value.name}`,
-      description: "",
-    });
-    alert("악보가 추가되었습니다!");
-    scoreFile.value = null;
-    await fetchWorship();
-  } catch (error) {
-    console.error("악보 추가 실패:", error);
-    alert("악보 추가에 실패했습니다");
-  } finally {
-    loading.value = false;
-  }
-};
-
-// 악보 삭제
-const deleteScore = async (scoreId: number) => {
-  if (!confirm("이 악보를 삭제하시겠습니까?")) return;
-
-  loading.value = true;
-  try {
-    await worshipScoreApi.delete(scoreId);
-    alert("악보가 삭제되었습니다!");
-    await fetchWorship();
-  } catch (error) {
-    console.error("악보 삭제 실패:", error);
-    alert("악보 삭제에 실패했습니다");
-  } finally {
-    loading.value = false;
-  }
-};
-
-// ==================== 영상 관리 ====================
-// 영상 추가
-const handleAddVideo = async () => {
-  if (!videoUrl.value) {
-    alert("영상 URL을 입력해주세요");
-    return;
-  }
-
-  loading.value = true;
-  try {
-    await worshipVideoApi.create({
-      worship_id: worshipId.value,
-      video_url: videoUrl.value,
-      video_order: videos.value.length + 1,
-    });
-    alert("영상이 추가되었습니다!");
-    videoUrl.value = "";
-    await fetchWorship();
-  } catch (error) {
-    console.error("영상 추가 실패:", error);
-    alert("영상 추가에 실패했습니다");
-  } finally {
-    loading.value = false;
-  }
-};
-
-// 영상 삭제
-const deleteVideo = async (videoId: number) => {
-  if (!confirm("이 영상을 삭제하시겠습니까?")) return;
-
-  loading.value = true;
-  try {
-    await worshipVideoApi.delete(videoId);
-    alert("영상이 삭제되었습니다!");
-    await fetchWorship();
-  } catch (error) {
-    console.error("영상 삭제 실패:", error);
-    alert("영상 삭제에 실패했습니다");
-  } finally {
-    loading.value = false;
-  }
-};
-
-const getYouTubeEmbedUrl = (url: string) => {
-  let videoId = "";
-
-  if (url.includes("youtu.be/")) {
-    videoId = url.split("youtu.be/")[1].split("?")[0];
-  } else if (url.includes("watch?v=")) {
-    videoId = url.split("watch?v=")[1].split("&")[0];
-  }
-
-  return `https://www.youtube.com/embed/${videoId}`;
-};
-
-// ==================== 사진 관리 ====================
-// 사진 추가
-const handleAddPhoto = async () => {
-  if (!photoFile.value) {
-    alert("파일을 선택해주세요");
-    return;
-  }
-
-  loading.value = true;
-  try {
-    // 실제로는 파일 업로드 후 URL 받아야 함
-    await worshipPhotoApi.create({
-      worship_id: worshipId.value,
-      photo_url: `/uploads/photos/${photoFile.value.name}`,
-      file_name: photoFile.value.name,
-      photo_order: photos.value.length + 1,
-    });
-    alert("사진이 추가되었습니다!");
-    photoFile.value = null;
-    await fetchWorship();
-  } catch (error) {
-    console.error("사진 추가 실패:", error);
-    alert("사진 추가에 실패했습니다");
-  } finally {
-    loading.value = false;
-  }
-};
-
-// 사진 삭제
-const deletePhoto = async (photoId: number) => {
-  if (!confirm("이 사진을 삭제하시겠습니까?")) return;
-
-  loading.value = true;
-  try {
-    await worshipPhotoApi.delete(photoId);
-    alert("사진이 삭제되었습니다!");
-    await fetchWorship();
-  } catch (error) {
-    console.error("사진 삭제 실패:", error);
-    alert("사진 삭제에 실패했습니다");
-  } finally {
-    loading.value = false;
-  }
-};
-
-// 사진 업로드 모달 열기
-const openPhotoUpload = () => {
-  // TODO: Open file upload modal
-  console.log("사진 업로드 모달 열기");
-  alert("사진 업로드 기능 구현 예정\n(파일 선택 모달이 열립니다)");
-};
-
-// 집회 날짜가 지났는지 확인
-const isWorshipDatePassed = computed(() => {
-  if (!worship.value?.date) return false;
-  const worshipDate = new Date(worship.value.date);
-  const today = new Date();
-  return worshipDate < today;
-});
-
-// 영상/사진 콘텐츠가 있는지 확인
-const hasGalleryContent = computed(() => {
-  return (videos.value && videos.value.length > 0) || (photos.value && photos.value.length > 0);
-});
-
-// 악보 콘텐츠가 있는지 확인
-const hasScoreContent = computed(() => {
-  return scores.value && scores.value.length > 0;
-});
-
-// 영상 추가 모달 열기
-const openAddVideoModal = () => {
-  const url = prompt("YouTube 영상 URL을 입력해주세요:");
-  if (url) {
-    videoUrl.value = url;
-    handleAddVideo();
-  }
-};
-
-// 악보 업로드 모달 열기
-const openScoreUpload = () => {
-  scoreUploadModalOpen.value = true;
-  selectedScoreFile.value = null;
-  scoreDescription.value = "";
-};
-
-// 악보 업로드 모달 닫기
-const closeScoreUploadModal = () => {
-  scoreUploadModalOpen.value = false;
-  selectedScoreFile.value = null;
-  scoreDescription.value = "";
-  if (scoreFileInput.value) {
-    scoreFileInput.value.value = "";
-  }
-};
-
-// 악보 파일 선택 핸들러
-const handleScoreFileSelect = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0];
-
-  if (!file) return;
-
-  // PDF 파일 확인
-  if (file.type !== "application/pdf") {
-    alert("PDF 파일만 업로드할 수 있습니다.");
-    target.value = "";
-    return;
-  }
-
-  // 파일 크기 확인 (10MB)
-  if (file.size > 10 * 1024 * 1024) {
-    alert("파일 크기는 10MB를 초과할 수 없습니다.");
-    target.value = "";
-    return;
-  }
-
-  selectedScoreFile.value = file;
-};
-
-// 파일 크기 포맷
-const formatFileSize = (bytes: number) => {
-  if (bytes === 0) return "0 Bytes";
-  const k = 1024;
-  const sizes = ["Bytes", "KB", "MB", "GB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-};
-
-// 악보 업로드
-const uploadScore = async () => {
-  if (!selectedScoreFile.value) {
-    alert("파일을 선택해주세요.");
-    return;
-  }
-
-  uploading.value = true;
-  try {
-    // 1. 파일 업로드
-    const uploadResponse = await worshipScoreApi.uploadFile(
-      selectedScoreFile.value,
-    );
-    const { url, filename } = uploadResponse.data;
-
-    // 2. worship_score 레코드 생성
-    await worshipScoreApi.create({
-      worship_id: worshipId.value,
-      filename: filename,
-      file_url: url,
-      description: scoreDescription.value || undefined,
-    });
-
-    alert("악보가 업로드되었습니다!");
-    closeScoreUploadModal();
-    await fetchWorship();
-  } catch (error) {
-    console.error("악보 업로드 실패:", error);
-    alert("악보 업로드에 실패했습니다.");
-  } finally {
-    uploading.value = false;
-  }
-};
-
-// 집회 악보 삭제
-const deleteWorshipScore = async () => {
-  if (!scores.value || scores.value.length === 0) return;
-  if (!confirm("이 악보를 삭제하시겠습니까?")) return;
-
-  loading.value = true;
-  try {
-    await worshipScoreApi.delete(scores.value[0].id);
-    alert("악보가 삭제되었습니다!");
-    await fetchWorship();
-  } catch (error) {
-    console.error("악보 삭제 실패:", error);
-    alert("악보 삭제에 실패했습니다");
-  } finally {
-    loading.value = false;
-  }
-};
-
-// 악보 다운로드
-const downloadWorshipScore = () => {
-  if (!isLoggedIn.value) {
-    alert("로그인이 필요합니다.");
-    return;
-  }
-
-  if (!scores.value || scores.value.length === 0) {
-    alert("다운로드할 악보가 없습니다.");
-    return;
-  }
-
-  const score = scores.value[0];
-  // 실제 파일 다운로드
-  const link = document.createElement("a");
-  link.href = score.file_url;
-  link.download = score.filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
-
-const goBack = () => {
-  router.push({ name: "worship-log" });
-};
-
-// ==================== 포스터 관리 ====================
-// 포스터 업로드 모달 열기
-const openPosterUpload = () => {
-  posterUploadModalOpen.value = true;
-  selectedPosterFile.value = null;
-  posterPreviewUrl.value = "";
-};
-
-// 포스터 업로드 모달 닫기
-const closePosterUploadModal = () => {
-  posterUploadModalOpen.value = false;
-  selectedPosterFile.value = null;
-  posterPreviewUrl.value = "";
-  if (posterFileInput.value) {
-    posterFileInput.value.value = "";
-  }
-};
-
-// 포스터 파일 선택 핸들러
-const handlePosterFileSelect = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0];
-
-  if (!file) return;
-
-  // 이미지 파일 확인
-  if (!file.type.startsWith("image/")) {
-    alert("이미지 파일만 업로드할 수 있습니다.");
-    target.value = "";
-    return;
-  }
-
-  // 파일 크기 확인 (5MB)
-  if (file.size > 5 * 1024 * 1024) {
-    alert("파일 크기는 5MB를 초과할 수 없습니다.");
-    target.value = "";
-    return;
-  }
-
-  selectedPosterFile.value = file;
-
-  // 미리보기 생성
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    posterPreviewUrl.value = e.target?.result as string;
-  };
-  reader.readAsDataURL(file);
-};
-
-// 포스터 업로드
-const uploadPoster = async () => {
-  if (!selectedPosterFile.value) {
-    alert("파일을 선택해주세요.");
-    return;
-  }
-
-  uploading.value = true;
-  try {
-    // 1. 파일 업로드 (worshipPhotoApi 사용)
-    const uploadResponse = await worshipPhotoApi.uploadFile(
-      selectedPosterFile.value,
-    );
-    const { url } = uploadResponse.data;
-
-    // 2. worship 레코드 업데이트
-    await worshipApi.update(worshipId.value, {
-      poster_url: url,
-    });
-
-    alert("포스터가 업로드되었습니다!");
-    closePosterUploadModal();
-    await fetchWorship();
-  } catch (error) {
-    console.error("포스터 업로드 실패:", error);
-    alert("포스터 업로드에 실패했습니다.");
-  } finally {
-    uploading.value = false;
-  }
-};
-
-// 포스터 삭제
-const removePoster = async () => {
-  if (!confirm("포스터를 삭제하시겠습니까?")) return;
-
-  loading.value = true;
-  try {
-    await worshipApi.update(worshipId.value, {
-      poster_url: "",
-    });
-    alert("포스터가 삭제되었습니다!");
-    await fetchWorship();
-  } catch (error) {
-    console.error("포스터 삭제 실패:", error);
-    alert("포스터 삭제에 실패했습니다");
-  } finally {
-    loading.value = false;
-  }
-};
-
-// 포스터 전체화면 열기
-const openPosterFullscreen = () => {
-  posterFullscreenOpen.value = true;
-};
-
-// 포스터 전체화면 닫기
-const closePosterFullscreen = () => {
-  posterFullscreenOpen.value = false;
-};
-
-// 악보 미리보기 클릭 핸들러 (로그인한 유저만)
-const handleScorePreviewClick = (score: WorshipScore) => {
-  console.log("handleScorePreviewClick called", score);
-  if (!isLoggedIn.value) {
-    alert("악보 미리보기는 로그인 후 이용 가능합니다.");
-    return;
-  }
-  console.log("Opening PDF preview for:", score.file_url);
-  previewScore(score);
-};
-
-// 악보 포스터 전체화면 열기
-const openScorePosterFullscreen = (url: string) => {
-  scorePosterUrl.value = url;
-  scorePosterFullscreenOpen.value = true;
-};
-
-// 악보 포스터 전체화면 닫기
-const closeScorePosterFullscreen = () => {
-  scorePosterFullscreenOpen.value = false;
-  scorePosterUrl.value = "";
-};
-
-// ==================== 썸네일 관리 ====================
-// 썸네일 업로드 모달 열기
-const openThumbnailUpload = () => {
-  thumbnailUploadModalOpen.value = true;
-  selectedThumbnailFile.value = null;
-  thumbnailPreviewUrl.value = "";
-};
-
-// 썸네일 업로드 모달 닫기
-const closeThumbnailUploadModal = () => {
-  thumbnailUploadModalOpen.value = false;
-  selectedThumbnailFile.value = null;
-  thumbnailPreviewUrl.value = "";
-  if (thumbnailFileInput.value) {
-    thumbnailFileInput.value.value = "";
-  }
-};
-
-// 썸네일 파일 선택 핸들러
-const handleThumbnailFileSelect = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0];
-
-  if (!file) return;
-
-  // 이미지 파일 확인
-  if (!file.type.startsWith("image/")) {
-    alert("이미지 파일만 업로드할 수 있습니다.");
-    target.value = "";
-    return;
-  }
-
-  // 파일 크기 확인 (5MB)
-  if (file.size > 5 * 1024 * 1024) {
-    alert("파일 크기는 5MB를 초과할 수 없습니다.");
-    target.value = "";
-    return;
-  }
-
-  selectedThumbnailFile.value = file;
-
-  // 미리보기 생성
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    thumbnailPreviewUrl.value = e.target?.result as string;
-  };
-  reader.readAsDataURL(file);
-};
-
-// 썸네일 업로드
-const uploadThumbnail = async () => {
-  if (!selectedThumbnailFile.value) {
-    alert("파일을 선택해주세요.");
-    return;
-  }
-
-  if (!scores.value || scores.value.length === 0) {
-    alert("악보가 없습니다. 먼저 악보를 업로드해주세요.");
-    return;
-  }
-
-  uploading.value = true;
-  try {
-    // 1. 파일 업로드
-    const uploadResponse = await worshipPhotoApi.uploadFile(
-      selectedThumbnailFile.value,
-    );
-    const { url } = uploadResponse.data;
-
-    // 2. worship_score 레코드 업데이트
-    await worshipScoreApi.update(scores.value[0].id, {
-      thumbnail_url: url,
-    });
-
-    alert("포스터가 업로드되었습니다!");
-    closeThumbnailUploadModal();
-    await fetchWorship();
-  } catch (error) {
-    console.error("포스터 업로드 실패:", error);
-    alert("포스터 업로드에 실패했습니다.");
-  } finally {
-    uploading.value = false;
-  }
-};
-</script>

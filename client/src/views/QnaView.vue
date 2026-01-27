@@ -10,7 +10,7 @@ const selectedCategory = ref<"all" | "집회" | "악보" | "기타">("all");
 
 // Check login status
 const currentUser = ref<{ userId: string; name: string; role: string } | null>(
-  null
+  null,
 );
 
 // Login or not
@@ -87,7 +87,7 @@ const handleCategoryFilter = (category: typeof selectedCategory.value) => {
 
 // Create Q&A
 const createQna = async () => {
-  // 로그인 체크
+  // Check login
   if (!isLoggedIn.value) {
     alert("로그인이 필요합니다");
     return;
@@ -98,7 +98,7 @@ const createQna = async () => {
     return;
   }
 
-  // 현재 로그인한 사용자 ID 설정
+  // Set the currently logged in user ID
   newQna.value.user_id = currentUser.value!.userId;
 
   try {
@@ -117,7 +117,7 @@ const createQna = async () => {
   }
 };
 
-// Start editing your answer (관리자만 가능)
+// Start editing your answer (administrator only)
 const startAnswerEdit = (id: number, currentAnswer: string | null) => {
   if (!isAdmin.value) {
     alert("관리자만 답변을 작성할 수 있습니다");
@@ -127,7 +127,7 @@ const startAnswerEdit = (id: number, currentAnswer: string | null) => {
   answerText.value = currentAnswer || "";
 };
 
-// Save answer (관리자만 가능)
+// Save answer (administrator only)
 const saveAnswer = async (id: number) => {
   if (!isAdmin.value) {
     alert("관리자만 답변을 작성할 수 있습니다");
@@ -159,7 +159,7 @@ const cancelAnswerEdit = () => {
 
 // Delete Q&A (Author only)
 const deleteQna = async (id: number, authorId: string) => {
-  // 본인 확인
+  // Verify your identity
   if (currentUser.value?.userId !== authorId) {
     alert("본인이 작성한 글만 삭제할 수 있습니다");
     return;
@@ -197,10 +197,10 @@ const canDelete = (authorId: string) => {
 const updateStats = () => {
   stats.value.total = qnaList.value.length;
   stats.value.waiting = qnaList.value.filter(
-    (q) => q.status === "WAITING"
+    (q) => q.status === "WAITING",
   ).length;
   stats.value.answered = qnaList.value.filter(
-    (q) => q.status === "ANSWERED"
+    (q) => q.status === "ANSWERED",
   ).length;
 };
 

@@ -1,3 +1,142 @@
+<script setup lang="ts">
+import { computed, ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useAuth } from "@/composables/useAuth";
+import { worshipApi, type Worship } from "@/api/worship";
+import "../styles/WorshipLog.css";
+
+const router = useRouter();
+const { isAdmin } = useAuth();
+
+const logs = ref<Worship[]>([]);
+const selectedYear = ref<string>("");
+const showAddModal = ref(false);
+const loading = ref(true);
+const error = ref(false);
+
+// new rally data
+const newWorship = ref({
+  date: "",
+  year: new Date().getFullYear(),
+  title: "",
+  preacher: "",
+  worship_team: "OBED Worship",
+  guest: "",
+  description: "",
+});
+
+// Assembly query
+const fetchWorships = async () => {
+  loading.value = true;
+  error.value = false;
+  try {
+    const response = await worshipApi.getAll();
+    logs.value = response.data;
+  } catch (err) {
+    console.error("집회 조회 실패:", err);
+    error.value = true;
+  } finally {
+    loading.value = false;
+  }
+};
+
+const years = computed(() =>
+  Array.from(new Set(logs.value.map((l) => l.year))).sort((a, b) => b - a),
+);
+
+const filteredLogs = computed(() => {
+  let filtered = logs.value;
+  if (selectedYear.value) {
+    const year = Number(selectedYear.value);
+    filtered = logs.value.filter((l) => l.year === year);
+  }
+
+  return filtered.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  );
+});
+
+const goToDetail = (id: number) => {
+  router.push({ name: "worship-detail", params: { id: id.toString() } });
+};
+
+const editWorship = (id: number) => {
+  router.push({ name: "worship-detail", params: { id: id.toString() } });
+};
+
+const deleteWorship = async (id: number) => {
+  if (!confirm("정말 이 집회를 삭제하시겠습니까?")) return;
+
+  loading.value = true;
+  try {
+    await worshipApi.delete(id);
+    alert("집회가 삭제되었습니다!");
+    await fetchWorships();
+  } catch (error) {
+    console.error("집회 삭제 실패:", error);
+    alert("집회 삭제에 실패했습니다");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Open add rally modal
+const openAddWorshipModal = () => {
+  showAddModal.value = true;
+  // Form initialization
+  newWorship.value = {
+    date: "",
+    year: new Date().getFullYear(),
+    title: "",
+    preacher: "",
+    worship_team: "OBED Worship",
+    guest: "",
+    description: "",
+  };
+};
+
+// Close rally add modal
+const closeAddModal = () => {
+  showAddModal.value = false;
+};
+
+// add rally
+const handleAddWorship = async () => {
+  if (
+    !newWorship.value.title ||
+    !newWorship.value.date ||
+    !newWorship.value.preacher ||
+    !newWorship.value.description
+  ) {
+    alert("필수 항목을 입력해주세요");
+    return;
+  }
+
+  loading.value = true;
+  try {
+    const response = await worshipApi.create(newWorship.value as any);
+    alert("집회가 추가되었습니다!");
+    closeAddModal();
+    await fetchWorships();
+    // Go to detail page
+    router.push({
+      name: "worship-detail",
+      params: { id: response.data.id.toString() },
+    });
+  } catch (error) {
+    console.error("집회 추가 실패:", error);
+    alert("집회 추가에 실패했습니다");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// initial load
+onMounted(() => {
+  fetchWorships();
+});
+</script>
+
 <template>
   <div class="page">
     <section class="section">
@@ -112,18 +251,16 @@
         </p>
       </div>
 
-      <!-- 로딩 상태 -->
-      <div v-if="loading" class="loading">
-        로딩 중...
-      </div>
+      <!-- Loading status -->
+      <div v-if="loading" class="loading">로딩 중...</div>
 
-      <!-- 에러 상태 -->
+      <!-- Error status -->
       <div v-else-if="error" class="error-message">
         <p>정보를 가져오지 못했습니다.</p>
         <button class="btn primary" @click="fetchWorships">다시 시도</button>
       </div>
 
-      <!-- 집회 목록 -->
+      <!-- List of rallies -->
       <div v-else class="log-grid">
         <article
           v-for="w in filteredLogs"
@@ -175,142 +312,3 @@
     </section>
   </div>
 </template>
-
-<script setup lang="ts">
-import { computed, ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { useAuth } from "@/composables/useAuth";
-import { worshipApi, type Worship } from "@/api/worship";
-import "../styles/WorshipLog.css";
-
-const router = useRouter();
-const { isAdmin } = useAuth();
-
-const logs = ref<Worship[]>([]);
-const selectedYear = ref<string>("");
-const showAddModal = ref(false);
-const loading = ref(true);
-const error = ref(false);
-
-// new rally data
-const newWorship = ref({
-  date: "",
-  year: new Date().getFullYear(),
-  title: "",
-  preacher: "",
-  worship_team: "OBED Worship",
-  guest: "",
-  description: "",
-});
-
-// 집회 조회
-const fetchWorships = async () => {
-  loading.value = true;
-  error.value = false;
-  try {
-    const response = await worshipApi.getAll();
-    logs.value = response.data;
-  } catch (err) {
-    console.error("집회 조회 실패:", err);
-    error.value = true;
-  } finally {
-    loading.value = false;
-  }
-};
-
-const years = computed(() =>
-  Array.from(new Set(logs.value.map((l) => l.year))).sort((a, b) => b - a),
-);
-
-const filteredLogs = computed(() => {
-  let filtered = logs.value;
-  if (selectedYear.value) {
-    const year = Number(selectedYear.value);
-    filtered = logs.value.filter((l) => l.year === year);
-  }
-
-  return filtered.sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-  );
-});
-
-const goToDetail = (id: number) => {
-  router.push({ name: "worship-detail", params: { id: id.toString() } });
-};
-
-const editWorship = (id: number) => {
-  router.push({ name: "worship-detail", params: { id: id.toString() } });
-};
-
-const deleteWorship = async (id: number) => {
-  if (!confirm("정말 이 집회를 삭제하시겠습니까?")) return;
-
-  loading.value = true;
-  try {
-    await worshipApi.delete(id);
-    alert("집회가 삭제되었습니다!");
-    await fetchWorships();
-  } catch (error) {
-    console.error("집회 삭제 실패:", error);
-    alert("집회 삭제에 실패했습니다");
-  } finally {
-    loading.value = false;
-  }
-};
-
-// Open add rally modal
-const openAddWorshipModal = () => {
-  showAddModal.value = true;
-  // Form initialization
-  newWorship.value = {
-    date: "",
-    year: new Date().getFullYear(),
-    title: "",
-    preacher: "",
-    worship_team: "OBED Worship",
-    guest: "",
-    description: "",
-  };
-};
-
-// Close rally add modal
-const closeAddModal = () => {
-  showAddModal.value = false;
-};
-
-// 집회 추가
-const handleAddWorship = async () => {
-  if (
-    !newWorship.value.title ||
-    !newWorship.value.date ||
-    !newWorship.value.preacher ||
-    !newWorship.value.description
-  ) {
-    alert("필수 항목을 입력해주세요");
-    return;
-  }
-
-  loading.value = true;
-  try {
-    const response = await worshipApi.create(newWorship.value as any);
-    alert("집회가 추가되었습니다!");
-    closeAddModal();
-    await fetchWorships();
-    // 상세 페이지로 이동
-    router.push({
-      name: "worship-detail",
-      params: { id: response.data.id.toString() },
-    });
-  } catch (error) {
-    console.error("집회 추가 실패:", error);
-    alert("집회 추가에 실패했습니다");
-  } finally {
-    loading.value = false;
-  }
-};
-
-// 초기 로드
-onMounted(() => {
-  fetchWorships();
-});
-</script>
