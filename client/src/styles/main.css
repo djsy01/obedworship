@@ -26,10 +26,19 @@
   --ow-text-faint: light-dark(#888, #948d93);
   --ow-text-soft: light-dark(#999, #857f85);
   --ow-border: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.12));
-  --ow-border-subtle: light-dark(rgba(0, 0, 0, 0.04), rgba(255, 255, 255, 0.08));
-  --ow-border-subtle-2: light-dark(rgba(0, 0, 0, 0.02), rgba(255, 255, 255, 0.06));
+  --ow-border-subtle: light-dark(
+    rgba(0, 0, 0, 0.04),
+    rgba(255, 255, 255, 0.08)
+  );
+  --ow-border-subtle-2: light-dark(
+    rgba(0, 0, 0, 0.02),
+    rgba(255, 255, 255, 0.06)
+  );
   --ow-border-strong: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.18));
-  --ow-border-stronger: light-dark(rgba(0, 0, 0, 0.16), rgba(255, 255, 255, 0.26));
+  --ow-border-stronger: light-dark(
+    rgba(0, 0, 0, 0.16),
+    rgba(255, 255, 255, 0.26)
+  );
   --ow-border-solid: light-dark(#eee, #2b272c);
   --ow-border-solid-strong: light-dark(#ddd, #332f35);
   --ow-border-solid-stronger: light-dark(#ccc, #3b363d);
@@ -99,6 +108,13 @@ a {
   text-decoration: none;
   color: inherit;
   flex-shrink: 0;
+  background: var(--ow-surface);
+}
+
+@media (prefers-color-scheme: dark) {
+  .logo {
+    background: transparent;
+  }
 }
 
 .logo-img {
