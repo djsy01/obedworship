@@ -1,5 +1,3 @@
-@import url('../assets/fonts/stylesheet.css');
-
 *,
 *::before,
 *::after {
@@ -65,7 +63,6 @@
 body {
   margin: 0;
   font-family:
-    'Gabia Solmee',
     system-ui,
     -apple-system,
     BlinkMacSystemFont,
