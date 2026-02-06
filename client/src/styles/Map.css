@@ -66,8 +66,25 @@
   background: var(--ow-accent);
   color: var(--ow-surface);
   border-color: var(--ow-accent);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(74, 31, 47, 0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px var(--ow-shadow);
+}
+
+/* 구글지도 강조 스타일 */
+.map-links a.map-link-primary {
+  background: linear-gradient(135deg, var(--ow-accent) 0%, var(--ow-accent-2) 100%);
+  color: var(--ow-surface);
+  border-color: var(--ow-accent);
+  font-weight: 600;
+  padding: 0.6rem 1.5rem;
+  font-size: 1rem;
+  box-shadow: 0 4px 16px var(--ow-shadow);
+}
+
+.map-links a.map-link-primary:hover {
+  background: linear-gradient(135deg, var(--ow-accent-dark) 0%, var(--ow-accent) 100%);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px var(--ow-shadow-strong);
 }
 
 @media (max-width: 720px) {

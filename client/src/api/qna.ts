@@ -24,7 +24,7 @@ import axios from "./axios";
  * DTO for creating a new Q&A question
  */
 export interface CreateQnaDto {
-  user_id: string;
+  user_id: number;
   category: "집회" | "악보" | "기타";
   title: string;
   content: string;
@@ -36,7 +36,7 @@ export interface AnswerQnaDto {
 
 export interface Qna {
   id: number;
-  user_id: string;
+  user_id: number;
   category: string;
   title: string;
   content: string;

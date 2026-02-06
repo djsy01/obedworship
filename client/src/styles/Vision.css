@@ -58,14 +58,13 @@ Team Introduction
   font-size: 1.05rem;
   line-height: 1.7;
   color: var(--ow-accent);
-  box-shadow: 0 4px 12px var(--ow-shadow-soft);
-  transition: all 0.3s ease-out;
+  box-shadow: 0 4px 12px var(--ow-shadow-soft), inset 0 0 0 transparent;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
 }
 
 .highlight-box:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px var(--ow-border);
-  border-color: rgba(148, 81, 105, 0.25);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px var(--ow-shadow), inset 0 -3px 0 var(--ow-accent);
 }
 
 /* ========================================
@@ -106,7 +105,7 @@ Team Introduction
   transition: all 0.25s ease-out;
   color: var(--ow-text);
   font-weight: 500;
-  box-shadow: 0 2px 8px var(--ow-border-subtle);
+  box-shadow: 0 2px 8px var(--ow-shadow-soft);
 }
 
 .filter-btn.small {
@@ -121,8 +120,8 @@ Team Introduction
 .filter-btn:hover {
   border-color: rgba(74, 31, 47, 0.4);
   background: #fdf4f7;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px var(--ow-border-stronger);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px var(--ow-shadow);
 }
 
 .filter-btn::before,
@@ -180,18 +179,17 @@ Team Introduction
   background: var(--ow-surface);
   border-radius: 1rem;
   padding: 0;
-  box-shadow: 0 10px 30px var(--ow-shadow-soft-2);
+  box-shadow: 0 10px 30px var(--ow-shadow-soft-2), inset 0 0 0 transparent;
   border: 1px solid var(--ow-border-subtle);
-  transition: all 0.3s ease-out;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
 .member-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 40px var(--ow-border-strong);
-  border-color: rgba(74, 31, 47, 0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px var(--ow-shadow), inset 0 -3px 0 var(--ow-accent);
 }
 
 .member-photo {
@@ -219,6 +217,13 @@ Team Introduction
    Member Information
    ======================================== */
 
+.member-name-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .member-name {
   font-size: 1.15rem;
   margin: 0;
@@ -226,15 +231,63 @@ Team Introduction
   font-weight: 700;
 }
 
+/* Social text links next to name */
+.member-social-text {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-left: auto;
+}
+
+.social-text-link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  transition: all 0.2s ease-out;
+}
+
+.social-text-link.instagram {
+  color: #e1306c;
+  background: rgba(225, 48, 108, 0.1);
+}
+
+.social-text-link.instagram:hover {
+  background: rgba(225, 48, 108, 0.2);
+}
+
+.social-text-link.youtube {
+  color: #ff0000;
+  background: rgba(255, 0, 0, 0.1);
+}
+
+.social-text-link.youtube:hover {
+  background: rgba(255, 0, 0, 0.2);
+}
+
+.member-position-text {
+  font-size: 0.85rem;
+  color: var(--ow-accent-2);
+  font-weight: 500;
+}
+
+.member-position-text.step {
+  color: var(--ow-accent);
+}
+
 .affiliation-badge {
   display: inline-block;
   width: fit-content;
-  padding: 0.3rem 0.7rem;
-  font-size: 0.8rem;
+  padding: 0.4rem 1rem;
+  font-size: 0.9rem;
   color: var(--ow-surface);
-  background: linear-gradient(135deg, #6a2f3f 0%, var(--ow-accent-2) 100%);
-  border-radius: 999px;
-  font-weight: 600;
+  background: linear-gradient(135deg, var(--ow-accent) 0%, #6a2f3f 100%);
+  border-radius: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  box-shadow: 0 4px 12px rgba(74, 31, 47, 0.3);
+  text-transform: uppercase;
 }
 
 /* Role Badge (Leader) */
@@ -249,48 +302,52 @@ Team Introduction
   padding: 0.35rem 0.8rem;
   font-size: 0.8rem;
   color: var(--ow-accent);
-  background: #fdf2f6;
-  border: 1px solid rgba(148, 81, 105, 0.25);
+  background: var(--ow-surface-accent);
+  border: 1px solid var(--ow-border-accent);
   border-radius: 999px;
   font-weight: 600;
 }
 
-/* position badge */
-.member-positions {
+/* Position groups - Worship & Step */
+.member-positions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.position-group-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ow-text-muted);
+}
+
+.position-badges {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.3rem;
 }
 
 .position-badge {
-  display: inline-block;
-  padding: 0.35rem 0.8rem;
-  font-size: 0.8rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  transition: all 0.2s ease-out;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: var(--ow-surface-2);
+  border: 1px solid var(--ow-border);
 }
 
 .position-badge.worship {
-  color: #1e5a8e;
-  background: #e3f2fd;
-  border: 1px solid rgba(30, 90, 142, 0.2);
-}
-
-.position-badge.worship:hover {
-  background: #bbdefb;
-  transform: translateY(-1px);
+  color: var(--ow-accent-2);
+  background: var(--ow-surface-accent);
+  border-color: var(--ow-border-accent);
 }
 
 .position-badge.step {
-  color: #558b2f;
-  background: #f1f8e9;
-  border: 1px solid rgba(85, 139, 47, 0.2);
-}
-
-.position-badge.step:hover {
-  background: #dcedc8;
-  transform: translateY(-1px);
+  color: var(--ow-accent);
+  background: var(--ow-accent-surface);
+  border-color: var(--ow-border-accent);
 }
 
 /* ========================================
@@ -494,24 +551,5 @@ Team Introduction
 }
 
 .member-card {
-  animation: fadeIn 0.4s ease-out;
-}
-
-.member-card:nth-child(1) {
-  animation-delay: 0.05s;
-}
-.member-card:nth-child(2) {
-  animation-delay: 0.1s;
-}
-.member-card:nth-child(3) {
-  animation-delay: 0.15s;
-}
-.member-card:nth-child(4) {
-  animation-delay: 0.2s;
-}
-.member-card:nth-child(5) {
-  animation-delay: 0.25s;
-}
-.member-card:nth-child(6) {
-  animation-delay: 0.3s;
+  animation: fadeIn 0.3s ease-out both;
 }

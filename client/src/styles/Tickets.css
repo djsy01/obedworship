@@ -15,16 +15,16 @@
   background: var(--ow-surface);
   border-radius: 1rem;
   overflow: hidden;
-  box-shadow: 0 10px 30px var(--ow-border);
+  box-shadow: 0 10px 30px var(--ow-shadow-soft-2), inset 0 0 0 transparent;
   border: 1px solid var(--ow-border-subtle);
-  transition: all 0.3s ease-out;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
   display: flex;
   flex-direction: column;
 }
 
 .ticket-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 50px rgba(74, 31, 47, 0.12);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px var(--ow-shadow), inset 0 -3px 0 var(--ow-accent);
 }
 
 .ticket-card.ticket-closed {
@@ -34,7 +34,7 @@
 /* Poster image */
 .ticket-poster {
   width: 100%;
-  height: 280px;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
   background: linear-gradient(135deg, var(--ow-border-accent) 0%, #fae8f0 100%);
 }
@@ -42,7 +42,8 @@
 .ticket-poster img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  background: var(--ow-surface-2);
   transition: transform 0.3s ease-out;
 }
 
@@ -109,10 +110,15 @@
 .ticket-meta {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  font-size: 0.85rem;
-  color: var(--ow-text-muted);
+  gap: 0.5rem;
+  font-size: 1rem;
+  color: var(--ow-text-strong);
+  font-weight: 600;
   margin: 0;
+  padding: 0.75rem 1rem;
+  background: var(--ow-surface-2);
+  border-radius: 0.5rem;
+  border-left: 3px solid var(--ow-accent);
 }
 
 .meta-item {
@@ -122,7 +128,8 @@
 }
 
 .meta-icon {
-  font-size: 0.9rem;
+  font-size: 1rem;
+  opacity: 0.7;
 }
 
 .ticket-description {

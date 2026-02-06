@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 import { useAuth } from "@/composables/useAuth";
 import { assetApi } from "@/api/assets";
 import soundcloudIcon from "@/assets/icons/Soundcloud.png";
-import instagramIcon from "@/assets/icons/Instargram.png";
-import youtubeIcon from "@/assets/icons/Youtube.png";
+import instagramIcon from "@/assets/icons/Instagram.png";
+import youtubeIcon from "@/assets/icons/youtube.png";
 
 const router = useRouter();
 const { isLoggedIn, isAdmin, logout } = useAuth();
@@ -134,6 +134,8 @@ const loadAssets = async () => {
         songsRes.data.length > 0
       ) {
         playlist.value = songsRes.data
+          .slice()
+          .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
           .filter((song) => song.file_url)
           .map((song) => song.file_url as string);
       }
@@ -185,7 +187,7 @@ onUnmounted(() => {
           <RouterLink to="/vision" class="nav-link">비전</RouterLink>
           <RouterLink to="/worship-log" class="nav-link">집회안내</RouterLink>
           <RouterLink to="/scores" class="nav-link">악보</RouterLink>
-          <!--<RouterLink to="/tickets" class="nav-link">집회신청</RouterLink>-->
+          <!-- <RouterLink to="/tickets" class="nav-link">집회신청</RouterLink> -->
           <RouterLink to="/map" class="nav-link">오시는길</RouterLink>
           <RouterLink to="/qna" class="nav-link">Q&amp;A</RouterLink>
         </nav>
