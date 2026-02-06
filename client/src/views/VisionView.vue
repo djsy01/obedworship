@@ -28,8 +28,6 @@ import { memberApi, type Member as ApiMember } from "@/api/members";
 import { assetApi } from "@/api/assets";
 import MemberEditModal from "@/components/MemberEditModal.vue";
 import "../styles/Vision.css";
-import instagramIcon from "@/assets/icons/Instargram.png";
-import youtubeIcon from "@/assets/icons/Youtube.png";
 
 /**
  * Local Member type - transformed from API response for component use
@@ -632,7 +630,32 @@ onMounted(async () => {
               class="member-photo"
             />
             <div class="member-info">
-              <h3 class="member-name">{{ member.name }}</h3>
+              <div class="member-name-row">
+                <h3 class="member-name">{{ member.name }}</h3>
+                <div
+                  class="member-social-text"
+                  v-if="member.instagram_url || member.youtube_url"
+                >
+                  <a
+                    v-if="member.instagram_url"
+                    :href="member.instagram_url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="social-text-link instagram"
+                  >
+                    Instagram
+                  </a>
+                  <a
+                    v-if="member.youtube_url"
+                    :href="member.youtube_url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="social-text-link youtube"
+                  >
+                    YouTube
+                  </a>
+                </div>
+              </div>
 
               <span class="affiliation-badge">{{ member.affiliation }}</span>
 
@@ -646,8 +669,12 @@ onMounted(async () => {
                 </span>
               </div>
 
-              <div class="member-positions">
-                <template v-if="filter === 'all'">
+              <!-- Worship Positions -->
+              <div
+                v-if="member.worship_positions.length > 0"
+                class="member-positions-group"
+              >
+                <div class="position-badges">
                   <span
                     v-for="pos in member.worship_positions"
                     :key="pos"
@@ -655,61 +682,23 @@ onMounted(async () => {
                   >
                     {{ pos }}
                   </span>
-                  <span
-                    v-for="pos in member.step_positions"
-                    :key="pos"
-                    class="position-badge step"
-                  >
-                    {{ pos }}
-                  </span>
-                </template>
-
-                <template v-else-if="filter === 'worship'">
-                  <span
-                    v-for="pos in member.worship_positions"
-                    :key="pos"
-                    class="position-badge worship"
-                  >
-                    {{ pos }}
-                  </span>
-                </template>
-
-                <template v-else-if="filter === 'step'">
-                  <span
-                    v-for="pos in member.step_positions"
-                    :key="pos"
-                    class="position-badge step"
-                  >
-                    {{ pos }}
-                  </span>
-                </template>
+                </div>
               </div>
 
-              <div class="social-links">
-                <a
-                  v-if="member.instagram_url"
-                  :href="member.instagram_url"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="icon-link"
-                  title="Instagram"
-                >
-                  <img
-                    :src="instagramIcon"
-                    alt="Instagram"
-                    class="social-icon"
-                  />
-                </a>
-                <a
-                  v-if="member.youtube_url"
-                  :href="member.youtube_url"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="icon-link"
-                  title="YouTube"
-                >
-                  <img :src="youtubeIcon" alt="YouTube" class="social-icon" />
-                </a>
+              <!-- Step Positions -->
+              <div
+                v-if="member.step_positions.length > 0"
+                class="member-positions-group"
+              >
+                <div class="position-badges">
+                  <span
+                    v-for="pos in member.step_positions"
+                    :key="pos"
+                    class="position-badge step"
+                  >
+                    {{ pos }}
+                  </span>
+                </div>
               </div>
 
               <!-- Administrator mode: Edit/Delete button -->

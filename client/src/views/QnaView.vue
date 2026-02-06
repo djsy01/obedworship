@@ -30,7 +30,7 @@ const checkAuth = () => {
 // New QnA form
 const showAskPanel = ref(false);
 const newQna = ref<CreateQnaDto>({
-  user_id: currentUser.value?.userId || "",
+  user_id: 0,
   category: "집회",
   title: "",
   content: "",
@@ -98,8 +98,8 @@ const createQna = async () => {
     return;
   }
 
-  // Set the currently logged in user ID
-  newQna.value.user_id = currentUser.value!.userId;
+  // Set the currently logged in user ID (convert to number)
+  newQna.value.user_id = Number(currentUser.value!.userId);
 
   try {
     await qnaApi.create(newQna.value);
@@ -158,9 +158,9 @@ const cancelAnswerEdit = () => {
 };
 
 // Delete Q&A (Author only)
-const deleteQna = async (id: number, authorId: string) => {
+const deleteQna = async (id: number, authorId: number) => {
   // Verify your identity
-  if (currentUser.value?.userId !== authorId) {
+  if (currentUser.value?.userId !== String(authorId)) {
     alert("본인이 작성한 글만 삭제할 수 있습니다");
     return;
   }
@@ -178,19 +178,20 @@ const deleteQna = async (id: number, authorId: string) => {
 };
 
 // Show author (Only you or your administrator will see your entire ID)
-const displayUserId = (userId: string) => {
+const displayUserId = (userId: number) => {
+  const userIdStr = String(userId);
   // Display the entire ID only if the post was written by you (if you are an administrator, display the entire ID)
-  if (currentUser.value?.userId === userId || isAdmin.value) {
-    return userId;
+  if (currentUser.value?.userId === userIdStr || isAdmin.value) {
+    return userIdStr;
   }
 
   // mask everything else
-  return userId.substring(0, 3) + "***";
+  return userIdStr.substring(0, 3) + "***";
 };
 
 // Whether to display the delete button (only you)
-const canDelete = (authorId: string) => {
-  return currentUser.value?.userId === authorId;
+const canDelete = (authorId: number) => {
+  return currentUser.value?.userId === String(authorId);
 };
 
 // Statistical updates
@@ -400,8 +401,11 @@ onMounted(() => {
               </div>
             </div>
 
-            <!-- Administrator Action -->
-            <div class="qna-admin-actions">
+            <!-- Administrator Action (only show if admin or author) -->
+            <div
+              v-if="isAdmin || canDelete(qna.user_id)"
+              class="qna-admin-actions"
+            >
               <!-- Reply button (administrators only) -->
               <button
                 v-if="isAdmin && editingAnswerId !== qna.id"

@@ -39,6 +39,7 @@ import "../styles/Map.css";
             href="https://www.google.com/maps/dir/?api=1&destination=예수인교회+고양시+덕양구+용현로+64"
             target="_blank"
             rel="noopener noreferrer"
+            class="map-link-primary"
           >
             구글지도 길찾기
           </a>

@@ -22,6 +22,56 @@ const teamPhotoInput = ref<HTMLInputElement | null>(null);
 const logoInput = ref<HTMLInputElement | null>(null);
 const songInput = ref<HTMLInputElement | null>(null);
 
+// Drag & drop state
+const dragIndex = ref<number | null>(null);
+const dragOverIndex = ref<number | null>(null);
+
+const onSongDragStart = (index: number) => {
+  dragIndex.value = index;
+};
+
+const onSongDragOver = (e: DragEvent, index: number) => {
+  e.preventDefault();
+  dragOverIndex.value = index;
+};
+
+const onSongDrop = async (index: number) => {
+  if (dragIndex.value === null || dragIndex.value === index) {
+    dragIndex.value = null;
+    dragOverIndex.value = null;
+    return;
+  }
+
+  const list = [...songs.value];
+  const [moved] = list.splice(dragIndex.value, 1);
+  list.splice(index, 0, moved);
+  songs.value = list;
+
+  dragIndex.value = null;
+  dragOverIndex.value = null;
+
+  // Save order to backend
+  try {
+    songStatus.value = "순서 저장 중...";
+    for (let i = 0; i < list.length; i++) {
+      await assetApi.update(list[i].id, { display_order: i });
+    }
+    songStatus.value = "순서 저장 완료!";
+    setTimeout(() => {
+      songStatus.value = "";
+    }, 2000);
+  } catch (error) {
+    console.error("순서 저장 실패:", error);
+    songStatus.value = "순서 저장 실패";
+    await loadSongs();
+  }
+};
+
+const onSongDragEnd = () => {
+  dragIndex.value = null;
+  dragOverIndex.value = null;
+};
+
 // Assembly query
 const fetchWorships = async () => {
   loading.value = true;
@@ -333,7 +383,21 @@ onMounted(async () => {
                   등록된 음원이 없습니다.
                 </div>
                 <div v-else class="audio-list">
-                  <div v-for="song in songs" :key="song.id" class="audio-item">
+                  <div
+                    v-for="(song, index) in songs"
+                    :key="song.id"
+                    class="audio-item"
+                    :class="{
+                      dragging: dragIndex === index,
+                      'drag-over': dragOverIndex === index && dragIndex !== index,
+                    }"
+                    draggable="true"
+                    @dragstart="onSongDragStart(index)"
+                    @dragover="onSongDragOver($event, index)"
+                    @drop.prevent="onSongDrop(index)"
+                    @dragend="onSongDragEnd"
+                  >
+                    <span class="drag-handle">⠿</span>
                     <div class="audio-info">
                       <p class="audio-title">
                         {{ song.title || song.file_name || "음원" }}

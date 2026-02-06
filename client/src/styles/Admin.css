@@ -15,7 +15,11 @@
   font-weight: 700;
   color: var(--ow-text-strong);
   margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, var(--ow-accent) 0%, var(--ow-accent-2) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--ow-accent) 0%,
+    var(--ow-accent-2) 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -41,15 +45,14 @@
   border-radius: 16px;
   padding: 2rem;
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
   display: block;
-  box-shadow: 0 2px 8px var(--ow-shadow-soft-2);
+  box-shadow: 0 2px 8px var(--ow-shadow-soft-2), inset 0 0 0 transparent;
 }
 
 .admin-card:hover {
-  border-color: var(--ow-accent-2);
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(138, 75, 75, 0.15);
+  box-shadow: 0 12px 32px var(--ow-shadow), inset 0 -3px 0 var(--ow-accent);
 }
 
 .admin-card h3 {
@@ -93,23 +96,32 @@
 }
 
 .stat-card {
-  background: linear-gradient(135deg, var(--ow-surface-accent) 0%, var(--ow-surface-wash) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--ow-surface-accent) 0%,
+    var(--ow-surface-wash) 100%
+  );
   border: 1px solid #f0e6e8;
   border-radius: 16px;
   padding: 1.5rem;
   text-align: center;
-  transition: all 0.3s ease;
+  box-shadow: inset 0 0 0 transparent;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
 }
 
 .stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(138, 75, 75, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px var(--ow-shadow), inset 0 -3px 0 var(--ow-accent);
 }
 
 .stat-value {
   font-size: 3rem;
   font-weight: 700;
-  background: linear-gradient(135deg, var(--ow-accent) 0%, var(--ow-accent-2) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--ow-accent) 0%,
+    var(--ow-accent-2) 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -238,7 +250,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
 }
 
 .manager-header h3 {
@@ -383,6 +394,38 @@
 .audio-item audio {
   width: 100%;
   max-width: 360px;
+}
+
+.drag-handle {
+  cursor: grab;
+  font-size: 1.2rem;
+  color: var(--ow-text-soft);
+  user-select: none;
+  padding: 0.25rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.15s ease-out;
+}
+
+.drag-handle:hover {
+  color: var(--ow-accent);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.audio-item {
+  transition: opacity 0.15s ease-out, border-color 0.15s ease-out;
+}
+
+.audio-item.dragging {
+  opacity: 0.4;
+}
+
+.audio-item.drag-over {
+  border-color: var(--ow-accent);
+  box-shadow: 0 -2px 0 var(--ow-accent);
 }
 
 .btn-delete {
