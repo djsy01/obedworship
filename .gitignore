@@ -93,3 +93,6 @@ local.properties
 
 #Test
 /test-server/
+
+# Claude/AI 관련
+claude/
