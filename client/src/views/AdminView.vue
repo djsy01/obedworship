@@ -10,7 +10,6 @@ const { isAdmin } = useAuth();
 const worships = ref<Worship[]>([]);
 const loading = ref(false);
 
-const currentYear = new Date().getFullYear();
 const isExpanded = ref(false);
 const currentTeamPhoto = ref<string>("");
 const currentLogo = ref<string>("");
@@ -93,10 +92,6 @@ const formatDate = (dateString: string): string => {
 
 // Statistical calculations
 const totalWorships = computed(() => worships.value.length);
-
-const currentYearWorships = computed(
-  () => worships.value.filter((w) => w.year === currentYear).length,
-);
 
 const upcomingWorships = computed(() => {
   const today = new Date();
@@ -444,11 +439,6 @@ onMounted(async () => {
           <div class="stat-card">
             <div class="stat-value">{{ totalWorships }}</div>
             <div class="stat-label">전체 집회</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-value">{{ currentYearWorships }}</div>
-            <div class="stat-label">{{ currentYear }}년 집회</div>
           </div>
 
           <div class="stat-card">

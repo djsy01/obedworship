@@ -194,6 +194,12 @@ onMounted(() => {
 });
 
 // Utility functions
+const formatDateWithDay = (dateString: string): string => {
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const date = new Date(dateString + "T00:00:00");
+  return `${date.toLocaleDateString("ko-KR")} (${days[date.getDay()]})`;
+};
+
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   return date.toLocaleDateString("ko-KR", {
@@ -794,7 +800,7 @@ const uploadThumbnail = async () => {
         <!-- Hero Section -->
         <div class="detail-hero">
           <p class="detail-date">
-            {{ new Date(worship.date).toLocaleDateString("ko-KR") }}
+            {{ formatDateWithDay(worship.date) }}
           </p>
           <h1 class="detail-title">
             <span v-if="editMode">
@@ -1600,7 +1606,7 @@ const uploadThumbnail = async () => {
 
       <!-- Poster full screen modal -->
       <div
-        v-if="posterFullscreenOpen"
+        v-if="posterFullscreenOpen && worship"
         class="fullscreen-modal"
         @click="closePosterFullscreen"
       >

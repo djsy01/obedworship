@@ -29,10 +29,12 @@ const userName = computed(() => {
 });
 
 const handleEnded = () => {
+  if (playlist.value.length === 0) return;
   currentTrackIndex.value =
     (currentTrackIndex.value + 1) % playlist.value.length;
   setTimeout(() => {
     if (audioPlayer.value) {
+      audioPlayer.value.load();
       audioPlayer.value.play();
     }
   }, 50);

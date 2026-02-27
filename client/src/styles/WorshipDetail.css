@@ -310,6 +310,44 @@
   color: var(--ow-text);
 }
 
+.song-marquee-wrapper {
+  overflow: hidden;
+  width: 100%;
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.song-marquee-track {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: max-content;
+  animation: song-marquee linear infinite;
+}
+
+.song-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+.song-marquee-item {
+  white-space: nowrap;
+  font-size: 0.95rem;
+  color: var(--ow-text);
+  padding: 0.25rem 1.5rem;
+}
+
+.song-marquee-item::before {
+  content: "·";
+  margin-right: 1.5rem;
+  color: var(--ow-accent);
+  opacity: 0.5;
+}
+
+@keyframes song-marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
 /* ========================================
    Gallery tab
    ======================================== */

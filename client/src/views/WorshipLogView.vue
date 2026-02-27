@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from "vue";
+import { computed, ref, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useAuth } from "@/composables/useAuth";
 import { worshipApi, type Worship } from "@/api/worship";
@@ -40,21 +40,43 @@ const fetchWorships = async () => {
   }
 };
 
+const getYearFromDate = (dateStr: string) =>
+  new Date(dateStr + "T00:00:00").getFullYear();
+
 const years = computed(() =>
-  Array.from(new Set(logs.value.map((l) => l.year))).sort((a, b) => b - a),
+  Array.from(new Set(logs.value.map((l) => getYearFromDate(l.date)))).sort(
+    (a, b) => b - a,
+  ),
 );
 
 const filteredLogs = computed(() => {
   let filtered = logs.value;
   if (selectedYear.value) {
     const year = Number(selectedYear.value);
-    filtered = logs.value.filter((l) => l.year === year);
+    filtered = logs.value.filter((l) => getYearFromDate(l.date) === year);
   }
 
   return filtered.sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   );
 });
+
+// 날짜 선택 시 year 자동 추출
+watch(
+  () => newWorship.value.date,
+  (date) => {
+    if (date) {
+      newWorship.value.year = parseInt(date.split("-")[0]);
+    }
+  },
+);
+
+// 날짜 + 영문 요일 포맷
+const formatDateWithDay = (dateString: string): string => {
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const date = new Date(dateString + "T00:00:00");
+  return `${date.toLocaleDateString("ko-KR")} (${days[date.getDay()]})`;
+};
 
 const goToDetail = (id: number) => {
   router.push({ name: "worship-detail", params: { id: id.toString() } });
@@ -191,16 +213,6 @@ onMounted(() => {
           </label>
 
           <label class="field">
-            <span class="field-label">연도</span>
-            <input
-              v-model.number="newWorship.year"
-              type="number"
-              placeholder="예: 2025"
-              required
-            />
-          </label>
-
-          <label class="field">
             <span class="field-label">설교자</span>
             <input
               v-model="newWorship.preacher"
@@ -269,7 +281,7 @@ onMounted(() => {
           @click="goToDetail(w.id)"
         >
           <p class="log-date">
-            {{ new Date(w.date).toLocaleDateString("ko-KR") }}
+            {{ formatDateWithDay(w.date) }}
           </p>
           <h2 class="log-title">{{ w.title }}</h2>
           <p class="log-meta">
