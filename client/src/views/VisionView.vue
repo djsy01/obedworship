@@ -411,6 +411,30 @@ onMounted(async () => {
   await loadLogo();
   await loadMembers();
 });
+
+// Position badge tooltip (Teleport-based to escape overflow:hidden)
+const tooltip = ref({
+  visible: false,
+  x: 0,
+  y: 0,
+  badges: [] as string[],
+  type: "",
+});
+
+const showTooltip = (event: MouseEvent, badges: string[], type: string) => {
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+  tooltip.value = {
+    visible: true,
+    x: rect.left + rect.width / 2,
+    y: rect.top - 8,
+    badges,
+    type,
+  };
+};
+
+const hideTooltip = () => {
+  tooltip.value.visible = false;
+};
 </script>
 
 <template>
@@ -675,13 +699,25 @@ onMounted(async () => {
                 class="member-positions-group"
               >
                 <div class="position-badges">
-                  <span
-                    v-for="pos in member.worship_positions"
-                    :key="pos"
-                    class="position-badge worship"
-                  >
-                    {{ pos }}
-                  </span>
+                  <template v-if="member.worship_positions.length >= 3">
+                    <span
+                      v-for="pos in member.worship_positions.slice(0, 2)"
+                      :key="pos"
+                      class="position-badge worship"
+                    >{{ pos }}</span>
+                    <span
+                      class="position-badge-more"
+                      @mouseenter="showTooltip($event, member.worship_positions.slice(2), 'worship')"
+                      @mouseleave="hideTooltip"
+                    >+{{ member.worship_positions.length - 2 }}</span>
+                  </template>
+                  <template v-else>
+                    <span
+                      v-for="pos in member.worship_positions"
+                      :key="pos"
+                      class="position-badge worship"
+                    >{{ pos }}</span>
+                  </template>
                 </div>
               </div>
 
@@ -691,13 +727,25 @@ onMounted(async () => {
                 class="member-positions-group"
               >
                 <div class="position-badges">
-                  <span
-                    v-for="pos in member.step_positions"
-                    :key="pos"
-                    class="position-badge step"
-                  >
-                    {{ pos }}
-                  </span>
+                  <template v-if="member.step_positions.length >= 3">
+                    <span
+                      v-for="pos in member.step_positions.slice(0, 2)"
+                      :key="pos"
+                      class="position-badge step"
+                    >{{ pos }}</span>
+                    <span
+                      class="position-badge-more"
+                      @mouseenter="showTooltip($event, member.step_positions.slice(2), 'step')"
+                      @mouseleave="hideTooltip"
+                    >+{{ member.step_positions.length - 2 }}</span>
+                  </template>
+                  <template v-else>
+                    <span
+                      v-for="pos in member.step_positions"
+                      :key="pos"
+                      class="position-badge step"
+                    >{{ pos }}</span>
+                  </template>
                 </div>
               </div>
 
@@ -755,4 +803,19 @@ onMounted(async () => {
       @success="handleMemberSaved"
     />
   </div>
+
+  <!-- Position badge tooltip (Teleported to body to escape overflow:hidden) -->
+  <Teleport to="body">
+    <div
+      v-if="tooltip.visible"
+      class="position-badge-tooltip-fixed"
+      :style="{ left: tooltip.x + 'px', top: tooltip.y + 'px' }"
+    >
+      <span
+        v-for="pos in tooltip.badges"
+        :key="pos"
+        :class="['position-badge', tooltip.type]"
+      >{{ pos }}</span>
+    </div>
+  </Teleport>
 </template>

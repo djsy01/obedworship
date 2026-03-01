@@ -854,23 +854,23 @@ const uploadThumbnail = async () => {
               안내
             </button>
             <!-- Video/Photo tab: Always visible for administrators, only when content is out of date for regular users -->
-            <button
+            <!-- <button
               v-if="isAdmin || (isWorshipDatePassed && hasGalleryContent)"
               class="tab-button"
               :class="{ active: activeTab === 'gallery' }"
               @click="activeTab = 'gallery'"
             >
               영상/사진
-            </button>
+            </button> -->
             <!-- Sheet music tab: Always visible for administrators, general users only when there is sheet music after the date -->
-            <button
+            <!-- <button
               v-if="isAdmin || (isWorshipDatePassed && hasScoreContent)"
               class="tab-button"
               :class="{ active: activeTab === 'scores' }"
               @click="activeTab = 'scores'"
             >
               악보
-            </button>
+            </button> -->
           </div>
 
           <!-- Guide tab contents -->
@@ -1159,9 +1159,8 @@ const uploadThumbnail = async () => {
           </div>
 
           <!-- Video/Photo tab contents -->
-          <div v-show="activeTab === 'gallery'" class="tab-content">
+          <!-- <div v-show="activeTab === 'gallery'" class="tab-content">
             <div class="detail-content">
-              <!-- Rally videos: Show only if you are an administrator or have videos -->
               <div
                 v-if="isAdmin || (videos && videos.length > 0)"
                 class="worship-video-section"
@@ -1186,7 +1185,6 @@ const uploadThumbnail = async () => {
                       marginBottom: index < videos.length - 1 ? '2rem' : '0',
                     }"
                   >
-                    <!-- Administrator only delete button -->
                     <button
                       v-if="isAdmin && editMode"
                       @click="deleteVideo(video.id)"
@@ -1218,7 +1216,6 @@ const uploadThumbnail = async () => {
                 </p>
               </div>
 
-              <!-- On-site photos: Only displayed if you are an administrator or have photos -->
               <div
                 v-if="isAdmin || (photos && photos.length > 0)"
                 class="photos-section"
@@ -1241,7 +1238,6 @@ const uploadThumbnail = async () => {
                     class="photo-item"
                     @click="!editMode && openLightbox(index)"
                   >
-                    <!-- Administrator only delete button -->
                     <button
                       v-if="isAdmin && editMode"
                       @click.stop="deletePhoto(photo.id)"
@@ -1261,15 +1257,14 @@ const uploadThumbnail = async () => {
                 </p>
               </div>
 
-              <!-- When there is no video/picture (only visible to administrators) -->
               <div v-if="isAdmin && !hasGalleryContent" class="empty-gallery">
                 <p>집회 영상과 사진은 집회 후 업데이트 예정입니다.</p>
               </div>
             </div>
-          </div>
+          </div> -->
 
           <!-- Sheet music tab content (only visible after the meeting date) -->
-          <div v-show="activeTab === 'scores'" class="tab-content">
+          <!-- <div v-show="activeTab === 'scores'" class="tab-content">
             <div class="detail-content">
               <div class="scores-section">
                 <div class="section-header-with-action">
@@ -1314,7 +1309,6 @@ const uploadThumbnail = async () => {
                   class="score-single-container"
                 >
                   <div class="score-single-card">
-                    <!-- Administrator only delete button -->
                     <button
                       v-if="isAdmin && editMode"
                       @click="deleteWorshipScore"
@@ -1324,7 +1318,6 @@ const uploadThumbnail = async () => {
                       🗑️
                     </button>
 
-                    <!-- PDF preview / Thumbnail -->
                     <div class="score-preview-large">
                       <div v-if="worship.poster_url" class="score-thumbnail">
                         <img
@@ -1341,7 +1334,6 @@ const uploadThumbnail = async () => {
                       </div>
                     </div>
 
-                    <!-- Score information -->
                     <div class="score-info-large">
                       <h3 class="score-title-main">
                         {{ worship.title }} 집회 악보
@@ -1365,7 +1357,6 @@ const uploadThumbnail = async () => {
                       </div>
                     </div>
 
-                    <!-- Download button -->
                     <div class="score-download-section">
                       <button
                         class="btn primary download-btn-large"
@@ -1391,7 +1382,6 @@ const uploadThumbnail = async () => {
                   </div>
                 </div>
 
-                <!-- Sheet music empty: visible only to administrators -->
                 <div v-else-if="isAdmin" class="score-empty-state">
                   <div class="empty-icon">📋</div>
                   <h3>아직 업로드된 악보가 없습니다</h3>
@@ -1406,7 +1396,7 @@ const uploadThumbnail = async () => {
                 </div>
               </div>
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
 

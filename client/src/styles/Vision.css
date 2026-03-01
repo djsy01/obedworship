@@ -350,6 +350,34 @@ Team Introduction
   border-color: var(--ow-border-accent);
 }
 
+.position-badge-more {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: var(--ow-surface-2);
+  border: 1px solid var(--ow-border);
+  color: var(--ow-text-muted);
+  cursor: default;
+  user-select: none;
+}
+
+.position-badge-tooltip-fixed {
+  position: fixed;
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding: 0.5rem 0.65rem;
+  background: var(--ow-surface);
+  border: 1px solid var(--ow-border);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  z-index: 9999;
+  pointer-events: none;
+  min-width: max-content;
+}
+
 /* ========================================
    social links
 
