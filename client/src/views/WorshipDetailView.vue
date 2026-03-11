@@ -1,44 +1,849 @@
+<script setup lang="ts">
+import { computed, ref, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { useAuth } from "@/composables/useAuth";
+import { worshipApi, type Worship } from "@/api/worship";
+import { worshipScoreApi, type WorshipScore } from "@/api/worship-scores";
+import { worshipVideoApi, type WorshipVideo } from "@/api/worship-videos";
+import { worshipPhotoApi, type WorshipPhoto } from "@/api/worship-photos";
+import "../styles/WorshipDetail.css";
+
+const router = useRouter();
+const route = useRoute();
+const { isAdmin, isLoggedIn } = useAuth();
+
+const activeTab = ref("info");
+const lightboxOpen = ref(false);
+const currentPhotoIndex = ref(0);
+const editMode = ref(false);
+const pdfPreviewOpen = ref(false);
+const currentPdfUrl = ref("");
+const loading = ref(false);
+const uploading = ref(false);
+
+// sheet music upload modal
+const scoreUploadModalOpen = ref(false);
+const selectedScoreFile = ref<File | null>(null);
+const scoreDescription = ref("");
+const scoreFileInput = ref<HTMLInputElement | null>(null);
+
+// Poster/thumbnail upload modal
+const thumbnailUploadModalOpen = ref(false);
+const selectedThumbnailFile = ref<File | null>(null);
+const thumbnailPreviewUrl = ref("");
+const thumbnailFileInput = ref<HTMLInputElement | null>(null);
+
+// rally poster upload modal
+const posterUploadModalOpen = ref(false);
+const selectedPosterFile = ref<File | null>(null);
+const posterPreviewUrl = ref("");
+const posterFileInput = ref<HTMLInputElement | null>(null);
+
+// full screen poster
+const posterFullscreenOpen = ref(false);
+const scorePosterFullscreenOpen = ref(false);
+const scorePosterUrl = ref("");
+
+// API data
+const worship = ref<Worship | null>(null);
+const scores = ref<WorshipScore[]>([]);
+const videos = ref<WorshipVideo[]>([]);
+const photos = ref<WorshipPhoto[]>([]);
+
+//Edit form data
+const editForm = ref({
+  title: "",
+  preacher: "",
+  worship_team: "",
+  guest: "",
+  description: "",
+  poster_url: "",
+  comments: "",
+  entry_time: "",
+  start_time: "",
+  location: "",
+  location_link: "",
+  parking: "",
+  seating: "",
+  promo_video: "",
+  prelisten_video: "",
+  opening_songs_text: "",
+  celebration_songs_text: "",
+  excluded_songs_text: "",
+});
+
+// For file upload
+const scoreFile = ref<File | null>(null);
+const videoUrl = ref("");
+const photoFile = ref<File | null>(null);
+
+const worshipId = computed(() => Number(route.params.id));
+
+// Assembly query
+const fetchWorship = async () => {
+  loading.value = true;
+  try {
+    const response = await worshipApi.getOne(worshipId.value);
+    worship.value = response.data;
+
+    // Fill data into edit form
+    editForm.value = {
+      title: response.data.title || "",
+      preacher: response.data.preacher || "",
+      worship_team: response.data.worship_team || "",
+      guest: response.data.guest || "",
+      description: response.data.description || "",
+      poster_url: response.data.poster_url || "",
+      comments: response.data.comments || "",
+      entry_time: response.data.entry_time || "",
+      start_time: response.data.start_time || "",
+      location: response.data.location || "",
+      location_link: response.data.location_link || "",
+      parking: response.data.parking || "",
+      seating: response.data.seating || "",
+      promo_video: response.data.promo_video || "",
+      prelisten_video: response.data.prelisten_video || "",
+      opening_songs_text: response.data.opening_songs?.join("\n") || "",
+      celebration_songs_text: response.data.celebration_songs?.join("\n") || "",
+      excluded_songs_text: response.data.excluded_songs?.join("\n") || "",
+    };
+
+    // Search sheet music, video, and photos
+    const scoresResponse = await worshipScoreApi.getByWorshipId(
+      worshipId.value,
+    );
+    scores.value = scoresResponse.data;
+
+    const videosResponse = await worshipVideoApi.getByWorshipId(
+      worshipId.value,
+    );
+    videos.value = videosResponse.data;
+
+    const photosResponse = await worshipPhotoApi.getByWorshipId(
+      worshipId.value,
+    );
+    photos.value = photosResponse.data;
+  } catch (error) {
+    console.error("집회 조회 실패:", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const toggleEditMode = async () => {
+  if (editMode.value) {
+    // Save mode: Exit edit mode after saving
+    await saveWorship();
+  } else {
+    // Enter edit mode
+    editMode.value = true;
+  }
+};
+
+const saveWorship = async () => {
+  loading.value = true;
+  try {
+    // Convert text to array
+    const opening_songs = editForm.value.opening_songs_text
+      .split("\n")
+      .map((s) => s.trim())
+      .filter((s) => s);
+    const celebration_songs = editForm.value.celebration_songs_text
+      .split("\n")
+      .map((s) => s.trim())
+      .filter((s) => s);
+    const excluded_songs = editForm.value.excluded_songs_text
+      .split("\n")
+      .map((s) => s.trim())
+      .filter((s) => s);
+
+    await worshipApi.update(worshipId.value, {
+      title: editForm.value.title,
+      preacher: editForm.value.preacher,
+      worship_team: editForm.value.worship_team,
+      guest: editForm.value.guest,
+      description: editForm.value.description,
+      poster_url: editForm.value.poster_url,
+      comments: editForm.value.comments,
+      entry_time: editForm.value.entry_time,
+      start_time: editForm.value.start_time,
+      location: editForm.value.location,
+      location_link: editForm.value.location_link,
+      parking: editForm.value.parking,
+      seating: editForm.value.seating,
+      promo_video: editForm.value.promo_video,
+      prelisten_video: editForm.value.prelisten_video,
+      opening_songs,
+      celebration_songs,
+      excluded_songs,
+    });
+    alert("집회 정보가 저장되었습니다!");
+    editMode.value = false;
+    await fetchWorship();
+  } catch (error) {
+    console.error("저장 실패:", error);
+    alert("저장에 실패했습니다");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// initial load
+onMounted(() => {
+  fetchWorship();
+});
+
+// Utility functions
+const formatDateWithDay = (dateString: string): string => {
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const date = new Date(dateString + "T00:00:00");
+  return `${date.toLocaleDateString("ko-KR")} (${days[date.getDay()]})`;
+};
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+
+// Lightbox related
+const currentPhoto = computed(() => {
+  if (photos.value && photos.value.length > 0) {
+    return photos.value[currentPhotoIndex.value]?.photo_url || "";
+  }
+  return "";
+});
+
+const openLightbox = (index: number) => {
+  currentPhotoIndex.value = index;
+  lightboxOpen.value = true;
+};
+
+const closeLightbox = () => {
+  lightboxOpen.value = false;
+};
+
+const nextPhoto = () => {
+  if (photos.value) {
+    currentPhotoIndex.value =
+      (currentPhotoIndex.value + 1) % photos.value.length;
+  }
+};
+
+const prevPhoto = () => {
+  if (photos.value) {
+    currentPhotoIndex.value =
+      (currentPhotoIndex.value - 1 + photos.value.length) % photos.value.length;
+  }
+};
+
+// PDF preview related
+const previewScore = (score: WorshipScore) => {
+  currentPdfUrl.value = score.file_url;
+  pdfPreviewOpen.value = true;
+};
+
+const closePdfPreview = () => {
+  pdfPreviewOpen.value = false;
+  currentPdfUrl.value = "";
+};
+
+// ==================== Sheet music management ====================
+// add sheet music
+const handleAddScore = async () => {
+  if (!scoreFile.value) {
+    alert("파일을 선택해주세요");
+    return;
+  }
+
+  loading.value = true;
+  try {
+    // Actually, you need to receive the URL after uploading the file.
+    // Temporary file name is used here
+    await worshipScoreApi.create({
+      worship_id: worshipId.value,
+      filename: scoreFile.value.name,
+      file_url: `/uploads/scores/${scoreFile.value.name}`,
+      description: "",
+    });
+    alert("악보가 추가되었습니다!");
+    scoreFile.value = null;
+    await fetchWorship();
+  } catch (error) {
+    console.error("악보 추가 실패:", error);
+    alert("악보 추가에 실패했습니다");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Delete sheet music
+const deleteScore = async (scoreId: number) => {
+  if (!confirm("이 악보를 삭제하시겠습니까?")) return;
+
+  loading.value = true;
+  try {
+    await worshipScoreApi.delete(scoreId);
+    alert("악보가 삭제되었습니다!");
+    await fetchWorship();
+  } catch (error) {
+    console.error("악보 삭제 실패:", error);
+    alert("악보 삭제에 실패했습니다");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// ==================== Video Management ====================
+// add video
+const handleAddVideo = async () => {
+  if (!videoUrl.value) {
+    alert("영상 URL을 입력해주세요");
+    return;
+  }
+
+  loading.value = true;
+  try {
+    await worshipVideoApi.create({
+      worship_id: worshipId.value,
+      video_url: videoUrl.value,
+      video_order: videos.value.length + 1,
+    });
+    alert("영상이 추가되었습니다!");
+    videoUrl.value = "";
+    await fetchWorship();
+  } catch (error) {
+    console.error("영상 추가 실패:", error);
+    alert("영상 추가에 실패했습니다");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Delete video
+const deleteVideo = async (videoId: number) => {
+  if (!confirm("이 영상을 삭제하시겠습니까?")) return;
+
+  loading.value = true;
+  try {
+    await worshipVideoApi.delete(videoId);
+    alert("영상이 삭제되었습니다!");
+    await fetchWorship();
+  } catch (error) {
+    console.error("영상 삭제 실패:", error);
+    alert("영상 삭제에 실패했습니다");
+  } finally {
+    loading.value = false;
+  }
+};
+
+const getYouTubeEmbedUrl = (url: string) => {
+  let videoId = "";
+
+  if (url.includes("youtu.be/")) {
+    videoId = url.split("youtu.be/")[1].split("?")[0];
+  } else if (url.includes("watch?v=")) {
+    videoId = url.split("watch?v=")[1].split("&")[0];
+  }
+
+  return `https://www.youtube.com/embed/${videoId}`;
+};
+
+// ==================== Photo Management ====================
+// add photo
+const handleAddPhoto = async () => {
+  if (!photoFile.value) {
+    alert("파일을 선택해주세요");
+    return;
+  }
+
+  loading.value = true;
+  try {
+    // Actually, you need to receive the URL after uploading the file.
+    await worshipPhotoApi.create({
+      worship_id: worshipId.value,
+      photo_url: `/uploads/photos/${photoFile.value.name}`,
+      file_name: photoFile.value.name,
+      photo_order: photos.value.length + 1,
+    });
+    alert("사진이 추가되었습니다!");
+    photoFile.value = null;
+    await fetchWorship();
+  } catch (error) {
+    console.error("사진 추가 실패:", error);
+    alert("사진 추가에 실패했습니다");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// delete photo
+const deletePhoto = async (photoId: number) => {
+  if (!confirm("이 사진을 삭제하시겠습니까?")) return;
+
+  loading.value = true;
+  try {
+    await worshipPhotoApi.delete(photoId);
+    alert("사진이 삭제되었습니다!");
+    await fetchWorship();
+  } catch (error) {
+    console.error("사진 삭제 실패:", error);
+    alert("사진 삭제에 실패했습니다");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Open photo upload modal
+const openPhotoUpload = () => {
+  // TODO: Open file upload modal
+  console.log("사진 업로드 모달 열기");
+  alert("사진 업로드 기능 구현 예정\n(파일 선택 모달이 열립니다)");
+};
+
+// Check if the meeting date has passed
+const isWorshipDatePassed = computed(() => {
+  if (!worship.value?.date) return false;
+  const worshipDate = new Date(worship.value.date);
+  const today = new Date();
+  return worshipDate < today;
+});
+
+// Check if there is video/photo content
+const hasGalleryContent = computed(() => {
+  return (
+    (videos.value && videos.value.length > 0) ||
+    (photos.value && photos.value.length > 0)
+  );
+});
+
+// Check if there is sheet music content
+const hasScoreContent = computed(() => {
+  return scores.value && scores.value.length > 0;
+});
+
+// Open add video modal
+const openAddVideoModal = () => {
+  const url = prompt("YouTube 영상 URL을 입력해주세요:");
+  if (url) {
+    videoUrl.value = url;
+    handleAddVideo();
+  }
+};
+
+//Open sheet music upload modal
+const openScoreUpload = () => {
+  scoreUploadModalOpen.value = true;
+  selectedScoreFile.value = null;
+  scoreDescription.value = "";
+};
+
+// Close sheet music upload modal
+const closeScoreUploadModal = () => {
+  scoreUploadModalOpen.value = false;
+  selectedScoreFile.value = null;
+  scoreDescription.value = "";
+  if (scoreFileInput.value) {
+    scoreFileInput.value.value = "";
+  }
+};
+
+// Sheet music file selection handler
+const handleScoreFileSelect = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+
+  if (!file) return;
+
+  // Check PDF file
+  if (file.type !== "application/pdf") {
+    alert("PDF 파일만 업로드할 수 있습니다.");
+    target.value = "";
+    return;
+  }
+
+  // Check file size (10MB)
+  if (file.size > 10 * 1024 * 1024) {
+    alert("파일 크기는 10MB를 초과할 수 없습니다.");
+    target.value = "";
+    return;
+  }
+
+  selectedScoreFile.value = file;
+};
+
+// file size format
+const formatFileSize = (bytes: number) => {
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+};
+
+// Upload sheet music
+const uploadScore = async () => {
+  if (!selectedScoreFile.value) {
+    alert("파일을 선택해주세요.");
+    return;
+  }
+
+  uploading.value = true;
+  try {
+    // 1. Upload file
+    const uploadResponse = await worshipScoreApi.uploadFile(
+      selectedScoreFile.value,
+    );
+    const { url, filename } = uploadResponse.data;
+
+    // 2. Create worship_score record
+    await worshipScoreApi.create({
+      worship_id: worshipId.value,
+      filename: filename,
+      file_url: url,
+      description: scoreDescription.value || undefined,
+    });
+
+    alert("악보가 업로드되었습니다!");
+    closeScoreUploadModal();
+    await fetchWorship();
+  } catch (error) {
+    console.error("악보 업로드 실패:", error);
+    alert("악보 업로드에 실패했습니다.");
+  } finally {
+    uploading.value = false;
+  }
+};
+
+// Delete rally sheet music
+const deleteWorshipScore = async () => {
+  if (!scores.value || scores.value.length === 0) return;
+  if (!confirm("이 악보를 삭제하시겠습니까?")) return;
+
+  loading.value = true;
+  try {
+    await worshipScoreApi.delete(scores.value[0].id);
+    alert("악보가 삭제되었습니다!");
+    await fetchWorship();
+  } catch (error) {
+    console.error("악보 삭제 실패:", error);
+    alert("악보 삭제에 실패했습니다");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Download sheet music
+const downloadWorshipScore = () => {
+  if (!isLoggedIn.value) {
+    alert("로그인이 필요합니다.");
+    return;
+  }
+
+  if (!scores.value || scores.value.length === 0) {
+    alert("다운로드할 악보가 없습니다.");
+    return;
+  }
+
+  const score = scores.value[0];
+  // Download actual file
+  const link = document.createElement("a");
+  link.href = score.file_url;
+  link.download = score.filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+const goBack = () => {
+  router.push({ name: "worship-log" });
+};
+
+// ==================== Poster Management ====================
+// Open poster upload modal
+const openPosterUpload = () => {
+  posterUploadModalOpen.value = true;
+  selectedPosterFile.value = null;
+  posterPreviewUrl.value = "";
+};
+
+// Close poster upload modal
+const closePosterUploadModal = () => {
+  posterUploadModalOpen.value = false;
+  selectedPosterFile.value = null;
+  posterPreviewUrl.value = "";
+  if (posterFileInput.value) {
+    posterFileInput.value.value = "";
+  }
+};
+
+// Poster file selection handler
+const handlePosterFileSelect = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+
+  if (!file) return;
+
+  // Check image file
+  if (!file.type.startsWith("image/")) {
+    alert("이미지 파일만 업로드할 수 있습니다.");
+    target.value = "";
+    return;
+  }
+
+  // Check file size (5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    alert("파일 크기는 5MB를 초과할 수 없습니다.");
+    target.value = "";
+    return;
+  }
+
+  selectedPosterFile.value = file;
+
+  // create preview
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    posterPreviewUrl.value = e.target?.result as string;
+  };
+  reader.readAsDataURL(file);
+};
+
+// Upload poster
+const uploadPoster = async () => {
+  if (!selectedPosterFile.value) {
+    alert("파일을 선택해주세요.");
+    return;
+  }
+
+  uploading.value = true;
+  try {
+    // 1. Upload file (using worshipPhotoApi)
+    const uploadResponse = await worshipPhotoApi.uploadFile(
+      selectedPosterFile.value,
+    );
+    const { url } = uploadResponse.data;
+
+    // 2. Update worship record
+    await worshipApi.update(worshipId.value, {
+      poster_url: url,
+    });
+
+    alert("포스터가 업로드되었습니다!");
+    closePosterUploadModal();
+    await fetchWorship();
+  } catch (error) {
+    console.error("포스터 업로드 실패:", error);
+    alert("포스터 업로드에 실패했습니다.");
+  } finally {
+    uploading.value = false;
+  }
+};
+
+// delete poster
+const removePoster = async () => {
+  if (!confirm("포스터를 삭제하시겠습니까?")) return;
+
+  loading.value = true;
+  try {
+    await worshipApi.update(worshipId.value, {
+      poster_url: "",
+    });
+    alert("포스터가 삭제되었습니다!");
+    await fetchWorship();
+  } catch (error) {
+    console.error("포스터 삭제 실패:", error);
+    alert("포스터 삭제에 실패했습니다");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Open poster full screen
+const openPosterFullscreen = () => {
+  posterFullscreenOpen.value = true;
+};
+
+// Close poster full screen
+const closePosterFullscreen = () => {
+  posterFullscreenOpen.value = false;
+};
+
+// Sheet music preview click handler (logged in users only)
+const handleScorePreviewClick = (score: WorshipScore) => {
+  console.log("handleScorePreviewClick called", score);
+  if (!isLoggedIn.value) {
+    alert("악보 미리보기는 로그인 후 이용 가능합니다.");
+    return;
+  }
+  console.log("Opening PDF preview for:", score.file_url);
+  previewScore(score);
+};
+
+// Open sheet music poster full screen
+const openScorePosterFullscreen = (url: string) => {
+  scorePosterUrl.value = url;
+  scorePosterFullscreenOpen.value = true;
+};
+
+// Close sheet music poster full screen
+const closeScorePosterFullscreen = () => {
+  scorePosterFullscreenOpen.value = false;
+  scorePosterUrl.value = "";
+};
+
+// ==================== Thumbnail Management ====================
+//Open thumbnail upload modal
+const openThumbnailUpload = () => {
+  thumbnailUploadModalOpen.value = true;
+  selectedThumbnailFile.value = null;
+  thumbnailPreviewUrl.value = "";
+};
+
+// Close thumbnail upload modal
+const closeThumbnailUploadModal = () => {
+  thumbnailUploadModalOpen.value = false;
+  selectedThumbnailFile.value = null;
+  thumbnailPreviewUrl.value = "";
+  if (thumbnailFileInput.value) {
+    thumbnailFileInput.value.value = "";
+  }
+};
+
+// Thumbnail file selection handler
+const handleThumbnailFileSelect = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+
+  if (!file) return;
+
+  // Check image file
+  if (!file.type.startsWith("image/")) {
+    alert("이미지 파일만 업로드할 수 있습니다.");
+    target.value = "";
+    return;
+  }
+
+  // Check file size (5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    alert("파일 크기는 5MB를 초과할 수 없습니다.");
+    target.value = "";
+    return;
+  }
+
+  selectedThumbnailFile.value = file;
+
+  // create preview
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    thumbnailPreviewUrl.value = e.target?.result as string;
+  };
+  reader.readAsDataURL(file);
+};
+
+// Upload thumbnail
+const uploadThumbnail = async () => {
+  if (!selectedThumbnailFile.value) {
+    alert("파일을 선택해주세요.");
+    return;
+  }
+
+  if (!scores.value || scores.value.length === 0) {
+    alert("악보가 없습니다. 먼저 악보를 업로드해주세요.");
+    return;
+  }
+
+  uploading.value = true;
+  try {
+    // 1. Upload file
+    const uploadResponse = await worshipPhotoApi.uploadFile(
+      selectedThumbnailFile.value,
+    );
+    const { url } = uploadResponse.data;
+
+    // 2. Update worship_score record
+    await worshipScoreApi.update(scores.value[0].id, {
+      thumbnail_url: url,
+    });
+
+    alert("포스터가 업로드되었습니다!");
+    closeThumbnailUploadModal();
+    await fetchWorship();
+  } catch (error) {
+    console.error("포스터 업로드 실패:", error);
+    alert("포스터 업로드에 실패했습니다.");
+  } finally {
+    uploading.value = false;
+  }
+};
+</script>
+
 <template>
   <div class="page">
     <section class="section">
       <div class="detail-header">
-        <button class="btn ghost back-btn" @click="goBack">
-          ← 목록으로
-        </button>
-        
-        <!-- 관리자 전용 편집 모드 토글 -->
-        <button v-if="isAdmin" class="btn primary edit-mode-btn" @click="toggleEditMode">
-          {{ editMode ? '💾 저장하기' : '✏️ 편집 모드' }}
+        <button class="btn ghost back-btn" @click="goBack">← 목록으로</button>
+
+        <!-- Toggle admin-only editing mode -->
+        <button
+          v-if="isAdmin"
+          class="btn primary edit-mode-btn"
+          @click="toggleEditMode"
+        >
+          {{ editMode ? "💾 저장하기" : "✏️ 편집 모드" }}
         </button>
       </div>
 
       <div v-if="worship" class="detail-container">
-        <!-- 히어로 섹션 -->
+        <!-- Hero Section -->
         <div class="detail-hero">
-          <p class="detail-date">{{ worship.date }}</p>
-          <h1 class="detail-title">{{ worship.title }}</h1>
-          
-          <!-- 집회 정보 -->
+          <p class="detail-date">
+            {{ formatDateWithDay(worship.date) }}
+          </p>
+          <h1 class="detail-title">
+            <span v-if="editMode">
+              <input v-model="editForm.title" type="text" />
+            </span>
+            <span v-else>{{ worship.title }}</span>
+          </h1>
+
+          <!-- Rally Information -->
           <div class="hero-info">
             <div class="hero-info-item">
               <span class="hero-info-label">설교자</span>
-              <span class="hero-info-value">{{ worship.preacher }}</span>
+              <span v-if="editMode" class="hero-info-value">
+                <input v-model="editForm.preacher" type="text" />
+              </span>
+              <span v-else class="hero-info-value">{{ worship.preacher }}</span>
             </div>
             <div class="hero-info-item">
               <span class="hero-info-label">찬양팀</span>
-              <span class="hero-info-value">{{ worship.worship }}</span>
+              <span v-if="editMode" class="hero-info-value">
+                <input v-model="editForm.worship_team" type="text" />
+              </span>
+              <span v-else class="hero-info-value">{{
+                worship.worship_team
+              }}</span>
             </div>
-            <div v-if="worship.guest" class="hero-info-item">
+            <div v-if="worship.guest || editMode" class="hero-info-item">
               <span class="hero-info-label">초청 간사</span>
-              <span class="hero-info-value">{{ worship.guest }}</span>
+              <span v-if="editMode" class="hero-info-value">
+                <input v-model="editForm.guest" type="text" />
+              </span>
+              <span v-else class="hero-info-value">{{ worship.guest }}</span>
             </div>
           </div>
 
-          <!-- 집회 소개 -->
-          <p class="hero-description">{{ worship.description }}</p>
+          <!-- Introduction to the meeting -->
+          <p v-if="editMode" class="hero-description">
+            <textarea v-model="editForm.description" rows="3"></textarea>
+          </p>
+          <p v-else class="hero-description">{{ worship.description }}</p>
         </div>
 
-        <!-- 탭 네비게이션 -->
+        <!-- Tab navigation -->
         <div class="tabs-container">
           <div class="tabs-nav">
             <button
@@ -48,68 +853,176 @@
             >
               안내
             </button>
-            <button
+            <!-- Video/Photo tab: Always visible for administrators, only when content is out of date for regular users -->
+            <!-- <button
+              v-if="isAdmin || (isWorshipDatePassed && hasGalleryContent)"
               class="tab-button"
               :class="{ active: activeTab === 'gallery' }"
               @click="activeTab = 'gallery'"
             >
               영상/사진
-            </button>
-            <!-- 집회 날짜 이후에만 악보 탭 표시 -->
-            <button
-              v-if="isWorshipDatePassed"
+            </button> -->
+            <!-- Sheet music tab: Always visible for administrators, general users only when there is sheet music after the date -->
+            <!-- <button
+              v-if="isAdmin || (isWorshipDatePassed && hasScoreContent)"
               class="tab-button"
               :class="{ active: activeTab === 'scores' }"
               @click="activeTab = 'scores'"
             >
               악보
-            </button>
+            </button> -->
           </div>
 
-          <!-- 안내 탭 내용 -->
+          <!-- Guide tab contents -->
           <div v-show="activeTab === 'info'" class="tab-content">
             <div class="detail-content">
-              <!-- 예배 안내 -->
-              <div v-if="worship.coments" class="info-section">
-                <h2 class="section-subtitle">🙏 예배 안내</h2>
-                <p class="worship-info-text">{{ worship.coments }}</p>
+              <!-- Poster Section -->
+              <div v-if="worship.poster_url || editMode" class="poster-section">
+                <h2 class="section-subtitle">🖼️ 집회 포스터</h2>
+                <div v-if="editMode" class="poster-edit-actions">
+                  <button class="btn small primary" @click="openPosterUpload">
+                    {{ worship.poster_url ? "포스터 변경" : "포스터 업로드" }}
+                  </button>
+                  <button
+                    v-if="worship.poster_url"
+                    class="btn small ghost"
+                    @click="removePoster"
+                  >
+                    포스터 삭제
+                  </button>
+                </div>
+                <div
+                  v-if="worship.poster_url && !editMode"
+                  class="poster-image clickable-poster"
+                  @click="openPosterFullscreen"
+                >
+                  <img
+                    :src="worship.poster_url"
+                    :alt="`${worship.title} 포스터`"
+                  />
+                  <div class="poster-overlay">
+                    <div class="poster-overlay-icon">🔍</div>
+                    <p>클릭하여 크게 보기</p>
+                  </div>
+                </div>
+                <div
+                  v-else-if="worship.poster_url && editMode"
+                  class="poster-preview"
+                >
+                  <img
+                    :src="worship.poster_url"
+                    :alt="`${worship.title} 포스터`"
+                  />
+                </div>
               </div>
-              <!-- 시간 안내 -->
-              <div v-if="worship.entryTime || worship.startTime" class="time-section">
+
+              <!-- Worship Information -->
+              <div v-if="worship.comments || editMode" class="info-section">
+                <h2 class="section-subtitle">🙏 예배 안내</h2>
+                <textarea
+                  v-if="editMode"
+                  v-model="editForm.comments"
+                  class="edit-textarea"
+                  rows="3"
+                  placeholder="예배 안내 내용을 입력하세요"
+                ></textarea>
+                <p v-else class="worship-info-text">{{ worship.comments }}</p>
+              </div>
+
+              <!-- Time information -->
+              <div
+                v-if="worship.entry_time || worship.start_time || editMode"
+                class="time-section"
+              >
                 <h2 class="section-subtitle">⏰ 시간 안내</h2>
                 <div class="time-info">
-                  <div v-if="worship.entryTime" class="time-item">
+                  <div class="time-item">
                     <span class="time-label">예배당 입장 시간</span>
-                    <span class="time-value">{{ worship.entryTime }}</span>
+                    <input
+                      v-if="editMode"
+                      v-model="editForm.entry_time"
+                      type="text"
+                      class="edit-input"
+                      placeholder="예: 18시 30분"
+                    />
+                    <span v-else class="time-value">{{
+                      worship.entry_time
+                    }}</span>
                   </div>
-                  <div v-if="worship.startTime" class="time-item">
+                  <div class="time-item">
                     <span class="time-label">예배 시작</span>
-                    <span class="time-value">{{ worship.startTime }}</span>
+                    <input
+                      v-if="editMode"
+                      v-model="editForm.start_time"
+                      type="text"
+                      class="edit-input"
+                      placeholder="예: 19시 00분"
+                    />
+                    <span v-else class="time-value">{{
+                      worship.start_time
+                    }}</span>
                   </div>
                 </div>
               </div>
 
-              <!-- 홍보 영상 -->
-              <div v-if="worship.promoVideo" class="video-section">
+              <!-- Promotional video -->
+              <div v-if="worship.promo_video || editMode" class="video-section">
                 <h2 class="section-subtitle">🎶 홍보영상</h2>
-                <div class="video-embed">
+                <div v-if="editMode" class="edit-field">
+                  <input
+                    v-model="editForm.promo_video"
+                    type="text"
+                    class="edit-input"
+                    placeholder="YouTube 영상 URL을 입력하세요"
+                  />
+                </div>
+                <div v-if="worship.promo_video" class="video-embed">
                   <iframe
-                    :src="getYouTubeEmbedUrl(worship.promoVideo)"
+                    :src="getYouTubeEmbedUrl(worship.promo_video)"
                     frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allow="
+                      accelerometer;
+                      autoplay;
+                      clipboard-write;
+                      encrypted-media;
+                      gyroscope;
+                      picture-in-picture;
+                    "
                     allowfullscreen
                   ></iframe>
                 </div>
               </div>
 
-              <!-- 장소 안내 -->
-              <div v-if="worship.location" class="location-section">
+              <!-- Location information -->
+              <div v-if="worship.location || editMode" class="location-section">
                 <h2 class="section-subtitle">⛪ 장소 안내</h2>
                 <div class="location-info">
-                  <p class="location-text">{{ worship.location }}</p>
-                  <div v-if="worship.locationLink" class="map-embed">
+                  <input
+                    v-if="editMode"
+                    v-model="editForm.location"
+                    type="text"
+                    class="edit-input"
+                    placeholder="장소를 입력하세요"
+                  />
+                  <p v-else class="location-text">{{ worship.location }}</p>
+                  <div
+                    v-if="editMode"
+                    class="edit-field"
+                    style="margin-top: 0.5rem"
+                  >
+                    <input
+                      v-model="editForm.location_link"
+                      type="text"
+                      class="edit-input"
+                      placeholder="지도 링크 (Google Maps embed URL)"
+                    />
+                  </div>
+                  <div
+                    v-if="worship.location_link && !editMode"
+                    class="map-embed"
+                  >
                     <iframe
-                      src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1580.1564111497155!2d126.8361455337295!3d37.61832881652992!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x357c9a4552397f0b%3A0xc99a963ed07b51d8!2z7JeI7IiY7J246rWQ7ZqM!5e0!3m2!1sko!2sus!4v1746049290723!5m2!1sko!2sus"
+                      :src="worship.location_link"
                       frameborder="0"
                       allowfullscreen
                       loading="lazy"
@@ -119,198 +1032,331 @@
                 </div>
               </div>
 
-              <!-- 주차 안내 -->
-              <div v-if="worship.parking" class="parking-section">
+              <!-- Parking information -->
+              <div v-if="worship.parking || editMode" class="parking-section">
                 <h2 class="section-subtitle">🚙 주차 안내</h2>
-                <p class="parking-text">{{ worship.parking }}</p>
+                <textarea
+                  v-if="editMode"
+                  v-model="editForm.parking"
+                  class="edit-textarea"
+                  rows="2"
+                  placeholder="주차 안내 내용을 입력하세요"
+                ></textarea>
+                <p v-else class="parking-text">{{ worship.parking }}</p>
               </div>
 
-              <!-- 자리 안내 -->
-              <div v-if="worship.seating" class="seating-section">
+              <!-- Seating information -->
+              <div v-if="worship.seating || editMode" class="seating-section">
                 <h2 class="section-subtitle">🪑 자리 안내</h2>
-                <p class="seating-text">{{ worship.seating }}</p>
+                <textarea
+                  v-if="editMode"
+                  v-model="editForm.seating"
+                  class="edit-textarea"
+                  rows="2"
+                  placeholder="자리 안내 내용을 입력하세요"
+                ></textarea>
+                <p v-else class="seating-text">{{ worship.seating }}</p>
               </div>
 
-              <!-- 미리듣기 -->
-              <div v-if="worship.openingSongs || worship.celebrationSongs || worship.prelistenVideo" class="songs-section">
+              <!-- Preview -->
+              <div
+                v-if="
+                  worship.opening_songs?.length ||
+                  worship.celebration_songs?.length ||
+                  worship.prelisten_video ||
+                  editMode
+                "
+                class="songs-section"
+              >
                 <h2 class="section-subtitle">🎵 미리듣기</h2>
                 <p class="songs-intro">
-                  함께 부르게 될 곡들의 배우기 음원 링크를 아래에 보내드립니다.<br>
-                  예배 전 충분히 듣고 익혀 오신다면, 당일 예배가 더욱 깊고 풍성하게 채워질 것입니다.
+                  예배 전 충분히 듣고 익혀 오신다면, 당일 예배가 더욱 깊고
+                  풍성하게 채워질 것입니다.
                 </p>
 
-                <div v-if="worship.openingSongs" class="song-category">
+                <!-- Opening Songs -->
+                <div
+                  v-if="worship.opening_songs?.length || editMode"
+                  class="song-category"
+                >
                   <h3 class="song-category-title">Opening Song</h3>
-                  <ol class="song-list">
-                    <li v-for="(song, index) in worship.openingSongs" :key="index">{{ song }}</li>
+                  <div v-if="editMode" class="edit-field">
+                    <textarea
+                      v-model="editForm.opening_songs_text"
+                      class="edit-textarea"
+                      rows="4"
+                      placeholder="곡 목록을 한 줄에 하나씩 입력하세요"
+                    ></textarea>
+                  </div>
+                  <ol v-else class="song-list">
+                    <li
+                      v-for="(song, index) in worship.opening_songs"
+                      :key="index"
+                    >
+                      {{ song }}
+                    </li>
                   </ol>
                 </div>
 
-                <div v-if="worship.celebrationSongs" class="song-category">
+                <!-- Celebration Songs -->
+                <div
+                  v-if="worship.celebration_songs?.length || editMode"
+                  class="song-category"
+                >
                   <h3 class="song-category-title">Celebration Song</h3>
-                  <ol class="song-list">
-                    <li v-for="(song, index) in worship.celebrationSongs" :key="index">{{ song }}</li>
+                  <div v-if="editMode" class="edit-field">
+                    <textarea
+                      v-model="editForm.celebration_songs_text"
+                      class="edit-textarea"
+                      rows="6"
+                      placeholder="곡 목록을 한 줄에 하나씩 입력하세요"
+                    ></textarea>
+                  </div>
+                  <ol v-else class="song-list">
+                    <li
+                      v-for="(song, index) in worship.celebration_songs"
+                      :key="index"
+                    >
+                      {{ song }}
+                    </li>
                   </ol>
                 </div>
 
-                <div v-if="worship.prelistenVideo" class="video-embed">
-                  <iframe
-                    :src="getYouTubeEmbedUrl(worship.prelistenVideo)"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen
-                  ></iframe>
+                <!-- Prelisten Video -->
+                <div
+                  v-if="worship.prelisten_video || editMode"
+                  class="prelisten-video-section"
+                >
+                  <h3 v-if="editMode" class="song-category-title">
+                    미리듣기 영상
+                  </h3>
+                  <div v-if="editMode" class="edit-field">
+                    <input
+                      v-model="editForm.prelisten_video"
+                      type="text"
+                      class="edit-input"
+                      placeholder="미리듣기 YouTube 영상 URL을 입력하세요"
+                    />
+                  </div>
+                  <div v-if="worship.prelisten_video" class="video-embed">
+                    <iframe
+                      :src="getYouTubeEmbedUrl(worship.prelisten_video)"
+                      frameborder="0"
+                      allow="
+                        accelerometer;
+                        autoplay;
+                        clipboard-write;
+                        encrypted-media;
+                        gyroscope;
+                        picture-in-picture;
+                      "
+                      allowfullscreen
+                    ></iframe>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- 영상/사진 탭 내용 -->
-          <div v-show="activeTab === 'gallery'" class="tab-content">
+          <!-- Video/Photo tab contents -->
+          <!-- <div v-show="activeTab === 'gallery'" class="tab-content">
             <div class="detail-content">
-              <!-- 집회 영상들 -->
-              <div class="worship-video-section">
+              <div
+                v-if="isAdmin || (videos && videos.length > 0)"
+                class="worship-video-section"
+              >
                 <div class="section-header-with-action">
                   <h2 class="section-subtitle">🎬 집회 영상</h2>
-                  <button v-if="isAdmin && editMode" @click="openAddVideoModal" class="btn small primary">
+                  <button
+                    v-if="isAdmin && editMode"
+                    @click="openAddVideoModal"
+                    class="btn small primary"
+                  >
                     + 영상 추가
                   </button>
                 </div>
-                
-                <div v-if="worship.worshipVideos && worship.worshipVideos.length > 0">
+
+                <div v-if="videos && videos.length > 0">
                   <div
-                    v-for="(video, index) in worship.worshipVideos"
-                    :key="index"
+                    v-for="(video, index) in videos"
+                    :key="video.id"
                     class="video-wrapper-with-delete"
-                    :style="{ marginBottom: index < worship.worshipVideos.length - 1 ? '2rem' : '0' }"
+                    :style="{
+                      marginBottom: index < videos.length - 1 ? '2rem' : '0',
+                    }"
                   >
-                    <!-- 관리자 전용 삭제 버튼 -->
-                    <button 
-                      v-if="isAdmin && editMode" 
-                      @click="deleteVideo(index)" 
+                    <button
+                      v-if="isAdmin && editMode"
+                      @click="deleteVideo(video.id)"
                       class="btn-delete-video"
                       title="영상 삭제"
                     >
                       🗑️
                     </button>
-                    
+
                     <div class="video-embed">
                       <iframe
-                        :src="getYouTubeEmbedUrl(video)"
+                        :src="getYouTubeEmbedUrl(video.video_url)"
                         frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allow="
+                          accelerometer;
+                          autoplay;
+                          clipboard-write;
+                          encrypted-media;
+                          gyroscope;
+                          picture-in-picture;
+                        "
                         allowfullscreen
                       ></iframe>
                     </div>
                   </div>
                 </div>
-                <p v-else class="empty-message">아직 업로드된 영상이 없습니다.</p>
+                <p v-else-if="isAdmin" class="empty-message">
+                  아직 업로드된 영상이 없습니다.
+                </p>
               </div>
 
-              <!-- 현장 사진 -->
-              <div class="photos-section">
+              <div
+                v-if="isAdmin || (photos && photos.length > 0)"
+                class="photos-section"
+              >
                 <div class="section-header-with-action">
                   <h2 class="section-subtitle">📷 현장 사진</h2>
-                  <button v-if="isAdmin && editMode" @click="openPhotoUpload" class="btn small primary">
+                  <button
+                    v-if="isAdmin && editMode"
+                    @click="openPhotoUpload"
+                    class="btn small primary"
+                  >
                     + 사진 추가
                   </button>
                 </div>
-                
-                <div v-if="worship.photos && worship.photos.length > 0" class="photo-grid">
+
+                <div v-if="photos && photos.length > 0" class="photo-grid">
                   <div
-                    v-for="(photo, index) in worship.photos"
-                    :key="index"
+                    v-for="(photo, index) in photos"
+                    :key="photo.id"
                     class="photo-item"
                     @click="!editMode && openLightbox(index)"
                   >
-                    <!-- 관리자 전용 삭제 버튼 -->
-                    <button 
-                      v-if="isAdmin && editMode" 
-                      @click.stop="deletePhoto(index)" 
+                    <button
+                      v-if="isAdmin && editMode"
+                      @click.stop="deletePhoto(photo.id)"
                       class="btn-delete-photo"
                       title="사진 삭제"
                     >
                       ✕
                     </button>
-                    <img :src="photo" :alt="`집회 사진 ${index + 1}`" />
+                    <img
+                      :src="photo.photo_url"
+                      :alt="`집회 사진 ${index + 1}`"
+                    />
                   </div>
                 </div>
-                <p v-else class="empty-message">아직 업로드된 사진이 없습니다.</p>
+                <p v-else-if="isAdmin" class="empty-message">
+                  아직 업로드된 사진이 없습니다.
+                </p>
               </div>
 
-              <!-- 영상/사진이 없을 때 -->
-              <div v-if="(!worship.worshipVideos || worship.worshipVideos.length === 0) && (!worship.photos || worship.photos.length === 0)" class="empty-gallery">
+              <div v-if="isAdmin && !hasGalleryContent" class="empty-gallery">
                 <p>집회 영상과 사진은 집회 후 업데이트 예정입니다.</p>
               </div>
             </div>
-          </div>
+          </div> -->
 
-          <!-- 악보 탭 내용 (집회 날짜 이후에만 표시) -->
-          <div v-show="activeTab === 'scores'" class="tab-content">
+          <!-- Sheet music tab content (only visible after the meeting date) -->
+          <!-- <div v-show="activeTab === 'scores'" class="tab-content">
             <div class="detail-content">
               <div class="scores-section">
                 <div class="section-header-with-action">
                   <h2 class="section-subtitle">🎼 집회 악보</h2>
-                  <button v-if="isAdmin && editMode" @click="openScoreUpload" class="btn small primary">
+                  <button
+                    v-if="isAdmin && editMode"
+                    @click="openScoreUpload"
+                    class="btn small primary"
+                  >
                     악보 업로드
                   </button>
                 </div>
 
                 <p class="scores-intro">
-                  이 집회의 <strong>송폼(세트리스트)</strong>과 <strong>전체 악보</strong>가 포함된 PDF 파일입니다.<br>
+                  이 집회의 <strong>송폼(세트리스트)</strong>과
+                  <strong>전체 악보</strong>가 포함된 PDF 파일입니다.<br />
                   로그인 후 다운로드하여 사용하실 수 있습니다.
                 </p>
 
-                <span class="warning-song">
-  ⚠               저작권 문제로 인해, 다음 곡들은 악보에 포함되어 있지 않습니다: 
-                  {{worship.warning ? worship.warning.join(', ') : '해당 없음'}}
+                <div v-if="editMode" class="excluded-songs-edit">
+                  <label class="edit-label"
+                    >저작권 제외 곡 (한 줄에 하나씩)</label
+                  >
+                  <textarea
+                    v-model="editForm.excluded_songs_text"
+                    class="edit-textarea"
+                    rows="3"
+                    placeholder="저작권 문제로 악보에 포함되지 않는 곡들을 한 줄에 하나씩 입력하세요"
+                  ></textarea>
+                </div>
+                <span v-else class="warning-song">
+                  저작권 문제로 인해, 다음 곡들은 악보에 포함되어 있지 않습니다:
+                  {{
+                    worship.excluded_songs
+                      ? worship.excluded_songs.join(", ")
+                      : "해당 없음"
+                  }}
                 </span>
 
-                <div v-if="worship.worshipScore" class="score-single-container">
+                <div
+                  v-if="scores && scores.length > 0"
+                  class="score-single-container"
+                >
                   <div class="score-single-card">
-                    <!-- 관리자 전용 삭제 버튼 -->
-                    <button 
-                      v-if="isAdmin && editMode" 
-                      @click="deleteWorshipScore" 
+                    <button
+                      v-if="isAdmin && editMode"
+                      @click="deleteWorshipScore"
                       class="btn-delete-score"
                       title="악보 삭제"
                     >
                       🗑️
                     </button>
 
-                    <!-- PDF 미리보기 -->
-                    <div class="score-preview-large" @click="previewScore(worship.worshipScore)">
-                      <div v-if="worship.worshipScore.thumbnailUrl" class="score-thumbnail">
-                        <img :src="worship.worshipScore.thumbnailUrl" :alt="worship.worshipScore.filename" />
+                    <div class="score-preview-large">
+                      <div v-if="worship.poster_url" class="score-thumbnail">
+                        <img
+                          :src="worship.poster_url"
+                          :alt="worship.title + ' 포스터'"
+                        />
                       </div>
                       <div v-else class="score-placeholder-large">
                         <div class="pdf-icon-large">📋</div>
-                        <p class="placeholder-title">송폼 + 악보</p>
-                        <p class="placeholder-subtitle">PDF 미리보기</p>
-                      </div>
-                      <div class="preview-overlay">
-                        <div class="preview-icon">🔍</div>
-                        <p>클릭하여 크게 보기</p>
+                        <p class="placeholder-title">악보 포스터</p>
+                        <p class="placeholder-subtitle">
+                          업로드된 포스터가 없습니다
+                        </p>
                       </div>
                     </div>
 
-                    <!-- 악보 정보 -->
                     <div class="score-info-large">
-                      <h3 class="score-title-main">{{ worship.title }} 집회 악보</h3>
-                      <p class="score-description">{{ worship.worshipScore.description }}</p>
+                      <h3 class="score-title-main">
+                        {{ worship.title }} 집회 악보
+                      </h3>
+                      <p class="score-description">
+                        {{ scores[0].description }}
+                      </p>
                       <div class="score-details">
                         <div class="score-detail-item">
                           <span class="detail-label">파일명:</span>
-                          <span class="detail-value">{{ worship.worshipScore.filename }}</span>
+                          <span class="detail-value">{{
+                            scores[0].filename
+                          }}</span>
                         </div>
                         <div class="score-detail-item">
                           <span class="detail-label">업로드:</span>
-                          <span class="detail-value">{{ formatDate(worship.worshipScore.uploadDate) }}</span>
+                          <span class="detail-value">{{
+                            formatDate(scores[0].created_at || "")
+                          }}</span>
                         </div>
                       </div>
                     </div>
 
-                    <!-- 다운로드 버튼 -->
                     <div class="score-download-section">
                       <button
                         class="btn primary download-btn-large"
@@ -319,37 +1365,47 @@
                         :disabled="!isLoggedIn"
                       >
                         <span class="download-icon">📥</span>
-                        {{ isLoggedIn ? '송폼 + 악보 다운로드' : '🔒 로그인이 필요합니다' }}
+                        {{
+                          isLoggedIn
+                            ? "송폼 + 악보 다운로드"
+                            : "🔒 로그인이 필요합니다"
+                        }}
                       </button>
                       <p class="download-note">
-                        {{ isLoggedIn ? 'PDF 파일에 송폼과 모든 악보가 포함되어 있습니다.' : '로그인 후 다운로드할 수 있습니다.' }}
+                        {{
+                          isLoggedIn
+                            ? "PDF 파일에 송폼과 모든 악보가 포함되어 있습니다."
+                            : "로그인 후 다운로드할 수 있습니다."
+                        }}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div v-else class="score-empty-state">
+                <div v-else-if="isAdmin" class="score-empty-state">
                   <div class="empty-icon">📋</div>
                   <h3>아직 업로드된 악보가 없습니다</h3>
                   <p>집회 후 송폼과 악보가 업데이트 예정입니다.</p>
-                  <button v-if="isAdmin && editMode" @click="openScoreUpload" class="btn primary">
+                  <button
+                    v-if="editMode"
+                    @click="openScoreUpload"
+                    class="btn primary"
+                  >
                     + 악보 업로드
                   </button>
                 </div>
               </div>
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
 
       <div v-else class="empty-container">
         <p class="empty-text">집회 정보를 찾을 수 없습니다.</p>
-        <button class="btn primary" @click="goBack">
-          목록으로 돌아가기
-        </button>
+        <button class="btn primary" @click="goBack">목록으로 돌아가기</button>
       </div>
 
-      <!-- 라이트박스 -->
+      <!-- Lightbox -->
       <div v-if="lightboxOpen" class="lightbox" @click="closeLightbox">
         <button class="lightbox-close" @click="closeLightbox">×</button>
         <button class="lightbox-prev" @click.stop="prevPhoto">‹</button>
@@ -357,338 +1413,222 @@
         <img :src="currentPhoto" alt="집회 사진" @click.stop />
       </div>
 
-      <!-- PDF 미리보기 모달 -->
-      <div v-if="pdfPreviewOpen" class="pdf-preview-modal" @click="closePdfPreview">
+      <!-- PDF preview modal -->
+      <div
+        v-if="pdfPreviewOpen"
+        class="pdf-preview-modal"
+        @click="closePdfPreview"
+      >
         <div class="pdf-preview-content" @click.stop>
           <button class="pdf-preview-close" @click="closePdfPreview">×</button>
           <iframe :src="currentPdfUrl" class="pdf-preview-iframe"></iframe>
         </div>
       </div>
+
+      <!-- Sheet music upload modal -->
+      <div
+        v-if="scoreUploadModalOpen"
+        class="modal-overlay"
+        @click="closeScoreUploadModal"
+      >
+        <div class="modal-content" @click.stop>
+          <div class="modal-header">
+            <h2>악보 업로드</h2>
+            <button class="modal-close" @click="closeScoreUploadModal">
+              ×
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="upload-form">
+              <div class="form-group">
+                <label>PDF 파일 선택</label>
+                <input
+                  ref="scoreFileInput"
+                  type="file"
+                  accept="application/pdf"
+                  @change="handleScoreFileSelect"
+                />
+                <p class="form-hint">
+                  PDF 파일만 업로드 가능합니다. (최대 10MB)
+                </p>
+              </div>
+              <div v-if="selectedScoreFile" class="selected-file-info">
+                <p>
+                  <strong>선택된 파일:</strong> {{ selectedScoreFile.name }}
+                </p>
+                <p>
+                  <strong>파일 크기:</strong>
+                  {{ formatFileSize(selectedScoreFile.size) }}
+                </p>
+              </div>
+              <div class="form-group">
+                <label>설명 (선택사항)</label>
+                <textarea
+                  v-model="scoreDescription"
+                  rows="3"
+                  placeholder="악보에 대한 설명을 입력하세요"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn ghost" @click="closeScoreUploadModal">
+              취소
+            </button>
+            <button
+              class="btn primary"
+              @click="uploadScore"
+              :disabled="!selectedScoreFile || uploading"
+            >
+              {{ uploading ? "업로드 중..." : "업로드" }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Poster/thumbnail upload modal -->
+      <div
+        v-if="thumbnailUploadModalOpen"
+        class="modal-overlay"
+        @click="closeThumbnailUploadModal"
+      >
+        <div class="modal-content" @click.stop>
+          <div class="modal-header">
+            <h2>악보 포스터 업로드</h2>
+            <button class="modal-close" @click="closeThumbnailUploadModal">
+              ×
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="upload-form">
+              <div class="form-group">
+                <label>이미지 파일 선택</label>
+                <input
+                  ref="thumbnailFileInput"
+                  type="file"
+                  accept="image/*"
+                  @change="handleThumbnailFileSelect"
+                />
+                <p class="form-hint">JPG, PNG, GIF 등 이미지 파일 (최대 5MB)</p>
+              </div>
+              <div v-if="selectedThumbnailFile" class="selected-file-info">
+                <p>
+                  <strong>선택된 파일:</strong> {{ selectedThumbnailFile.name }}
+                </p>
+                <p>
+                  <strong>파일 크기:</strong>
+                  {{ formatFileSize(selectedThumbnailFile.size) }}
+                </p>
+              </div>
+              <div v-if="thumbnailPreviewUrl" class="thumbnail-preview">
+                <img :src="thumbnailPreviewUrl" alt="미리보기" />
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn ghost" @click="closeThumbnailUploadModal">
+              취소
+            </button>
+            <button
+              class="btn primary"
+              @click="uploadThumbnail"
+              :disabled="!selectedThumbnailFile || uploading"
+            >
+              {{ uploading ? "업로드 중..." : "업로드" }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rally poster upload modal -->
+      <div
+        v-if="posterUploadModalOpen"
+        class="modal-overlay"
+        @click="closePosterUploadModal"
+      >
+        <div class="modal-content" @click.stop>
+          <div class="modal-header">
+            <h2>집회 포스터 업로드</h2>
+            <button class="modal-close" @click="closePosterUploadModal">
+              ×
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="upload-form">
+              <div class="form-group">
+                <label>이미지 파일 선택</label>
+                <input
+                  ref="posterFileInput"
+                  type="file"
+                  accept="image/*"
+                  @change="handlePosterFileSelect"
+                />
+                <p class="form-hint">JPG, PNG, GIF 등 이미지 파일 (최대 5MB)</p>
+              </div>
+              <div v-if="selectedPosterFile" class="selected-file-info">
+                <p>
+                  <strong>선택된 파일:</strong> {{ selectedPosterFile.name }}
+                </p>
+                <p>
+                  <strong>파일 크기:</strong>
+                  {{ formatFileSize(selectedPosterFile.size) }}
+                </p>
+              </div>
+              <div v-if="posterPreviewUrl" class="thumbnail-preview">
+                <img :src="posterPreviewUrl" alt="포스터 미리보기" />
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn ghost" @click="closePosterUploadModal">
+              취소
+            </button>
+            <button
+              class="btn primary"
+              @click="uploadPoster"
+              :disabled="!selectedPosterFile || uploading"
+            >
+              {{ uploading ? "업로드 중..." : "업로드" }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Poster full screen modal -->
+      <div
+        v-if="posterFullscreenOpen && worship"
+        class="fullscreen-modal"
+        @click="closePosterFullscreen"
+      >
+        <div class="fullscreen-content">
+          <button class="fullscreen-close" @click="closePosterFullscreen">
+            ✕
+          </button>
+          <img
+            :src="worship.poster_url"
+            :alt="`${worship.title} 포스터`"
+            class="fullscreen-image"
+          />
+        </div>
+      </div>
+
+      <!-- Score poster full screen modal -->
+      <div
+        v-if="scorePosterFullscreenOpen"
+        class="fullscreen-modal"
+        @click="closeScorePosterFullscreen"
+      >
+        <div class="fullscreen-content">
+          <button class="fullscreen-close" @click="closeScorePosterFullscreen">
+            ✕
+          </button>
+          <img
+            :src="scorePosterUrl"
+            alt="악보 포스터"
+            class="fullscreen-image"
+          />
+        </div>
+      </div>
     </section>
   </div>
 </template>
-
-<script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useAuth } from '@/composables/useAuth'
-import '../styles/WorshipDetail.css'
-
-const router = useRouter()
-const route = useRoute()
-const { isAdmin, isLoggedIn } = useAuth()
-
-const activeTab = ref('info')
-const lightboxOpen = ref(false)
-const currentPhotoIndex = ref(0)
-const editMode = ref(false)
-const pdfPreviewOpen = ref(false)
-const currentPdfUrl = ref('')
-
-type WorshipScore = {
-  id: number
-  filename: string
-  fileUrl: string
-  uploadDate: string
-  thumbnailUrl?: string
-  description?: string
-}
-
-type WorshipLog = {
-  id: number
-  date: string
-  year: number
-  title: string
-  preacher: string
-  worship: string
-  guest?: string
-  description: string
-  coments?: string
-  entryTime?: string
-  startTime?: string
-  location?: string
-  locationLink?: string
-  parking?: string
-  seating?: string
-  promoVideo?: string
-  prelistenVideo?: string
-  openingSongs?: string[]
-  celebrationSongs?: string[]
-  worshipVideos?: string[]
-  photos?: string[]
-  warning?: string[]
-  worshipScore?: WorshipScore
-}
-
-// 더미 데이터 (실제로는 API에서 가져옴)
-const logs = ref<WorshipLog[]>([
-  {
-    id: 1,
-    date: '2025-03-22 (Sat)',
-    year: 2025,
-    title: '하나됨',
-    preacher: '민찬기 목사',
-    worship: 'OBED Worship',
-    description: '호흡있는 모든 자들은 찬양하라.',
-    coments: '하나님께서 함께 하시고 주관하시는 집회입니다. 온 마음과 정성을 다해 예배에 임해주시기 바랍니다.',
-    entryTime: '18시 30분',
-    startTime: '19시 00분',
-    location: '예수인교회 본관(구건물) 지하 2층',
-    locationLink: 'https://maps.app.goo.gl/tcfoy5SRcpqZ4gDx8',
-    parking: '예수인교회 지하주차장 이용 가능합니다.',
-    seating: '자리는 좌석입니다. 셀러브레이션 찬양 시간에는 앞에서 스탠딩으로 찬양하실 수 있습니다. 모든 자리는 선착순 입니다.',
-    openingSongs: [
-      '축복송',
-      'Build up',
-      '나로부터 시작되리',
-      '부르신 곳에서',
-      '기대',
-      '그의 안에서'
-    ],
-    celebrationSongs: [
-      '우린 물러서지 않으리',
-      '우리의 눈을 열어',
-      'Turn it up',
-      '내 안에 부어주소서',
-      'I will run to you',
-      '주님의 임재 앞에서',
-      '생명 주께 있네',
-      '오직 예수',
-      'Praise'
-    ],
-    warning: [
-      '오직 예수 - 어노인팅 예배캠프2024',
-    ],
-    worshipScore: {
-      id: 1, 
-      filename: '하나됨_집회_송폼_악보.pdf', 
-      fileUrl: '/pdf/oneness.pdf',
-      uploadDate: '2025-01-11T10:00:00Z',
-      thumbnailUrl: '/thumbnails/worship-1-thumb.jpg',
-      description: '송폼 + 오프닝 & 셀러브레이션 전체 악보 포함'
-    }
-  },
-  {
-    id: 2,
-    date: '2025-12-06 (Sat)',
-    year: 2025,
-    title: '샬롬',
-    preacher: '박훈 목사',
-    worship: 'OBED Worship',
-    guest: '찬양사역자 오은',
-    description: '너희는 마음에 근심하지도 말고 두려워하지도 말라',
-    coments: '구입한 굿즈 티셔츠를 입고오세요. 끝까지 함께해주세요. 이벤트 추첨이 있습니다.',
-    entryTime: '18시 00분',
-    startTime: '18시 30분',
-    location: '예수인교회 본관(구건물) 지하 2층',
-    locationLink: 'https://maps.app.goo.gl/tcfoy5SRcpqZ4gDx8',
-    parking: '예수인교회 지하주차장 이용 가능합니다.',
-    seating: '자리는 좌석입니다. 셀러브레이션 찬양 시간에는 앞에서 스탠딩으로 찬양하실 수 있습니다. 모든 자리는 선착순 입니다.',
-    promoVideo: 'https://youtu.be/R1K8ufKaqqs?si=XYbutVsdZtyhNBtZ',
-    prelistenVideo: 'https://youtu.be/rw5LASxwoj0?si=9LZv54Lgpxcb6u8k',
-    openingSongs: [
-      '영원히 너란다',
-      '친구야',
-      '주를 바라보며',
-      '내 마음을 가득 채운',
-      '나는 예배자입니다',
-      '예배합니다'
-    ],
-    celebrationSongs: [
-      '사랑한다 말하시네',
-      '예수님 그의 희생 기억할 때',
-      '주 안에서 기뻐해',
-      '주 이름 찬양',
-      '내 몸은 구주의 성전이니',
-      '내 모든 삶의 행동 주 안에',
-      '승리하였네'
-    ],
-    worshipVideos: [
-      'https://youtu.be/802nlbwkFAc?si=0ok9Ysu8-GBa6j5j'
-    ],
-    warning: [
-      '주 이름 찬양 - 어노인팅 예배캠프2024',
-    ]
-  },
-])
-
-const worshipId = computed(() => Number(route.params.id))
-const worship = computed(() => logs.value.find(w => w.id === worshipId.value))
-
-// 집회 날짜가 지났는지 확인 (개선된 버전)
-const isWorshipDatePassed = computed(() => {
-  if (!worship.value) return false
-  
-  // "2025-03-22 (Sat)" 형식에서 날짜 부분만 추출
-  const dateMatch = worship.value.date.match(/^\d{4}-\d{2}-\d{2}/)
-  if (!dateMatch) {
-    console.warn('날짜 형식이 올바르지 않습니다:', worship.value.date)
-    return false
-  }
-  
-  const worshipDate = new Date(dateMatch[0])
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  worshipDate.setHours(0, 0, 0, 0)
-  
-  // 디버깅을 위한 콘솔 로그
-  console.log('집회 날짜:', dateMatch[0])
-  console.log('오늘 날짜:', today.toISOString().split('T')[0])
-  console.log('악보 탭 표시 여부:', worshipDate <= today)
-  
-  return worshipDate <= today // 당일도 포함하도록 <= 사용
-})
-
-const currentPhoto = computed(() => {
-  if (worship.value?.photos && worship.value.photos.length > 0) {
-    return worship.value.photos[currentPhotoIndex.value]
-  }
-  return ''
-})
-
-const goBack = () => {
-  router.push({ name: 'worship-log' })
-}
-
-const getYouTubeEmbedUrl = (url: string) => {
-  let videoId = ''
-  
-  if (url.includes('youtu.be/')) {
-    videoId = url.split('youtu.be/')[1].split('?')[0]
-  } else if (url.includes('watch?v=')) {
-    videoId = url.split('watch?v=')[1].split('&')[0]
-  }
-  
-  return `https://www.youtube.com/embed/${videoId}`
-}
-
-// 유틸리티 함수들
-const getFilenameWithoutExtension = (filename: string) => {
-  return filename.replace(/\.[^/.]+$/, '')
-}
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-}
-
-// 라이트박스 관련
-const openLightbox = (index: number) => {
-  currentPhotoIndex.value = index
-  lightboxOpen.value = true
-}
-
-const closeLightbox = () => {
-  lightboxOpen.value = false
-}
-
-const nextPhoto = () => {
-  if (worship.value?.photos) {
-    currentPhotoIndex.value = (currentPhotoIndex.value + 1) % worship.value.photos.length
-  }
-}
-
-const prevPhoto = () => {
-  if (worship.value?.photos) {
-    currentPhotoIndex.value = (currentPhotoIndex.value - 1 + worship.value.photos.length) % worship.value.photos.length
-  }
-}
-
-// PDF 미리보기 관련
-const previewScore = (score: WorshipScore) => {
-  currentPdfUrl.value = score.fileUrl
-  pdfPreviewOpen.value = true
-}
-
-const closePdfPreview = () => {
-  pdfPreviewOpen.value = false
-  currentPdfUrl.value = ''
-}
-
-// 관리자 함수들
-const toggleEditMode = () => {
-  if (editMode.value) {
-    // 저장 로직
-    if (confirm('변경사항을 저장하시겠습니까?')) {
-      // TODO: API 호출하여 저장
-      console.log('저장:', worship.value)
-      alert('저장 기능 구현 예정')
-      editMode.value = false
-    }
-  } else {
-    editMode.value = true
-  }
-}
-
-const openAddVideoModal = () => {
-  const videoUrl = prompt('YouTube 영상 URL을 입력하세요:')
-  if (videoUrl) {
-    // TODO: API 호출하여 영상 추가
-    console.log('영상 추가:', videoUrl)
-    alert(`영상 추가 기능 구현 예정\nURL: ${videoUrl}`)
-  }
-}
-
-const deleteVideo = (index: number) => {
-  if (confirm('이 영상을 삭제하시겠습니까?')) {
-    // TODO: API 호출하여 영상 삭제
-    console.log('영상 삭제:', index)
-    alert(`영상 삭제 기능 구현 예정`)
-  }
-}
-
-const openPhotoUpload = () => {
-  // TODO: 파일 업로드 모달 열기
-  console.log('사진 업로드 모달 열기')
-  alert('사진 업로드 기능 구현 예정\n(파일 선택 모달이 열립니다)')
-}
-
-const deletePhoto = (index: number) => {
-  if (confirm('이 사진을 삭제하시겠습니까?')) {
-    // TODO: API 호출하여 사진 삭제
-    console.log('사진 삭제:', index)
-    alert(`사진 삭제 기능 구현 예정`)
-  }
-}
-
-// 악보 관련 함수들
-const downloadWorshipScore = () => {
-  if (!isLoggedIn.value) {
-    alert('로그인이 필요합니다.')
-    return
-  }
-  
-  if (!worship.value?.worshipScore) {
-    alert('다운로드할 악보가 없습니다.')
-    return
-  }
-  
-  // TODO: 실제 파일 다운로드 구현
-  console.log('악보 다운로드:', worship.value.worshipScore)
-  alert(`악보 다운로드 기능 구현 예정\n파일: ${worship.value.worshipScore.filename}`)
-  
-  // 실제 구현 시:
-  // const link = document.createElement('a')
-  // link.href = worship.value.worshipScore.fileUrl
-  // link.download = worship.value.worshipScore.filename
-  // link.click()
-}
-
-const openScoreUpload = () => {
-  // TODO: 파일 업로드 모달 열기
-  console.log('악보 업로드 모달 열기')
-  alert('악보 업로드 기능 구현 예정\n송폼과 전체 악보가 포함된 PDF 파일을 선택해주세요.')
-}
-
-const deleteWorshipScore = () => {
-  if (confirm('집회 악보를 삭제하시겠습니까?')) {
-    // TODO: API 호출하여 악보 삭제
-    console.log('집회 악보 삭제')
-    alert('집회 악보 삭제 기능 구현 예정')
-  }
-}
-</script>

@@ -1,15 +1,9 @@
 /* ========================================
-   Home.css - 홈페이지 전용 스타일
-   ======================================== */
-
-/* ========================================
    Hero Section
    ======================================== */
 
 .hero {
   padding: 3rem 0 4rem;
-  background: linear-gradient(135deg, #faf2f5 0%, #fff7f9 100%);
-  border-radius: 1.5rem;
   margin-bottom: 3rem;
   overflow: hidden;
 }
@@ -34,7 +28,7 @@
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  color: #8a4b4b;
+  color: var(--ow-accent-2);
   font-weight: 600;
   margin: 0;
 }
@@ -44,8 +38,12 @@
   font-weight: 800;
   margin: 0;
   line-height: 1.2;
-  color: #2b1a20;
-  background: linear-gradient(135deg, #4a1f2f 0%, #8a4b4b 100%);
+  color: var(--ow-text-strong);
+  background: linear-gradient(
+    135deg,
+    var(--ow-accent) 0%,
+    var(--ow-accent-2) 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -54,7 +52,7 @@
 .hero-subtitle {
   font-size: 1.15rem;
   line-height: 1.7;
-  color: #555;
+  color: var(--ow-text);
   margin: 0;
 }
 
@@ -69,33 +67,37 @@
   padding: 0.9rem 2rem;
   font-size: 1rem;
   font-weight: 600;
+  line-height: 1;
   border-radius: 999px;
   transition: all 0.3s ease-out;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
 .hero-actions .btn.primary {
-  background: linear-gradient(135deg, #4a1f2f 0%, #8a4b4b 100%);
+  background: linear-gradient(
+    135deg,
+    var(--ow-accent) 0%,
+    var(--ow-accent-2) 100%
+  );
   border: none;
-  color: #fff;
+  color: var(--ow-surface);
 }
 
 .hero-actions .btn.primary:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(74, 31, 47, 0.25);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px var(--ow-shadow);
 }
 
 .hero-actions .btn.ghost {
-  background: #fff;
-  border: 2px solid #4a1f2f;
-  color: #4a1f2f;
+  background: transparent;
+  border: 2px solid var(--ow-accent);
+  color: var(--ow-accent);
 }
 
 .hero-actions .btn.ghost:hover {
-  background: #4a1f2f;
-  color: #fff;
-  transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(74, 31, 47, 0.2);
+  background: var(--ow-accent);
+  color: var(--ow-surface);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px var(--ow-shadow);
 }
 
 .hero-image {
@@ -112,19 +114,17 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 1.5rem;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  border-radius: 2rem;
   transition: all 0.4s ease-out;
 }
 
 .team-photo:hover {
   transform: scale(1.02);
-  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.2);
 }
 
-/* 이미지 로딩 실패 시 플레이스홀더 */
+/* Placeholder when image loading fails */
 .team-photo[src*="placeholder"] {
-  background: linear-gradient(135deg, #f0d4e0 0%, #fae8f0 100%);
+  background: linear-gradient(135deg, var(--ow-border-accent) 0%, #fae8f0 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,6 +142,7 @@
 
 .features-section {
   padding: 2rem 0 3rem;
+  overflow: visible;
 }
 
 .features-section .section-title {
@@ -149,7 +150,7 @@
   font-weight: 700;
   text-align: center;
   margin-bottom: 2.5rem;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
 }
 
 .card-grid {
@@ -159,57 +160,39 @@
 }
 
 .feature-card {
-  background: #fff;
-  border-radius: 1.25rem;
+  background: var(--ow-surface);
+  border-radius: 1rem;
   padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.03);
-  transition: all 0.3s ease-out;
+  box-shadow: 0 4px 20px var(--ow-shadow-soft-2), inset 0 0 0 transparent;
+  border: 1px solid var(--ow-border-subtle);
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.feature-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #4a1f2f 0%, #8a4b4b 100%);
-  transform: scaleX(0);
-  transition: transform 0.3s ease-out;
-}
-
-.feature-card:hover::before {
-  transform: scaleX(1);
 }
 
 .feature-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 50px rgba(74, 31, 47, 0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px var(--ow-shadow), inset 0 -3px 0 var(--ow-accent);
 }
 
 .card-icon {
-  font-size: 3rem;
+  font-size: 2.5rem;
   line-height: 1;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .feature-card .card-title {
   font-size: 1.4rem;
   font-weight: 700;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
   margin: 0;
 }
 
 .feature-card .card-text {
   font-size: 1rem;
   line-height: 1.6;
-  color: #666;
+  color: var(--ow-text-muted);
   margin: 0;
   flex: 1;
 }
@@ -218,7 +201,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  color: #4a1f2f;
+  color: var(--ow-accent);
   font-weight: 600;
   font-size: 0.95rem;
   text-decoration: none;
@@ -228,11 +211,11 @@
 
 .feature-card .card-link:hover {
   gap: 0.6rem;
-  color: #8a4b4b;
+  color: var(--ow-accent-2);
 }
 
 /* ========================================
-   반응형 디자인
+   Responsive Design
    ======================================== */
 
 @media (max-width: 968px) {
@@ -334,18 +317,18 @@
   }
 
   .team-photo {
-    border-radius: 1rem;
+    border-radius: 0.75rem;
   }
 }
 
 /* ========================================
-   애니메이션
+   animated movie
    ======================================== */
 
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(15px);
   }
   to {
     opacity: 1;
@@ -354,18 +337,5 @@
 }
 
 .feature-card {
-  animation: fadeInUp 0.6s ease-out;
-  animation-fill-mode: both;
-}
-
-.feature-card:nth-child(1) {
-  animation-delay: 0.1s;
-}
-
-.feature-card:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.feature-card:nth-child(3) {
-  animation-delay: 0.3s;
+  animation: fadeInUp 0.3s ease-out both;
 }

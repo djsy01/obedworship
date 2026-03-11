@@ -1,8 +1,8 @@
 /* ========================================
-   집회 신청 페이지 전용 스타일
+   Style for meeting application page only
    ======================================== */
 
-/* 집회 그리드 */
+/* rally grid */
 .tickets-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -10,39 +10,40 @@
   margin-top: 1.5rem;
 }
 
-/* 집회 카드 */
+/* rally card */
 .ticket-card {
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 1rem;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  transition: all 0.3s ease-out;
+  box-shadow: 0 10px 30px var(--ow-shadow-soft-2), inset 0 0 0 transparent;
+  border: 1px solid var(--ow-border-subtle);
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
   display: flex;
   flex-direction: column;
 }
 
 .ticket-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 50px rgba(74, 31, 47, 0.12);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px var(--ow-shadow), inset 0 -3px 0 var(--ow-accent);
 }
 
 .ticket-card.ticket-closed {
   opacity: 0.7;
 }
 
-/* 포스터 이미지 */
+/* Poster image */
 .ticket-poster {
   width: 100%;
-  height: 280px;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
-  background: linear-gradient(135deg, #f0d4e0 0%, #fae8f0 100%);
+  background: linear-gradient(135deg, var(--ow-border-accent) 0%, #fae8f0 100%);
 }
 
 .ticket-poster img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  background: var(--ow-surface-2);
   transition: transform 0.3s ease-out;
 }
 
@@ -50,7 +51,7 @@
   transform: scale(1.05);
 }
 
-/* 카드 콘텐츠 */
+/* card content */
 .ticket-content {
   padding: 1.5rem;
   display: flex;
@@ -94,7 +95,7 @@
 
 .ticket-date {
   font-size: 0.85rem;
-  color: #8a4b4b;
+  color: var(--ow-accent-2);
   font-weight: 600;
   margin: 0;
 }
@@ -102,17 +103,22 @@
 .ticket-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
   margin: 0;
 }
 
 .ticket-meta {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  font-size: 0.85rem;
-  color: #666;
+  gap: 0.5rem;
+  font-size: 1rem;
+  color: var(--ow-text-strong);
+  font-weight: 600;
   margin: 0;
+  padding: 0.75rem 1rem;
+  background: var(--ow-surface-2);
+  border-radius: 0.5rem;
+  border-left: 3px solid var(--ow-accent);
 }
 
 .meta-item {
@@ -122,38 +128,39 @@
 }
 
 .meta-icon {
-  font-size: 0.9rem;
+  font-size: 1rem;
+  opacity: 0.7;
 }
 
 .ticket-description {
   font-size: 1rem;
   line-height: 1.6;
-  color: #444;
+  color: var(--ow-text);
   margin: 0;
   flex: 1;
 }
 
-/* 관리자 액션 */
+/* Administrator Action */
 .admin-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   padding-top: 1rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-top: 1px solid var(--ow-border);
 }
 
 .admin-actions .btn.danger {
-  background: #fff;
+  background: var(--ow-surface);
   color: #dc2626;
   border-color: #dc2626;
 }
 
 .admin-actions .btn.danger:hover {
   background: #dc2626;
-  color: #fff;
+  color: var(--ow-surface);
 }
 
-/* 신청 버튼 */
+/* Apply button */
 .ticket-actions {
   margin-top: auto;
 }
@@ -172,7 +179,7 @@
 }
 
 /* ========================================
-   모달 스타일
+   modal style
    ======================================== */
 
 .modal-overlay {
@@ -181,7 +188,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: var(--ow-overlay-stronger);
   z-index: 2000;
   display: flex;
   align-items: center;
@@ -191,13 +198,13 @@
 }
 
 .modal-content {
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 1rem;
   max-width: 600px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 25px 60px var(--ow-shadow-heavy);
 }
 
 .modal-header {
@@ -205,15 +212,15 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  background: linear-gradient(135deg, #faf2f5 0%, #fff7f9 100%);
+  border-bottom: 1px solid var(--ow-border);
+  background: linear-gradient(135deg, var(--ow-surface-accent) 0%, var(--ow-surface-wash) 100%);
   border-radius: 1rem 1rem 0 0;
 }
 
 .modal-title {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
   margin: 0;
 }
 
@@ -222,7 +229,7 @@
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #666;
+  color: var(--ow-text-muted);
   width: 32px;
   height: 32px;
   display: flex;
@@ -233,8 +240,8 @@
 }
 
 .modal-close:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: #4a1f2f;
+  background: var(--ow-shadow-soft-2);
+  color: var(--ow-accent);
 }
 
 .modal-body {
@@ -244,18 +251,18 @@
   gap: 1.5rem;
 }
 
-/* 사용자 정보 섹션 */
+/* User information section */
 .user-info-section {
-  background: #fafafa;
+  background: var(--ow-surface-2);
   border-radius: 0.75rem;
   padding: 1.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--ow-border);
 }
 
 .section-subtitle-small {
   font-size: 1rem;
   font-weight: 700;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
   margin: 0 0 1rem;
 }
 
@@ -270,29 +277,29 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1rem;
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 0.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--ow-border);
 }
 
 .info-label {
   font-size: 0.85rem;
-  color: #666;
+  color: var(--ow-text-muted);
   font-weight: 500;
 }
 
 .info-value {
   font-size: 0.95rem;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
   font-weight: 600;
 }
 
-/* 티켓 선택 섹션 */
+/* Ticket selection section */
 .ticket-selection-section {
-  background: #fff7f9;
+  background: var(--ow-surface-wash);
   border-radius: 0.75rem;
   padding: 1.5rem;
-  border: 1px solid #f0d4e0;
+  border: 1px solid var(--ow-border-accent);
 }
 
 .ticket-type-list {
@@ -306,14 +313,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 1.25rem;
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 0.75rem;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--ow-border-stronger);
   transition: all 0.2s ease-out;
 }
 
 .ticket-type-item:hover {
-  border-color: #4a1f2f;
+  border-color: var(--ow-accent);
   box-shadow: 0 4px 12px rgba(74, 31, 47, 0.1);
 }
 
@@ -327,12 +334,12 @@
 .type-name {
   font-size: 1rem;
   font-weight: 700;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
 }
 
 .type-price {
   font-size: 0.9rem;
-  color: #4a1f2f;
+  color: var(--ow-accent);
   font-weight: 600;
 }
 
@@ -342,7 +349,7 @@
 
 .type-desc {
   font-size: 0.8rem;
-  color: #888;
+  color: var(--ow-text-faint);
 }
 
 .ticket-input {
@@ -350,21 +357,30 @@
   padding: 0.6rem 0.8rem;
   font-size: 1rem;
   text-align: center;
-  border: 2px solid rgba(0, 0, 0, 0.12);
+  border: 2px solid var(--ow-border-strong);
   border-radius: 0.5rem;
   outline: none;
   transition: all 0.2s ease-out;
   font-weight: 600;
+  background: var(--ow-surface-2);
+  color: var(--ow-text-strong);
 }
 
 .ticket-input:focus {
-  border-color: #4a1f2f;
+  border-color: var(--ow-accent);
   box-shadow: 0 0 0 3px rgba(74, 31, 47, 0.1);
 }
 
-/* 총 금액 섹션 */
+.ticket-input::placeholder {
+  color: var(--ow-text-faint);
+}
+
+/* Total amount section */
 .total-section {
-  background: linear-gradient(135deg, #f0d4e0 0%, #fae8f0 100%);
+  background: light-dark(
+    linear-gradient(135deg, var(--ow-border-accent) 0%, #fae8f0 100%),
+    linear-gradient(135deg, #2a2228 0%, #1f1b20 100%)
+  );
   border-radius: 0.75rem;
   padding: 1.5rem;
   display: flex;
@@ -381,47 +397,54 @@
 
 .total-item.total-amount-item {
   padding-top: 0.75rem;
-  border-top: 2px solid rgba(74, 31, 47, 0.2);
+  border-top: 2px solid var(--ow-border-strong);
 }
 
 .total-label {
   font-weight: 600;
-  color: #4a1f2f;
+  color: var(--ow-accent);
 }
 
 .total-value {
   font-weight: 700;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
 }
 
 .total-value.amount {
   font-size: 1.4rem;
-  color: #4a1f2f;
+  color: var(--ow-accent);
 }
 
-/* 특이사항 섹션 */
+/* Special notes section */
 .special-note-section textarea {
   width: 100%;
   min-height: 80px;
   resize: vertical;
+  background: var(--ow-surface-2);
+  color: var(--ow-text-strong);
+  border: 1px solid var(--ow-border-stronger);
 }
 
-/* 개인정보 동의 */
+.special-note-section textarea::placeholder {
+  color: var(--ow-text-faint);
+}
+
+/* Personal information consent */
 .privacy-checkbox {
   display: flex;
   align-items: center;
   gap: 0.6rem;
   padding: 1rem;
-  background: #fafafa;
+  background: var(--ow-surface-2);
   border-radius: 0.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--ow-border-stronger);
   cursor: pointer;
   transition: all 0.2s ease-out;
 }
 
 .privacy-checkbox:hover {
-  background: #f5f5f5;
-  border-color: #4a1f2f;
+  background: var(--ow-surface-3);
+  border-color: var(--ow-accent);
 }
 
 .privacy-checkbox input[type="checkbox"] {
@@ -432,11 +455,11 @@
 
 .privacy-checkbox span {
   font-size: 0.9rem;
-  color: #444;
+  color: var(--ow-text);
   font-weight: 500;
 }
 
-/* 제출 버튼 */
+/* Submit button */
 .submit-application-btn {
   width: 100%;
   padding: 1rem 1.5rem;
@@ -452,21 +475,35 @@
 }
 
 .submit-application-btn:disabled {
-  background: #ccc;
-  border-color: #ccc;
+  background: var(--ow-border-solid-stronger);
+  border-color: var(--ow-border-solid-stronger);
   cursor: not-allowed;
   opacity: 0.6;
 }
 
-/* 필드 힌트 */
+/* field hint */
 .field-hint {
   font-size: 0.8rem;
-  color: #777;
+  color: var(--ow-text-subtle);
   margin: 0.5rem 0 0;
 }
 
+/* Poster preview in add form */
+.poster-preview {
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--ow-border-strong);
+}
+
+.poster-preview img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+}
+
 /* ========================================
-   반응형 디자인
+   Responsive Design
    ======================================== */
 
 @media (max-width: 768px) {
@@ -564,7 +601,7 @@
 }
 
 /* ========================================
-   애니메이션
+   animated movie
    ======================================== */
 
 @keyframes fadeIn {
@@ -583,10 +620,18 @@
   animation-fill-mode: both;
 }
 
-.ticket-card:nth-child(1) { animation-delay: 0.1s; }
-.ticket-card:nth-child(2) { animation-delay: 0.2s; }
-.ticket-card:nth-child(3) { animation-delay: 0.3s; }
-.ticket-card:nth-child(4) { animation-delay: 0.4s; }
+.ticket-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.ticket-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.ticket-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.ticket-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
 
 .modal-overlay {
   animation: fadeIn 0.3s ease-out;
@@ -594,4 +639,33 @@
 
 .modal-content {
   animation: fadeIn 0.4s ease-out;
+}
+
+/* ========================================
+   로딩 및 에러 상태
+   ======================================== */
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.1rem;
+  color: var(--ow-text-muted);
+}
+
+.error-message {
+  text-align: center;
+  padding: 3rem;
+  background: var(--ow-danger-bg);
+  border-radius: 0.75rem;
+  border: 1px solid var(--ow-danger-border);
+}
+
+.error-message p {
+  font-size: 1.1rem;
+  color: var(--ow-danger);
+  margin-bottom: 1rem;
+}
+
+.error-message .btn {
+  margin-top: 0.5rem;
 }

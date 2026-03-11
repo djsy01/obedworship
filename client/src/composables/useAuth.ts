@@ -1,54 +1,374 @@
-import { computed, ref } from 'vue'
+/**
+ * useAuth.ts - Authentication Composable for OBED Worship
+ *
+ * IMPORTANT: This file currently uses MOCK authentication for frontend development.
+ * Backend developer should implement actual authentication and uncomment the API calls.
+ *
+ * Role System (4 roles):
+ * - admin: Full administrator access
+ * - operator: Same privileges as admin (co-administrator)
+ * - member: OBED Worship team member (logged in, basic access)
+ * - user: General user (logged in, basic access)
+ *
+ * Permission Groups:
+ * - isAdmin: admin OR operator (can manage content)
+ * - isMember: Any logged in user (can access member features)
+ *
+ * Mock Test Accounts (for development):
+ * - admin@obed.com / admin123 -> admin role
+ * - operator@obed.com / operator123 -> operator role
+ * - member@obed.com / member123 -> member role
+ * - Any other email/password -> user role
+ *
+ * Backend Integration:
+ * - Uncomment authApi imports and calls when backend is ready
+ * - API endpoints needed: login, register, logout, checkSession, changePassword
+ */
+import { computed, ref } from "vue";
+// import { authApi, type User } from '@/api/auth' // TODO: Uncomment when backend is ready
 
-const isLoggedInRef = ref(false)
-const userRoleRef = ref<'user' | 'admin' | null>(null)
+// ==========================================
+// TYPE DEFINITIONS
+// ==========================================
 
-const initAuth = () => {
-  const storedRole = localStorage.getItem('userRole')
-  const storedToken = localStorage.getItem('token')
-  if (storedRole && storedToken) {
-    isLoggedInRef.value = true
-    userRoleRef.value = storedRole as 'user' | 'admin'
-  }
+/**
+ * User roles - 4 role permission system
+ * admin, operator = Admin privileges (can manage content)
+ * member, user = Regular privileges (can view/use features)
+ */
+type UserRole = "admin" | "operator" | "member" | "user";
+
+interface CurrentUser {
+  id?: number;
+  email: string;
+  name: string;
+  role: UserRole;
 }
 
-initAuth()
+const isLoggedInRef = ref(false);
+const userRef = ref<CurrentUser | null>(null);
+const loadingRef = ref(false);
+const errorRef = ref<string | null>(null);
 
-export function useAuth() {
-  const isLoggedIn = computed(() => isLoggedInRef.value)
-  const isAdmin = computed(() => userRoleRef.value === 'admin')
+// ==========================================
+// Reset - restore authentication state on page load
+// ==========================================
+const initAuth = () => {
+  const storedToken = localStorage.getItem("token");
+  const storedUserStr = localStorage.getItem("user");
 
-  const login = (email: string, password: string) => {
-    if (email === 'admin@obed.com' && password === 'admin123') {
-      isLoggedInRef.value = true
-      userRoleRef.value = 'admin'
-      localStorage.setItem('userRole', 'admin')
-      localStorage.setItem('token', 'mock-admin-token')
-      localStorage.setItem('userName', '관리자')
-      localStorage.setItem('userEmail', email)
-    } else if (email && password) {
-      isLoggedInRef.value = true
-      userRoleRef.value = 'user'
-      localStorage.setItem('userRole', 'user')
-      localStorage.setItem('token', 'mock-user-token')
-      localStorage.setItem('userName', '홍길동')
-      localStorage.setItem('userEmail', email)
+  if (storedToken && storedUserStr) {
+    try {
+      const storedUser = JSON.parse(storedUserStr);
+      isLoggedInRef.value = true;
+      userRef.value = {
+        id: storedUser.userId ? parseInt(storedUser.userId) : undefined,
+        email: storedUser.email || "",
+        name: storedUser.name || "",
+        role: storedUser.role as UserRole,
+      };
+    } catch {
+      // Compatible with existing method
+      const storedRole = localStorage.getItem("userRole");
+      const storedEmail = localStorage.getItem("userEmail");
+      const storedName = localStorage.getItem("userName");
+      if (storedRole) {
+        isLoggedInRef.value = true;
+        userRef.value = {
+          email: storedEmail || "",
+          name: storedName || "",
+          role: storedRole as UserRole,
+        };
+      }
     }
   }
+};
 
-  const logout = () => {
-    isLoggedInRef.value = false
-    userRoleRef.value = null
-    localStorage.removeItem('userRole')
-    localStorage.removeItem('token')
-    localStorage.removeItem('userName')
-    localStorage.removeItem('userEmail')
-  }
+// Initialize when app starts
+initAuth();
+
+// ==========================================
+// useAuth Composable
+// ==========================================
+export function useAuth() {
+  // Computed property
+  const isLoggedIn = computed(() => isLoggedInRef.value);
+  // Both admin and operator have administrator privileges
+  const isAdmin = computed(
+    () => userRef.value?.role === "admin" || userRef.value?.role === "operator",
+  );
+  // member and user have general permissions (including all logged in users)
+  const isMember = computed(() => isLoggedInRef.value);
+  const currentUser = computed(() => userRef.value);
+  const loading = computed(() => loadingRef.value);
+  const error = computed(() => errorRef.value);
+
+  // ==========================================
+  //login
+  // TODO: Change to actual API call after completing the backend
+  // ==========================================
+  const login = async (email: string, password: string): Promise<boolean> => {
+    loadingRef.value = true;
+    errorRef.value = null;
+
+    try {
+      // ========== Backend integration code (uncomment and use) ==========
+      // const response = await authApi.login({ email, password })
+      // if (response.data.success && response.data.data) {
+      //   const user = response.data.data
+      //   isLoggedInRef.value = true
+      //   userRef.value = {
+      //     id: user.id,
+      //     email: user.email,
+      //     name: user.name,
+      //     role: user.role,
+      //   }
+      //   localStorage.setItem('userRole', user.role)
+      //   localStorage.setItem('userName', user.name)
+      //   localStorage.setItem('userEmail', user.email)
+      //   return true
+      // }
+      // return false
+      // ========================================================
+
+      // ========== Mock login (used until backend completion) ==========
+      await new Promise((resolve) => setTimeout(resolve, 500)); // API call simulation
+
+      // Administrator account
+      if (email === "admin@obed.com" && password === "admin123") {
+        isLoggedInRef.value = true;
+        userRef.value = { id: 1, email, name: "관리자", role: "admin" };
+        localStorage.setItem("token", "mock-admin-token");
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            userId: "1",
+            email,
+            name: "관리자",
+            role: "admin",
+          }),
+        );
+        return true;
+      }
+
+      // Administrator account (same privileges as administrator)
+      if (email === "operator@obed.com" && password === "operator123") {
+        isLoggedInRef.value = true;
+        userRef.value = { id: 2, email, name: "운영자", role: "operator" };
+        localStorage.setItem("token", "mock-operator-token");
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            userId: "2",
+            email,
+            name: "운영자",
+            role: "operator",
+          }),
+        );
+        return true;
+      }
+
+      // member account
+      if (email === "member@obed.com" && password === "member123") {
+        isLoggedInRef.value = true;
+        userRef.value = { id: 3, email, name: "멤버", role: "member" };
+        localStorage.setItem("token", "mock-member-token");
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            userId: "3",
+            email,
+            name: "멤버",
+            role: "member",
+          }),
+        );
+        return true;
+      }
+
+      // Regular user (any other email/password)
+      if (email && password) {
+        isLoggedInRef.value = true;
+        userRef.value = { id: 4, email, name: "홍길동", role: "user" };
+        localStorage.setItem("token", "mock-user-token");
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            userId: "4",
+            email,
+            name: "홍길동",
+            role: "user",
+          }),
+        );
+        return true;
+      }
+
+      errorRef.value = "이메일 또는 비밀번호가 일치하지 않습니다.";
+      return false;
+      // ========================================================
+    } catch (err: any) {
+      errorRef.value = err.response?.data?.message || "로그인에 실패했습니다.";
+      return false;
+    } finally {
+      loadingRef.value = false;
+    }
+  };
+
+  // ==========================================
+  // Sign up
+  // TODO: Change to actual API call after completing the backend
+  // ==========================================
+  const register = async (
+    email: string,
+    password: string,
+    name: string,
+    phone?: string,
+  ): Promise<boolean> => {
+    loadingRef.value = true;
+    errorRef.value = null;
+
+    try {
+      // ========== Backend integration code (uncomment and use) ==========
+      // const response = await authApi.register({ email, password, name, phone })
+      // if (response.data.success) {
+      //   return true
+      // }
+      // errorRef.value = response.data.message || 'Registration failed.'
+      // return false
+      // ========================================================
+
+      // ========== Mock membership registration (used until backend completion) ==========
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      if (email && password && name) {
+        console.log("Registration success (Mock):", { email, name, phone });
+        return true;
+      }
+
+      errorRef.value = "Please fill in all required fields.";
+      return false;
+      // ========================================================
+    } catch (err: any) {
+      errorRef.value =
+        err.response?.data?.message || "Registration failed.";
+      return false;
+    } finally {
+      loadingRef.value = false;
+    }
+  };
+
+  // ==========================================
+  // logout
+  // TODO: Change to actual API call after completing the backend
+  // ==========================================
+  const logout = async (): Promise<void> => {
+    try {
+      // ========== Backend integration code (uncomment and use) ==========
+      // await authApi.logout()
+      // ========================================================
+    } catch (err) {
+      console.error("Logout API failed:", err);
+    } finally {
+      // initialize local state
+      isLoggedInRef.value = false;
+      userRef.value = null;
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      // Clean up existing keys as well
+      localStorage.removeItem("userRole");
+      localStorage.removeItem("userName");
+      localStorage.removeItem("userEmail");
+    }
+  };
+
+  // ==========================================
+  // Check session (check authentication status when page refresh)
+  // TODO: Change to actual API call after completing the backend
+  // ==========================================
+  const checkSession = async (): Promise<boolean> => {
+    try {
+      // ========== Backend integration code (uncomment and use) ==========
+      // const response = await authApi.checkSession()
+      // if (response.data.authenticated && response.data.data) {
+      //   isLoggedInRef.value = true
+      //   userRef.value = {
+      //     id: response.data.data.userId,
+      //     email: response.data.data.email,
+      //     name: response.data.data.name,
+      //     role: response.data.data.role,
+      //   }
+      //   return true
+      // }
+      // // Reset local state when session expires
+      // await logout()
+      // return false
+      // ========================================================
+
+      // ========== Check Mock session (used until backend completion) ==========
+      return isLoggedInRef.value;
+      // ========================================================
+    } catch (err) {
+      console.error("Session check failed:", err);
+      return false;
+    }
+  };
+
+  // ==========================================
+  // change password
+  // TODO: Change to actual API call after completing the backend
+  // ==========================================
+  const changePassword = async (
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<boolean> => {
+    loadingRef.value = true;
+    errorRef.value = null;
+
+    try {
+      // ========== Backend integration code (uncomment and use) ==========
+      // const response = await authApi.changePassword({ currentPassword, newPassword })
+      // if (response.data.success) {
+      //   return true
+      // }
+      // errorRef.value = response.data.message
+      // return false
+      // ========================================================
+
+      // ========== Mock (used until backend completion) ==========
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      console.log("Password changed (Mock)");
+      return true;
+      // ========================================================
+    } catch (err: any) {
+      errorRef.value =
+        err.response?.data?.message || "Failed to change password.";
+      return false;
+    } finally {
+      loadingRef.value = false;
+    }
+  };
+
+  /**
+   * Clear any error messages
+   */
+  const clearError = () => {
+    errorRef.value = null;
+  };
 
   return {
-    isLoggedIn,
-    isAdmin,
-    login,
-    logout,
-  }
+    // State (reactive)
+    isLoggedIn,       // Boolean: User is logged in
+    isAdmin,          // Boolean: User is admin or operator
+    isMember,         // Boolean: User is logged in (any role)
+    currentUser,      // User object or null
+    loading,          // Boolean: API call in progress
+    error,            // Error message or null
+
+    // Methods
+    login,            // Login with email/password
+    register,         // Register new user
+    logout,           // Logout and clear state
+    checkSession,     // Verify session is still valid
+    changePassword,   // Change user password
+    clearError,       // Clear error message
+  };
 }

@@ -1,19 +1,23 @@
 /* ========================================
-   Vision 페이지 스타일 (개선 버전)
+   Vision page styles (improved version)
    ======================================== */
 
 /* ========================================
-   성경 구절
+   bible verse
    ======================================== */
 
 .bible-verse {
   text-align: center;
   padding: 2.5rem 2rem;
   border-radius: 1rem;
-  background: linear-gradient(135deg, #faf2f5 0%, #fff7f9 100%);
+  background: linear-gradient(
+    135deg,
+    var(--ow-surface-accent) 0%,
+    var(--ow-surface-wash) 100%
+  );
   border: 1px solid rgba(148, 81, 105, 0.2);
   margin-bottom: 2.5rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 30px var(--ow-shadow-soft-2);
 }
 
 .bible-verse blockquote {
@@ -24,20 +28,20 @@
   margin: 0 0 0.8rem;
   font-size: 1.5rem;
   line-height: 1.7;
-  color: #4a1f2f;
+  color: var(--ow-accent);
   font-weight: 600;
 }
 
 .bible-verse cite {
   font-size: 1.05rem;
-  color: #8a4b4b;
+  color: var(--ow-accent-2);
   font-style: italic;
   font-weight: 500;
 }
 
 /* ========================================
-   팀 소개
-   ======================================== */
+Team Introduction 
+  ======================================== */
 
 .team-description {
   display: grid;
@@ -49,23 +53,22 @@
 .highlight-box {
   padding: 1.2rem 1.5rem;
   border-radius: 0.85rem;
-  background: #fff;
+  background: var(--ow-surface);
   border: 1px solid rgba(148, 81, 105, 0.12);
   font-size: 1.05rem;
   line-height: 1.7;
-  color: #4a1f2f;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  transition: all 0.3s ease-out;
+  color: var(--ow-accent);
+  box-shadow: 0 4px 12px var(--ow-shadow-soft), inset 0 0 0 transparent;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
 }
 
 .highlight-box:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-  border-color: rgba(148, 81, 105, 0.25);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px var(--ow-shadow), inset 0 -3px 0 var(--ow-accent);
 }
 
 /* ========================================
-   팀원 섹션
+   Team Member Section
    ======================================== */
 
 .team-member-section {
@@ -76,11 +79,11 @@
   font-size: 1.6rem;
   margin: 0 0 1.5rem;
   font-weight: 700;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
 }
 
 /* ========================================
-   필터 버튼
+   filter button
    ======================================== */
 
 .position-filter,
@@ -94,15 +97,15 @@
 
 .filter-btn {
   border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--ow-border-strong);
   padding: 0.5rem 1.2rem;
   font-size: 0.9rem;
-  background: #fff;
+  background: var(--ow-surface);
   cursor: pointer;
   transition: all 0.25s ease-out;
-  color: #444;
+  color: var(--ow-text);
   font-weight: 500;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 8px var(--ow-shadow-soft);
 }
 
 .filter-btn.small {
@@ -110,11 +113,15 @@
   font-size: 0.85rem;
 }
 
+.admin-toggle {
+  white-space: nowrap;
+}
+
 .filter-btn:hover {
   border-color: rgba(74, 31, 47, 0.4);
   background: #fdf4f7;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px var(--ow-shadow);
 }
 
 .filter-btn::before,
@@ -124,14 +131,18 @@
 }
 
 .filter-btn.active {
-  background: linear-gradient(135deg, #4a1f2f 0%, #6a2f3f 100%) !important;
-  border-color: #4a1f2f !important;
-  color: #ffffff !important;
+  background: linear-gradient(
+    135deg,
+    var(--ow-accent) 0%,
+    #6a2f3f 100%
+  ) !important;
+  border-color: var(--ow-accent) !important;
+  color: var(--ow-surface) !important;
   box-shadow: 0 6px 16px rgba(74, 31, 47, 0.25) !important;
   transform: translateY(-2px) !important;
-  
-  -webkit-text-fill-color: #ffffff !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+
+  -webkit-text-fill-color: var(--ow-surface) !important;
+  text-shadow: 0 1px 2px var(--ow-overlay) !important;
   font-weight: 700 !important;
   position: relative !important;
   z-index: 10 !important;
@@ -145,12 +156,16 @@
 }
 
 .filter-btn.active:hover {
-  background: linear-gradient(135deg, #5a2f3f 0%, #7a3f4f 100%) !important;
-  color: #fff !important;
+  background: linear-gradient(
+    135deg,
+    var(--ow-accent-dark) 0%,
+    #7a3f4f 100%
+  ) !important;
+  color: var(--ow-surface) !important;
 }
 
 /* ========================================
-   멤버 그리드
+   member grid
    ======================================== */
 
 .member-grid {
@@ -161,21 +176,20 @@
 }
 
 .member-card {
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 1rem;
   padding: 0;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  transition: all 0.3s ease-out;
+  box-shadow: 0 10px 30px var(--ow-shadow-soft-2), inset 0 0 0 transparent;
+  border: 1px solid var(--ow-border-subtle);
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
 .member-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  border-color: rgba(74, 31, 47, 0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px var(--ow-shadow), inset 0 -3px 0 var(--ow-accent);
 }
 
 .member-photo {
@@ -200,28 +214,83 @@
 }
 
 /* ========================================
-   멤버 정보
+   Member Information
    ======================================== */
+
+.member-name-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
 
 .member-name {
   font-size: 1.15rem;
   margin: 0;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
   font-weight: 700;
+}
+
+/* Social text links next to name */
+.member-social-text {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-left: auto;
+}
+
+.social-text-link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  transition: all 0.2s ease-out;
+}
+
+.social-text-link.instagram {
+  color: #e1306c;
+  background: rgba(225, 48, 108, 0.1);
+}
+
+.social-text-link.instagram:hover {
+  background: rgba(225, 48, 108, 0.2);
+}
+
+.social-text-link.youtube {
+  color: #ff0000;
+  background: rgba(255, 0, 0, 0.1);
+}
+
+.social-text-link.youtube:hover {
+  background: rgba(255, 0, 0, 0.2);
+}
+
+.member-position-text {
+  font-size: 0.85rem;
+  color: var(--ow-accent-2);
+  font-weight: 500;
+}
+
+.member-position-text.step {
+  color: var(--ow-accent);
 }
 
 .affiliation-badge {
   display: inline-block;
   width: fit-content;
-  padding: 0.3rem 0.7rem;
-  font-size: 0.8rem;
-  color: #fff;
-  background: linear-gradient(135deg, #6a2f3f 0%, #8a4b4b 100%);
-  border-radius: 999px;
-  font-weight: 600;
+  padding: 0.4rem 1rem;
+  font-size: 0.9rem;
+  color: var(--ow-surface);
+  background: linear-gradient(135deg, var(--ow-accent) 0%, #6a2f3f 100%);
+  border-radius: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  box-shadow: 0 4px 12px rgba(74, 31, 47, 0.3);
+  text-transform: uppercase;
 }
 
-/* 역할 배지 (Leader) */
+/* Role Badge (Leader) */
 .member-roles {
   display: flex;
   flex-wrap: wrap;
@@ -232,53 +301,86 @@
   display: inline-block;
   padding: 0.35rem 0.8rem;
   font-size: 0.8rem;
-  color: #4a1f2f;
-  background: #fdf2f6;
-  border: 1px solid rgba(148, 81, 105, 0.25);
+  color: var(--ow-accent);
+  background: var(--ow-surface-accent);
+  border: 1px solid var(--ow-border-accent);
   border-radius: 999px;
   font-weight: 600;
 }
 
-/* 포지션 배지 */
-.member-positions {
+/* Position groups - Worship & Step */
+.member-positions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.position-group-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ow-text-muted);
+}
+
+.position-badges {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.3rem;
 }
 
 .position-badge {
-  display: inline-block;
-  padding: 0.35rem 0.8rem;
-  font-size: 0.8rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  transition: all 0.2s ease-out;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: var(--ow-surface-2);
+  border: 1px solid var(--ow-border);
 }
 
 .position-badge.worship {
-  color: #1e5a8e;
-  background: #e3f2fd;
-  border: 1px solid rgba(30, 90, 142, 0.2);
-}
-
-.position-badge.worship:hover {
-  background: #bbdefb;
-  transform: translateY(-1px);
+  color: var(--ow-accent-2);
+  background: var(--ow-surface-accent);
+  border-color: var(--ow-border-accent);
 }
 
 .position-badge.step {
-  color: #558b2f;
-  background: #f1f8e9;
-  border: 1px solid rgba(85, 139, 47, 0.2);
+  color: var(--ow-accent);
+  background: var(--ow-accent-surface);
+  border-color: var(--ow-border-accent);
 }
 
-.position-badge.step:hover {
-  background: #dcedc8;
-  transform: translateY(-1px);
+.position-badge-more {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: var(--ow-surface-2);
+  border: 1px solid var(--ow-border);
+  color: var(--ow-text-muted);
+  cursor: default;
+  user-select: none;
+}
+
+.position-badge-tooltip-fixed {
+  position: fixed;
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding: 0.5rem 0.65rem;
+  background: var(--ow-surface);
+  border: 1px solid var(--ow-border);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  z-index: 9999;
+  pointer-events: none;
+  min-width: max-content;
 }
 
 /* ========================================
-   소셜 링크
+   social links
+
    ======================================== */
 
 .social-links {
@@ -286,7 +388,7 @@
   gap: 0.5rem;
   margin-top: 0.5rem;
   padding-top: 0.6rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-top: 1px solid var(--ow-border);
 }
 
 .icon-link {
@@ -314,22 +416,22 @@
 }
 
 /* ========================================
-   빈 상태
+   empty state
    ======================================== */
 
 .empty-text {
   grid-column: 1 / -1;
   text-align: center;
   font-size: 1rem;
-  color: #999;
+  color: var(--ow-text-soft);
   padding: 3rem 1rem;
-  background: #fafafa;
+  background: var(--ow-surface-2);
   border-radius: 0.75rem;
-  border: 1px dashed rgba(0, 0, 0, 0.1);
+  border: 1px dashed var(--ow-border-strong);
 }
 
 /* ========================================
-   반응형 디자인
+   Responsive Design
    ======================================== */
 
 @media (max-width: 768px) {
@@ -462,7 +564,7 @@
 }
 
 /* ========================================
-   추가 애니메이션
+   Additional animations
    ======================================== */
 
 @keyframes fadeIn {
@@ -477,12 +579,5 @@
 }
 
 .member-card {
-  animation: fadeIn 0.4s ease-out;
+  animation: fadeIn 0.3s ease-out both;
 }
-
-.member-card:nth-child(1) { animation-delay: 0.05s; }
-.member-card:nth-child(2) { animation-delay: 0.1s; }
-.member-card:nth-child(3) { animation-delay: 0.15s; }
-.member-card:nth-child(4) { animation-delay: 0.2s; }
-.member-card:nth-child(5) { animation-delay: 0.25s; }
-.member-card:nth-child(6) { animation-delay: 0.3s; }

@@ -1,5 +1,5 @@
 /* ========================================
-   디테일 페이지 공통 스타일
+   Detail page common style
    ======================================== */
 
 .detail-header {
@@ -27,20 +27,20 @@
 }
 
 /* ========================================
-   히어로 섹션
+   hero section
    ======================================== */
 
 .detail-hero {
   text-align: center;
   padding: 2.5rem 2rem;
-  background: linear-gradient(135deg, #f0d4e0 0%, #fae8f0 100%);
+  background: linear-gradient(135deg, var(--ow-border-accent) 0%, #fae8f0 100%);
   border-radius: 1rem;
   margin-bottom: 2rem;
 }
 
 .detail-date {
   font-size: 0.95rem;
-  color: #8a4b4b;
+  color: var(--ow-accent-2);
   margin-bottom: 0.8rem;
   font-weight: 600;
 }
@@ -48,12 +48,12 @@
 .detail-title {
   font-size: 2.5rem;
   font-weight: 800;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
   margin: 0 0 1.5rem;
   line-height: 1.2;
 }
 
-/* 히어로 정보 */
+/* Hero Information */
 .hero-info {
   display: flex;
   justify-content: center;
@@ -73,42 +73,42 @@
 
 .hero-info-label {
   font-size: 0.8rem;
-  color: #8a4b4b;
+  color: var(--ow-accent-2);
   font-weight: 600;
 }
 
 .hero-info-value {
   font-size: 1rem;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
   font-weight: 700;
 }
 
 .hero-description {
   font-size: 1.05rem;
   line-height: 1.7;
-  color: #444;
+  color: var(--ow-text);
   margin: 0;
   max-width: 700px;
   margin: 0 auto;
 }
 
 /* ========================================
-   탭 네비게이션
+   tab navigation
    ======================================== */
 
 .tabs-container {
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 1rem;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 30px var(--ow-shadow-soft-2);
 }
 
 .tabs-nav {
   display: flex;
   gap: 1rem;
   padding: 1.5rem;
-  background: #faf7f7;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  background: var(--ow-bg);
+  border-bottom: 1px solid var(--ow-shadow-soft-2);
 }
 
 .tab-button {
@@ -120,19 +120,19 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease-out;
-  background: #fff;
-  color: #666;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background: var(--ow-surface);
+  color: var(--ow-text-muted);
+  box-shadow: 0 2px 8px var(--ow-shadow-soft-2);
 }
 
 .tab-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px var(--ow-border-strong);
 }
 
 .tab-button.active {
-  background: linear-gradient(135deg, #4a1f2f 0%, #8a4b4b 100%);
-  color: #fff;
+  background: linear-gradient(135deg, var(--ow-accent) 0%, var(--ow-accent-2) 100%);
+  color: var(--ow-surface);
   box-shadow: 0 6px 20px rgba(74, 31, 47, 0.3);
   transform: translateY(-2px);
 }
@@ -148,7 +148,7 @@
 }
 
 /* ========================================
-   공통 섹션 스타일
+   Common section styles
    ======================================== */
 
 .info-section,
@@ -159,15 +159,15 @@
 .seating-section,
 .songs-section {
   padding: 1.5rem;
-  background: #fafafa;
+  background: var(--ow-surface-2);
   border-radius: 0.75rem;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--ow-shadow-soft-2);
 }
 
 .section-subtitle {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
   margin: 0 0 1rem;
   display: flex;
   align-items: center;
@@ -179,12 +179,12 @@
 .seating-text {
   font-size: 1rem;
   line-height: 1.6;
-  color: #444;
+  color: var(--ow-text);
   margin: 0;
 }
 
 /* ========================================
-   시간 안내
+   Time information
    ======================================== */
 
 .time-info {
@@ -198,29 +198,29 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1rem;
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 0.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--ow-border);
 }
 
 .time-label {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--ow-text-muted);
 }
 
 .time-value {
   font-size: 1rem;
   font-weight: 600;
-  color: #4a1f2f;
+  color: var(--ow-accent);
 }
 
 /* ========================================
-   영상 임베드
+   Embed video
    ======================================== */
 
 .video-embed {
   position: relative;
-  padding-bottom: 56.25%; /* 16:9 비율 */
+  padding-bottom: 56.25%;
   height: 0;
   overflow: hidden;
   border-radius: 0.75rem;
@@ -237,7 +237,7 @@
 }
 
 /* ========================================
-   장소 안내
+  Location information
    ======================================== */
 
 .location-info {
@@ -248,7 +248,7 @@
 
 .location-text {
   font-size: 1rem;
-  color: #444;
+  color: var(--ow-text);
   margin: 0;
 }
 
@@ -258,7 +258,7 @@
   height: 0;
   overflow: hidden;
   border-radius: 0.75rem;
-  background: #f0f0f0;
+  background: var(--ow-surface-3);
 }
 
 .map-embed iframe {
@@ -271,13 +271,13 @@
 }
 
 /* ========================================
-   미리듣기 섹션
+   Preview section
    ======================================== */
 
 .songs-intro {
   font-size: 0.95rem;
   line-height: 1.6;
-  color: #555;
+  color: var(--ow-text);
   margin: 0 0 1.5rem;
 }
 
@@ -292,7 +292,7 @@
 .song-category-title {
   font-size: 1rem;
   font-weight: 600;
-  color: #4a1f2f;
+  color: var(--ow-accent);
   margin: 0 0 0.75rem;
 }
 
@@ -307,11 +307,49 @@
 .song-list li {
   font-size: 0.95rem;
   line-height: 1.5;
-  color: #444;
+  color: var(--ow-text);
+}
+
+.song-marquee-wrapper {
+  overflow: hidden;
+  width: 100%;
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.song-marquee-track {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: max-content;
+  animation: song-marquee linear infinite;
+}
+
+.song-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+.song-marquee-item {
+  white-space: nowrap;
+  font-size: 0.95rem;
+  color: var(--ow-text);
+  padding: 0.25rem 1.5rem;
+}
+
+.song-marquee-item::before {
+  content: "·";
+  margin-right: 1.5rem;
+  color: var(--ow-accent);
+  opacity: 0.5;
+}
+
+@keyframes song-marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 /* ========================================
-   갤러리 탭
+   Gallery tab
    ======================================== */
 
 .section-header-with-action {
@@ -325,9 +363,9 @@
 .photos-section,
 .scores-section {
   padding: 1.5rem;
-  background: #fafafa;
+  background: var(--ow-surface-2);
   border-radius: 0.75rem;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--ow-shadow-soft-2);
 }
 
 .video-wrapper-with-delete {
@@ -340,7 +378,7 @@
   right: 0.5rem;
   z-index: 10;
   background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--ow-border-strong);
   border-radius: 0.5rem;
   padding: 0.4rem 0.7rem;
   cursor: pointer;
@@ -350,7 +388,7 @@
 
 .btn-delete-video:hover {
   background: #ff4444;
-  color: #fff;
+  color: var(--ow-surface);
   transform: scale(1.05);
 }
 
@@ -366,7 +404,7 @@
   overflow: hidden;
   border-radius: 0.75rem;
   cursor: pointer;
-  background: #f0f0f0;
+  background: var(--ow-surface-3);
   transition: transform 0.2s ease;
 }
 
@@ -386,7 +424,7 @@
   right: 0.5rem;
   z-index: 10;
   background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--ow-border-strong);
   border-radius: 50%;
   width: 28px;
   height: 28px;
@@ -397,42 +435,42 @@
   transition: all 0.2s ease;
   font-size: 1.1rem;
   font-weight: bold;
-  color: #666;
+  color: var(--ow-text-muted);
 }
 
 .btn-delete-photo:hover {
   background: #ff4444;
-  color: #fff;
+  color: var(--ow-surface);
   transform: scale(1.1);
 }
 
 .empty-message {
   text-align: center;
   padding: 2rem;
-  color: #999;
+  color: var(--ow-text-soft);
   font-size: 0.95rem;
 }
 
 .empty-gallery {
   text-align: center;
   padding: 3rem 1rem;
-  color: #999;
+  color: var(--ow-text-soft);
 }
 
 /* ========================================
-   악보 탭 - 단일 PDF 파일 스타일
+   Sheet music tab - single PDF file style
    ======================================== */
 
 .scores-intro {
   font-size: 0.95rem;
   line-height: 1.6;
-  color: #555;
+  color: var(--ow-text);
   margin: 0 0 1.5rem;
 }
 
 .warning-song {
   display: block;
-  background: #fff3cd;
+  background: var(--ow-warning-soft);
   border: 1px solid #ffc107;
   border-radius: 0.5rem;
   padding: 1rem;
@@ -454,19 +492,21 @@
 
 .score-single-card {
   position: relative;
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 1rem;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--ow-border);
   overflow: hidden;
   width: 100%;
   max-width: 600px;
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 12px 25px var(--ow-border-stronger);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .score-single-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 16px 35px var(--ow-border-strong);
 }
 
 .btn-delete-score {
@@ -475,7 +515,7 @@
   right: 1rem;
   z-index: 10;
   background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--ow-border-strong);
   border-radius: 0.5rem;
   padding: 0.5rem 0.8rem;
   cursor: pointer;
@@ -485,7 +525,7 @@
 
 .btn-delete-score:hover {
   background: #ff4444;
-  color: #fff;
+  color: var(--ow-surface);
   transform: scale(1.05);
 }
 
@@ -524,8 +564,8 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
-  color: #666;
+  background: linear-gradient(135deg, var(--ow-surface-3) 0%, #e8e8e8 100%);
+  color: var(--ow-text-muted);
   text-align: center;
   padding: 2rem;
 }
@@ -533,20 +573,20 @@
 .pdf-icon-large {
   font-size: 4rem;
   margin-bottom: 1rem;
-  color: #4a1f2f;
+  color: var(--ow-accent);
 }
 
 .placeholder-title {
   margin: 0 0 0.5rem;
   font-size: 1.2rem;
   font-weight: 600;
-  color: #4a1f2f;
+  color: var(--ow-accent);
 }
 
 .placeholder-subtitle {
   margin: 0;
   font-size: 0.9rem;
-  color: #888;
+  color: var(--ow-text-faint);
 }
 
 .preview-overlay {
@@ -555,14 +595,14 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: var(--ow-overlay-stronger);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   opacity: 0;
   transition: opacity 0.2s ease;
-  color: #fff;
+  color: var(--ow-surface);
   text-align: center;
 }
 
@@ -578,19 +618,19 @@
 
 .score-info-large {
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid var(--ow-border);
 }
 
 .score-title-main {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
   margin: 0 0 0.5rem;
 }
 
 .score-description {
   font-size: 1rem;
-  color: #4a1f2f;
+  color: var(--ow-accent);
   margin: 0 0 1rem;
   font-weight: 500;
 }
@@ -609,14 +649,14 @@
 
 .detail-label {
   font-size: 0.85rem;
-  color: #666;
+  color: var(--ow-text-muted);
   font-weight: 500;
   min-width: 60px;
 }
 
 .detail-value {
   font-size: 0.85rem;
-  color: #333;
+  color: var(--ow-text);
   word-break: break-all;
 }
 
@@ -644,25 +684,25 @@
 .download-note {
   margin: 0;
   font-size: 0.85rem;
-  color: #666;
+  color: var(--ow-text-muted);
   line-height: 1.4;
 }
 
 .score-empty-state {
   text-align: center;
   padding: 4rem 2rem;
-  color: #999;
+  color: var(--ow-text-soft);
 }
 
 .empty-icon {
   font-size: 4rem;
   margin-bottom: 1rem;
-  color: #ccc;
+  color: var(--ow-border-solid-stronger);
 }
 
 .score-empty-state h3 {
   font-size: 1.2rem;
-  color: #666;
+  color: var(--ow-text-muted);
   margin: 0 0 0.75rem;
 }
 
@@ -673,7 +713,7 @@
 }
 
 /* ========================================
-   PDF 미리보기 모달
+   PDF preview modal
    ======================================== */
 
 .pdf-preview-modal {
@@ -682,7 +722,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.9);
+  background: var(--ow-overlay-heavy);
   z-index: 2000;
   display: flex;
   align-items: center;
@@ -695,7 +735,7 @@
   width: 90%;
   max-width: 800px;
   height: 90%;
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 0.5rem;
   overflow: hidden;
 }
@@ -705,9 +745,9 @@
   top: 1rem;
   right: 1rem;
   z-index: 10;
-  background: rgba(0, 0, 0, 0.7);
+  background: var(--ow-overlay-stronger);
   border: none;
-  color: #fff;
+  color: var(--ow-surface);
   font-size: 1.5rem;
   width: 40px;
   height: 40px;
@@ -720,7 +760,7 @@
 }
 
 .pdf-preview-close:hover {
-  background: rgba(0, 0, 0, 0.9);
+  background: var(--ow-overlay-heavy);
   transform: scale(1.1);
 }
 
@@ -732,7 +772,7 @@
 }
 
 /* ========================================
-   라이트박스
+   light box
    ======================================== */
 
 .lightbox {
@@ -741,7 +781,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.95);
+  background: var(--ow-overlay-heavier);
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -762,7 +802,7 @@
   position: absolute;
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  color: #fff;
+  color: var(--ow-surface);
   font-size: 2rem;
   width: 50px;
   height: 50px;
@@ -799,7 +839,7 @@
 }
 
 /* ========================================
-   빈 컨테이너
+  empty container
    ======================================== */
 
 .empty-container {
@@ -809,12 +849,12 @@
 
 .empty-text {
   font-size: 1rem;
-  color: #999;
+  color: var(--ow-text-soft);
   margin-bottom: 1.5rem;
 }
 
 /* ========================================
-   반응형 디자인
+   Responsive Design
    ======================================== */
 
 @media (max-width: 768px) {
@@ -822,31 +862,31 @@
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .detail-hero {
     padding: 1.5rem 1.25rem;
   }
-  
+
   .detail-title {
     font-size: 1.5rem;
   }
-  
+
   .hero-info {
     gap: 1rem;
   }
-  
+
   .tab-content {
     padding: 1.5rem 1rem;
   }
-  
+
   .tabs-nav {
     flex-direction: column;
   }
-  
+
   .tab-button {
     padding: 0.75rem 1rem;
   }
-  
+
   .info-section,
   .time-section,
   .video-section,
@@ -859,28 +899,28 @@
   .scores-section {
     padding: 1rem;
   }
-  
+
   .photo-grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 0.75rem;
   }
-  
+
   .score-single-card {
     max-width: 100%;
   }
-  
+
   .score-preview-large {
     height: 250px;
   }
-  
+
   .score-info-large {
     padding: 1.25rem 1.5rem;
   }
-  
+
   .score-download-section {
     padding: 1.25rem 1.5rem;
   }
-  
+
   .lightbox-close,
   .lightbox-prev,
   .lightbox-next {
@@ -888,7 +928,7 @@
     height: 40px;
     font-size: 1.5rem;
   }
-  
+
   .pdf-preview-content {
     width: 95%;
     height: 85%;
@@ -899,49 +939,503 @@
   .detail-title {
     font-size: 1.3rem;
   }
-  
+
   .hero-info {
     flex-direction: column;
     gap: 0.75rem;
   }
-  
+
   .section-subtitle {
     font-size: 1rem;
   }
-  
+
   .photo-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .score-preview-large {
     height: 200px;
   }
-  
+
   .score-title-main {
     font-size: 1.1rem;
   }
-  
+
   .score-info-large {
     padding: 1rem 1.25rem;
   }
-  
+
   .score-download-section {
     padding: 1rem 1.25rem;
   }
-  
+
   .download-btn-large {
     font-size: 1rem;
     padding: 0.7rem 1.25rem;
   }
-  
+
   .tabs-nav {
     overflow-x: auto;
     flex-direction: row;
     flex-wrap: nowrap;
   }
-  
+
   .tab-button {
     white-space: nowrap;
     min-width: 80px;
+  }
+}
+
+/* ========================================
+   Edit mode styles
+   ======================================== */
+
+.edit-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  background: var(--ow-surface);
+}
+
+.edit-input:focus {
+  outline: none;
+  border-color: #d4a5a5;
+  box-shadow: 0 0 0 3px rgba(212, 165, 165, 0.2);
+}
+
+.edit-input::placeholder {
+  color: var(--ow-text-soft);
+}
+
+.edit-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  background: var(--ow-surface);
+}
+
+.edit-textarea:focus {
+  outline: none;
+  border-color: #d4a5a5;
+  box-shadow: 0 0 0 3px rgba(212, 165, 165, 0.2);
+}
+
+.edit-textarea::placeholder {
+  color: var(--ow-text-soft);
+}
+
+.edit-field {
+  margin-bottom: 0.75rem;
+}
+
+.edit-field:last-child {
+  margin-bottom: 0;
+}
+
+/* Time item edit mode */
+.time-item .edit-input {
+  max-width: 200px;
+  text-align: center;
+}
+
+/* Location edit mode */
+.location-info .edit-input {
+  margin-bottom: 0.5rem;
+}
+
+/* Section styles in edit mode */
+.info-section,
+.time-section,
+.video-section,
+.location-section,
+.parking-section,
+.seating-section,
+.songs-section {
+  padding: 1.5rem;
+  background: var(--ow-surface-2);
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.info-section:last-child,
+.time-section:last-child,
+.video-section:last-child,
+.location-section:last-child,
+.parking-section:last-child,
+.seating-section:last-child,
+.songs-section:last-child {
+  margin-bottom: 0;
+}
+
+/* ========================================
+   Upload modal styles
+   ======================================== */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--ow-overlay-strong);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: var(--ow-surface);
+  border-radius: 1rem;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 50px var(--ow-shadow-strong);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--ow-border-stronger);
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ow-text-strong);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--ow-text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.modal-close:hover {
+  color: var(--ow-text);
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--ow-border-stronger);
+  background: var(--ow-surface-2);
+  border-radius: 0 0 1rem 1rem;
+}
+
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ow-text);
+}
+
+.form-group input[type="file"] {
+  padding: 0.75rem;
+  border: 2px dashed #d0d0d0;
+  border-radius: 0.5rem;
+  background: #f9f9f9;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.form-group input[type="file"]:hover {
+  border-color: var(--ow-accent);
+}
+
+.form-group textarea {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.form-group textarea:focus {
+  outline: none;
+  border-color: #d4a5a5;
+  box-shadow: 0 0 0 3px rgba(212, 165, 165, 0.2);
+}
+
+.form-hint {
+  font-size: 0.8rem;
+  color: var(--ow-text-faint);
+  margin: 0;
+}
+
+.selected-file-info {
+  background: #f0f7f0;
+  border: 1px solid #c8e6c9;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.selected-file-info p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #2e7d32;
+}
+
+.selected-file-info p + p {
+  margin-top: 0.25rem;
+}
+
+/* Thumbnail preview */
+.thumbnail-preview {
+  margin-top: 1rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: #f9f9f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-height: 300px;
+}
+
+.thumbnail-preview img {
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  display: block;
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    max-width: 100%;
+    margin: 0.5rem;
+    max-height: 95vh;
+  }
+
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding: 1rem;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+  }
+}
+
+/* ========================================
+   Poster Section
+   ======================================== */
+
+.poster-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--ow-surface);
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px var(--ow-shadow-soft-2);
+}
+
+.poster-section .section-subtitle {
+  margin-bottom: 1rem;
+}
+
+.poster-edit-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.poster-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: #f9f9f9;
+}
+
+.poster-image img {
+  max-width: 350px;
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px var(--ow-border-strong);
+}
+
+.poster-preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: #f9f9f9;
+  border: 2px dashed var(--ow-border-solid-strong);
+  padding: 0.5rem;
+}
+
+.poster-preview img {
+  max-width: 350px;
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 0.5rem;
+  opacity: 0.8;
+}
+
+/* Clickable poster style */
+.clickable-poster {
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.clickable-poster:hover {
+  transform: scale(1.02);
+}
+
+.poster-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: all 0.3s ease;
+  border-radius: 0.5rem;
+}
+
+.clickable-poster:hover .poster-overlay {
+  background: var(--ow-overlay-strong);
+  opacity: 1;
+}
+
+.poster-overlay-icon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.poster-overlay p {
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Poster fullscreen modal */
+.fullscreen-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--ow-overlay-heavier);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  padding: 2rem;
+  cursor: pointer;
+}
+
+.fullscreen-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.fullscreen-close {
+  position: absolute;
+  top: -3rem;
+  right: 0;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s ease;
+  z-index: 10001;
+}
+
+.fullscreen-close:hover {
+  background: white;
+  transform: scale(1.1);
+}
+
+.fullscreen-image {
+  max-width: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 40px var(--ow-overlay);
+}
+
+@media (max-width: 768px) {
+  .poster-section {
+    padding: 1rem;
+  }
+
+  .poster-edit-actions {
+    flex-direction: column;
+  }
+
+  .poster-edit-actions .btn {
+    width: 100%;
   }
 }

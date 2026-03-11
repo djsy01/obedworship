@@ -1,8 +1,8 @@
 /* ========================================
-   마이페이지 전용 스타일
+   My page exclusive style
    ======================================== */
 
-/* 마이페이지 그리드 */
+/* My Page grid layout */
 .mypage-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -11,15 +11,15 @@
 }
 
 /* ========================================
-   프로필 카드
+   profile card
    ======================================== */
 
 .profile-card {
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 1rem;
   padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 10px 30px var(--ow-shadow-soft-2);
+  border: 1px solid var(--ow-border-subtle);
 }
 
 .profile-header {
@@ -28,15 +28,19 @@
   gap: 1.5rem;
   margin-bottom: 2rem;
   padding-bottom: 2rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid var(--ow-border);
 }
 
 .profile-avatar {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #4a1f2f 0%, #8a4b4b 100%);
-  color: #fff;
+  background: linear-gradient(
+    135deg,
+    var(--ow-accent) 0%,
+    var(--ow-accent-2) 100%
+  );
+  color: var(--ow-surface);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -53,13 +57,13 @@
 .profile-name {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
   margin: 0 0 0.5rem;
 }
 
 .profile-role {
   font-size: 0.9rem;
-  color: #8a4b4b;
+  color: var(--ow-accent-2);
   font-weight: 600;
   margin: 0;
 }
@@ -76,20 +80,20 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1rem;
-  background: #fafafa;
+  background: var(--ow-surface-2);
   border-radius: 0.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--ow-border);
 }
 
 .detail-label {
   font-size: 0.85rem;
-  color: #666;
+  color: var(--ow-text-muted);
   font-weight: 500;
 }
 
 .detail-value {
   font-size: 0.95rem;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
   font-weight: 600;
 }
 
@@ -100,21 +104,25 @@
 }
 
 /* ========================================
-   관리자 대시보드 카드
+   Administrator Dashboard Card
    ======================================== */
 
 .admin-dashboard-card {
-  background: linear-gradient(135deg, #faf2f5 0%, #fff7f9 100%);
+  background: linear-gradient(
+    135deg,
+    var(--ow-surface-accent) 0%,
+    var(--ow-surface-wash) 100%
+  );
   border-radius: 1rem;
   padding: 2rem;
   box-shadow: 0 10px 30px rgba(74, 31, 47, 0.08);
-  border: 1px solid #f0d4e0;
+  border: 1px solid var(--ow-border-accent);
 }
 
 .card-title {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
   margin: 0 0 1.5rem;
 }
 
@@ -130,16 +138,16 @@
   align-items: center;
   gap: 1rem;
   padding: 1.25rem;
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 0.75rem;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease-out;
+  border: 1px solid var(--ow-border);
+  box-shadow: inset 0 0 0 transparent;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
 }
 
 .stat-box:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(74, 31, 47, 0.1);
-  border-color: #4a1f2f;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px var(--ow-shadow), inset 0 -3px 0 var(--ow-accent);
 }
 
 .stat-icon {
@@ -149,7 +157,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f0d4e0 0%, #fae8f0 100%);
+  background: linear-gradient(135deg, var(--ow-border-accent) 0%, #fae8f0 100%);
   border-radius: 50%;
   flex-shrink: 0;
 }
@@ -163,14 +171,14 @@
 
 .stat-label {
   font-size: 0.85rem;
-  color: #666;
+  color: var(--ow-text-muted);
   font-weight: 500;
 }
 
 .stat-value {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #4a1f2f;
+  color: var(--ow-accent);
 }
 
 .dashboard-actions {
@@ -180,7 +188,7 @@
 }
 
 /* ========================================
-   신청 내역 섹션
+   Application History Section
    ======================================== */
 
 .applications-section {
@@ -199,17 +207,17 @@
 .section-title-sub {
   font-size: 1.4rem;
   font-weight: 700;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
   margin: 0;
 }
 
 .filter-tabs {
   display: flex;
   gap: 0.5rem;
-  background: #fff;
+  background: var(--ow-surface);
   padding: 0.4rem;
   border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--ow-border-stronger);
 }
 
 .filter-tab {
@@ -221,22 +229,26 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease-out;
-  color: #666;
+  color: var(--ow-text-muted);
   font-family: inherit;
 }
 
 .filter-tab:hover {
-  background: #fafafa;
-  color: #4a1f2f;
+  background: var(--ow-surface-2);
+  color: var(--ow-accent);
 }
 
 .filter-tab.active {
-  background: linear-gradient(135deg, #4a1f2f 0%, #8a4b4b 100%);
-  color: #fff;
+  background: linear-gradient(
+    135deg,
+    var(--ow-accent) 0%,
+    var(--ow-accent-2) 100%
+  );
+  color: var(--ow-surface);
   box-shadow: 0 4px 12px rgba(74, 31, 47, 0.2);
 }
 
-/* 신청 내역 리스트 */
+/* Application details list */
 .applications-list {
   display: flex;
   flex-direction: column;
@@ -244,18 +256,17 @@
 }
 
 .application-card {
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 1rem;
   padding: 1.5rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  transition: all 0.3s ease-out;
+  box-shadow: 0 10px 30px var(--ow-shadow-soft-2), inset 0 0 0 transparent;
+  border: 1px solid var(--ow-border-subtle);
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
 }
 
 .application-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 20px 50px rgba(74, 31, 47, 0.12);
-  border-color: rgba(74, 31, 47, 0.2);
+  box-shadow: 0 12px 32px var(--ow-shadow), inset 0 -3px 0 var(--ow-accent);
 }
 
 .application-header {
@@ -264,7 +275,7 @@
   align-items: flex-start;
   margin-bottom: 1.5rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid var(--ow-border);
   gap: 1rem;
 }
 
@@ -278,7 +289,7 @@
 .application-worship-title {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
   margin: 0;
 }
 
@@ -311,7 +322,7 @@
 
 .application-date-info {
   font-size: 0.9rem;
-  color: #8a4b4b;
+  color: var(--ow-accent-2);
   font-weight: 600;
   margin: 0;
   text-align: right;
@@ -339,16 +350,16 @@
 }
 
 .ticket-summary {
-  background: #fafafa;
+  background: var(--ow-surface-2);
   border-radius: 0.75rem;
   padding: 1.25rem;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--ow-border);
 }
 
 .ticket-summary-title {
   font-size: 0.95rem;
   font-weight: 700;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
   margin: 0 0 1rem;
 }
 
@@ -363,20 +374,20 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1rem;
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 0.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--ow-border);
 }
 
 .ticket-type {
   font-size: 0.85rem;
-  color: #666;
+  color: var(--ow-text-muted);
   font-weight: 500;
 }
 
 .ticket-count {
   font-size: 0.9rem;
-  color: #4a1f2f;
+  color: var(--ow-accent);
   font-weight: 700;
 }
 
@@ -386,30 +397,30 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem 1.25rem;
-  background: linear-gradient(135deg, #f0d4e0 0%, #fae8f0 100%);
+  background: linear-gradient(135deg, var(--ow-border-accent) 0%, #fae8f0 100%);
   border-radius: 0.75rem;
   flex-wrap: wrap;
 }
 
 .total-label {
   font-size: 0.9rem;
-  color: #4a1f2f;
+  color: var(--ow-accent);
   font-weight: 600;
 }
 
 .total-value {
   font-size: 1rem;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
   font-weight: 700;
 }
 
 .total-value.amount {
   font-size: 1.3rem;
-  color: #4a1f2f;
+  color: var(--ow-accent);
 }
 
 .special-note {
-  background: #fff7e6;
+  background: var(--ow-warning-bg);
   border: 1px solid #ffc107;
   border-radius: 0.5rem;
   padding: 1rem;
@@ -419,14 +430,14 @@
 
 .note-label {
   font-size: 0.85rem;
-  color: #f57c00;
+  color: var(--ow-warning-text);
   font-weight: 700;
   flex-shrink: 0;
 }
 
 .note-value {
   font-size: 0.85rem;
-  color: #444;
+  color: var(--ow-text);
   line-height: 1.5;
 }
 
@@ -436,13 +447,17 @@
   flex-wrap: wrap;
 }
 
-/* 빈 상태 */
+/* empty state */
 .empty-applications {
   text-align: center;
   padding: 5rem 2rem;
-  background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+  background: linear-gradient(
+    135deg,
+    var(--ow-surface-2) 0%,
+    var(--ow-surface-3) 100%
+  );
   border-radius: 1rem;
-  border: 2px dashed rgba(0, 0, 0, 0.1);
+  border: 2px dashed var(--ow-border-strong);
 }
 
 .empty-icon {
@@ -453,7 +468,7 @@
 
 .empty-applications h3 {
   font-size: 1.3rem;
-  color: #666;
+  color: var(--ow-text-muted);
   margin: 0 0 0.75rem;
   font-weight: 700;
 }
@@ -461,11 +476,11 @@
 .empty-applications p {
   font-size: 1rem;
   margin: 0 0 2rem;
-  color: #999;
+  color: var(--ow-text-soft);
 }
 
 /* ========================================
-   관리자 신청 현황 모달
+   Administrator application status modal
    ======================================== */
 
 .admin-applications-modal {
@@ -481,17 +496,17 @@
 }
 
 .admin-application-item {
-  background: #fafafa;
+  background: var(--ow-surface-2);
   border-radius: 0.75rem;
   padding: 1.25rem;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--ow-border);
   transition: all 0.2s ease-out;
 }
 
 .admin-application-item:hover {
-  background: #fff;
-  border-color: #4a1f2f;
-  box-shadow: 0 4px 12px rgba(74, 31, 47, 0.1);
+  background: var(--ow-surface);
+  border-color: var(--ow-accent);
+  box-shadow: 0 12px 32px var(--ow-shadow);
 }
 
 .admin-app-header {
@@ -505,7 +520,7 @@
 .admin-app-user {
   font-size: 1rem;
   font-weight: 700;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
 }
 
 .admin-app-body {
@@ -514,13 +529,13 @@
 
 .admin-app-worship {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--ow-text-muted);
   margin: 0 0 0.3rem;
 }
 
 .admin-app-tickets {
   font-size: 0.85rem;
-  color: #4a1f2f;
+  color: var(--ow-accent);
   font-weight: 600;
   margin: 0;
 }
@@ -532,14 +547,14 @@
 }
 
 /* ========================================
-   상세 보기 모달
+   View details modal
    ======================================== */
 
 .detail-section {
-  background: #fafafa;
+  background: var(--ow-surface-2);
   border-radius: 0.75rem;
   padding: 1.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--ow-border);
 }
 
 .detail-section:not(:last-child) {
@@ -549,7 +564,7 @@
 .detail-section-title {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
   margin: 0 0 1.25rem;
   padding-bottom: 0.75rem;
   border-bottom: 2px solid rgba(74, 31, 47, 0.1);
@@ -566,9 +581,9 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1rem;
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 0.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--ow-border);
 }
 
 .ticket-detail-list {
@@ -583,14 +598,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1rem;
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 0.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--ow-border);
 }
 
 .ticket-price {
   font-size: 0.9rem;
-  color: #4a1f2f;
+  color: var(--ow-accent);
   font-weight: 700;
 }
 
@@ -599,30 +614,30 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 1.25rem;
-  background: linear-gradient(135deg, #f0d4e0 0%, #fae8f0 100%);
+  background: linear-gradient(135deg, var(--ow-border-accent) 0%, #fae8f0 100%);
   border-radius: 0.5rem;
   font-weight: 700;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
 }
 
 .ticket-total .total-amount {
   font-size: 1.3rem;
-  color: #4a1f2f;
+  color: var(--ow-accent);
 }
 
 .special-note-text {
   font-size: 0.95rem;
   line-height: 1.6;
-  color: #444;
+  color: var(--ow-text);
   margin: 0;
   padding: 1rem;
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 0.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--ow-border);
 }
 
 /* ========================================
-   반응형 디자인
+   Responsive Design
    ======================================== */
 
 @media (max-width: 968px) {
@@ -780,7 +795,7 @@
 }
 
 /* ========================================
-   애니메이션
+   animated movie
    ======================================== */
 
 @keyframes fadeInUp {
@@ -799,8 +814,47 @@
   animation-fill-mode: both;
 }
 
-.application-card:nth-child(1) { animation-delay: 0.1s; }
-.application-card:nth-child(2) { animation-delay: 0.2s; }
-.application-card:nth-child(3) { animation-delay: 0.3s; }
-.application-card:nth-child(4) { animation-delay: 0.4s; }
-.application-card:nth-child(5) { animation-delay: 0.5s; }
+.application-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.application-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.application-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.application-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.application-card:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* ========================================
+   로딩 및 에러 상태
+   ======================================== */
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.1rem;
+  color: var(--ow-text-muted);
+}
+
+.error-message {
+  text-align: center;
+  padding: 3rem;
+  background: var(--ow-danger-bg);
+  border-radius: 0.75rem;
+  border: 1px solid var(--ow-danger-border);
+}
+
+.error-message p {
+  font-size: 1.1rem;
+  color: var(--ow-danger);
+  margin-bottom: 1rem;
+}
+
+.error-message .btn {
+  margin-top: 0.5rem;
+}

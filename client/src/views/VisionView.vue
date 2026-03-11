@@ -1,11 +1,451 @@
+<script setup lang="ts">
+/**
+ * VisionView.vue - Team member showcase page with advanced filtering
+ *
+ * Features:
+ * - Displays OBED Worship team members with photos, roles, and positions
+ * - Multi-level filtering: All / Leader / Worship / Step
+ * - Sub-filters for Worship (Vocal, Piano, Guitar, Drum)
+ * - Sub-filters for Step teams (Accounting, Planning, Media, Stage, Prayer)
+ * - Admin mode: Add, Edit, Delete members
+ * - Members sorted by role priority, then display order, then name
+ *
+ * API Dependencies:
+ * - memberApi.getAll() - Fetch all members with roles and positions
+ * - memberApi.getOne(id) - Fetch single member details
+ * - memberApi.delete(id) - Delete a member
+ * - assetApi.getByKey("home_logo") - Fetch logo as fallback image
+ *
+ * Data Structure:
+ * - Members have: roles, worship_positions, step_positions
+ * - Roles determine leadership status (Pastor, Elder, Team Leaders, etc.)
+ * - Worship positions: Vocal, Piano, Guitar, Drum, etc.
+ * - Step positions: Various team roles (Media, Stage, etc.)
+ */
+import { computed, ref, onMounted } from "vue";
+import { useAuth } from "@/composables/useAuth";
+import { memberApi, type Member as ApiMember } from "@/api/members";
+import { assetApi } from "@/api/assets";
+import MemberEditModal from "@/components/MemberEditModal.vue";
+import "../styles/Vision.css";
+
+/**
+ * Local Member type - transformed from API response for component use
+ * Roles and positions are converted from enum format to display format
+ */
+type Member = {
+  id: number;
+  name: string;
+  affiliation: string; // Church position: 목사, 장로, 청년부, etc.
+  photo_url: string;
+  instagram_url: string | null;
+  youtube_url: string | null;
+  roles: string[]; // Leadership roles (e.g., Pastor, Worship Team Leader)
+  worship_positions: string[]; // Musical positions (e.g., Vocal, Piano)
+  step_positions: string[]; // Team roles (e.g., Media Team, Stage Designer)
+  description: string;
+};
+
+// ==========================================
+// STATE: UI Controls
+// ==========================================
+
+// Admin mode (auth-based)
+const { isAdmin } = useAuth();
+const adminModeEnabled = ref(false);
+
+// Modal state for member edit/add
+const isModalOpen = ref(false);
+const selectedMember = ref<ApiMember | null>(null);
+
+// Loading state for API calls
+const loading = ref(true);
+
+// ==========================================
+// STATE: Filter Controls
+// ==========================================
+
+// Main category filter: all, leader, worship, step
+const filter = ref<"all" | "leader" | "worship" | "step">("all");
+
+// Sub-filters (active when main filter is selected)
+const worshipFilter = ref<string>(""); // Vocal, Piano, Guitar, Drum
+const stepFilter = ref<string>(""); // Accounting, Planning, Media, Stage, Prayer
+
+// ==========================================
+// STATE: Data
+// ==========================================
+
+// All members loaded from API
+const members = ref<Member[]>([]);
+
+// Logo URL used as fallback when member has no photo
+const logo = ref<string>("");
+
+// ==========================================
+// UTILITIES
+// ==========================================
+
+/**
+ * Convert enum values to display format
+ * Database stores "Lead_Guitar" -> Display shows "Lead Guitar"
+ */
+const convertFromEnum = (value: string) => value.replace(/_/g, " ");
+
+// ==========================================
+// API CALLS
+// ==========================================
+
+/**
+ * Load all members from API and transform to component format
+ * Includes roles, worship positions, and step positions
+ */
+const loadMembers = async () => {
+  try {
+    loading.value = true;
+    const response = await memberApi.getAll();
+
+    // Transform API response to match component's expected structure
+    members.value = response.data
+      .filter(
+        (apiMember) =>
+          isAdmin.value ||
+          adminModeEnabled.value ||
+          apiMember.is_active !== false,
+      )
+      .map((apiMember) => ({
+        id: apiMember.id,
+        name: apiMember.name,
+        affiliation: apiMember.affiliation,
+        photo_url: apiMember.photo_url || logo.value, // Use logo as fallback
+        instagram_url: apiMember.instagram_url || null,
+        youtube_url: apiMember.youtube_url || null,
+        roles:
+          apiMember.member_roles?.map((r) => convertFromEnum(r.role_type)) ||
+          [],
+        worship_positions:
+          apiMember.member_worship_positions?.map((p) =>
+            convertFromEnum(p.position_type),
+          ) || [],
+        step_positions:
+          apiMember.member_step_positions?.map((p) =>
+            convertFromEnum(p.position_type),
+          ) || [],
+        description: apiMember.description || "",
+      }));
+  } catch (error) {
+    console.error("Failed to load members:", error);
+    alert("멤버 정보를 불러오는데 실패했습니다.");
+  } finally {
+    loading.value = false;
+  }
+};
+
+/**
+ * Computed: Filtered and sorted member list
+ *
+ * Filter Logic:
+ * 1. Main filter (all/leader/worship/step) filters by category
+ * 2. Sub-filters narrow down within category
+ * 3. Results sorted by: role priority -> display order -> name
+ *
+ * Special groupings:
+ * - Piano includes: Piano, Synthesizer
+ * - Guitar includes: Acoustic, Lead, Backing, Bass Guitar
+ * - Each Step team includes its leader and all sub-positions
+ */
+const filteredMembers = computed(() => {
+  let filtered = members.value;
+
+  // Step 1: Apply main category filter
+  if (filter.value === "leader") {
+    // Show only members with leadership roles
+    filtered = filtered.filter((m) => m.roles.length > 0);
+  } else if (filter.value === "worship") {
+    // Show only members with musical positions
+    filtered = filtered.filter((m) => m.worship_positions.length > 0);
+  } else if (filter.value === "step") {
+    // Show only members with team positions
+    filtered = filtered.filter((m) => m.step_positions.length > 0);
+  }
+
+  if (filter.value === "worship" && worshipFilter.value) {
+    if (worshipFilter.value === "Piano") {
+      filtered = filtered.filter((m) =>
+        m.worship_positions.some((p) => ["Piano", "Synthesizer"].includes(p)),
+      );
+    } else if (worshipFilter.value === "Guitar") {
+      filtered = filtered.filter((m) =>
+        m.worship_positions.some((p) =>
+          [
+            "Acoustic Guitar",
+            "Lead Guitar",
+            "Backing Guitar",
+            "Bass Guitar",
+          ].includes(p),
+        ),
+      );
+    } else {
+      filtered = filtered.filter((m) =>
+        m.worship_positions.includes(worshipFilter.value),
+      );
+    }
+  }
+
+  if (filter.value === "step" && stepFilter.value) {
+    if (stepFilter.value === "Accounting Team") {
+      filtered = filtered.filter(
+        (m) =>
+          m.step_positions.includes("Accounting Team") ||
+          m.roles.includes("Accounting Leader"),
+      );
+    } else if (stepFilter.value === "Planning Team") {
+      filtered = filtered.filter(
+        (m) =>
+          m.step_positions.includes("Planning Team") ||
+          m.step_positions.includes("Instagram Manager") ||
+          m.step_positions.includes("Poster Designer") ||
+          m.step_positions.includes("Guidebook Designer") ||
+          m.roles.includes("Planning Leader"),
+      );
+    } else if (stepFilter.value === "Media Team") {
+      filtered = filtered.filter(
+        (m) =>
+          m.step_positions.includes("Media Team") ||
+          m.step_positions.includes("Camera Operator") ||
+          m.step_positions.includes("Video Editor") ||
+          m.step_positions.includes("YouTube Manager") ||
+          m.step_positions.includes("Mix Engineer") ||
+          m.step_positions.includes("Master Engineer") ||
+          m.step_positions.includes("Music Producer") ||
+          m.roles.includes("Media Leader"),
+      );
+    } else if (stepFilter.value === "Stage Team") {
+      filtered = filtered.filter(
+        (m) =>
+          m.step_positions.includes("Stage Team") ||
+          m.step_positions.includes("Live Engineer") ||
+          m.step_positions.includes("Stage Designer") ||
+          m.step_positions.includes("Lighting Operator") ||
+          m.step_positions.includes("Audio Setup") ||
+          m.step_positions.includes("Preproduction") ||
+          m.roles.includes("Stage Leader"),
+      );
+    } else if (stepFilter.value === "Prayer Team") {
+      filtered = filtered.filter(
+        (m) =>
+          m.step_positions.includes("Prayer Team") ||
+          m.roles.includes("Prayer Leader"),
+      );
+    }
+  }
+
+  // Step 3: Sort by role priority (leaders first)
+  // Lower number = higher priority
+  const roleOrder: { [key: string]: number } = {
+    Pastor: 1,
+    Elder: 2,
+    "Worship Team Leader": 3,
+    "Accounting Leader": 4,
+    "Lead Singer": 5,
+    "Singer Leader": 6,
+    "Session Leader": 7,
+    "Planning Leader": 8,
+    "Media Leader": 9,
+    "Stage Leader": 10,
+    "Prayer Leader": 11,
+  };
+
+  filtered.sort((a, b) => {
+    const getMinOrder = (roles: string[]) => {
+      if (roles.length === 0) return 99;
+      const orders = roles.map((r) => roleOrder[r] || 99);
+      return Math.min(...orders);
+    };
+
+    const orderA = getMinOrder(a.roles);
+    const orderB = getMinOrder(b.roles);
+
+    if (orderA !== orderB) {
+      return orderA - orderB;
+    }
+
+    return a.name.localeCompare(b.name, "ko-KR");
+  });
+
+  return filtered;
+});
+
+/**
+ * Handle main filter change - resets sub-filters
+ */
+const handleMainFilter = (value: "all" | "leader" | "worship" | "step") => {
+  filter.value = value;
+  worshipFilter.value = "";
+  stepFilter.value = "";
+};
+
+// ==========================================
+// MODAL HANDLERS (Admin Mode)
+// ==========================================
+
+/**
+ * Open edit modal with member data
+ * Fetches fresh data from API to ensure we have latest info
+ */
+const openEditModal = async (member: Member) => {
+  try {
+    // Fetch full member data including roles and positions
+    const response = await memberApi.getOne(member.id);
+    selectedMember.value = response.data;
+    isModalOpen.value = true;
+  } catch (error) {
+    console.error("Failed to load member:", error);
+    alert("멤버 정보를 불러오는데 실패했습니다.");
+  }
+};
+
+/**
+ * Open modal for adding new member
+ * selectedMember = null indicates "add" mode
+ */
+const openAddModal = () => {
+  selectedMember.value = null;
+  isModalOpen.value = true;
+};
+
+/**
+ * Close modal and reset state
+ */
+const closeModal = () => {
+  isModalOpen.value = false;
+  selectedMember.value = null;
+};
+
+/**
+ * Handle successful save from modal
+ * For edits: Updates only the changed member locally
+ * For adds: Reloads entire member list
+ */
+const handleMemberSaved = async () => {
+  if (!selectedMember.value) {
+    // New member was added, reload all
+    loadMembers();
+    return;
+  }
+
+  // Update only the edited member to avoid full reload
+  try {
+    const response = await memberApi.getOne(selectedMember.value.id);
+    const updatedMember = response.data;
+
+    // Find and update the member in the list
+    const index = members.value.findIndex((m) => m.id === updatedMember.id);
+    if (index !== -1) {
+      members.value[index] = {
+        id: updatedMember.id,
+        name: updatedMember.name,
+        affiliation: updatedMember.affiliation,
+        photo_url: updatedMember.photo_url || logo.value,
+        instagram_url: updatedMember.instagram_url || null,
+        youtube_url: updatedMember.youtube_url || null,
+        roles:
+          updatedMember.member_roles?.map((r) =>
+            convertFromEnum(r.role_type),
+          ) || [],
+        worship_positions:
+          updatedMember.member_worship_positions?.map((p) =>
+            convertFromEnum(p.position_type),
+          ) || [],
+        step_positions:
+          updatedMember.member_step_positions?.map((p) =>
+            convertFromEnum(p.position_type),
+          ) || [],
+        description: updatedMember.description || "",
+      };
+    }
+  } catch (error) {
+    console.error("Failed to update member:", error);
+    // Fallback to full reload if update fails
+    loadMembers();
+  }
+};
+
+/**
+ * Delete member with confirmation
+ * Calls API to delete, then reloads member list
+ */
+const deleteMemberConfirm = (member: Member) => {
+  if (!confirm(`정말로 "${member.name}" 멤버를 삭제하시겠습니까?`)) {
+    return;
+  }
+
+  memberApi
+    .delete(member.id)
+    .then(() => {
+      alert("멤버가 삭제되었습니다!");
+      // Reload members from API
+      loadMembers();
+    })
+    .catch((error) => {
+      console.error("삭제 실패:", error);
+      alert("삭제에 실패했습니다.");
+    });
+};
+
+// Load logo from DB
+const loadLogo = async () => {
+  try {
+    const response = await assetApi.getByKey("home_logo");
+    if (response.data.file_url) {
+      logo.value = response.data.file_url;
+    }
+  } catch (error) {
+    console.error("Logo not found in DB:", error);
+  }
+};
+
+// Load members and logo on component mount
+onMounted(async () => {
+  // Load logo first, then members (so fallback uses the correct logo)
+  await loadLogo();
+  await loadMembers();
+});
+
+// Position badge tooltip (Teleport-based to escape overflow:hidden)
+const tooltip = ref({
+  visible: false,
+  x: 0,
+  y: 0,
+  badges: [] as string[],
+  type: "",
+});
+
+const showTooltip = (event: MouseEvent, badges: string[], type: string) => {
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+  tooltip.value = {
+    visible: true,
+    x: rect.left + rect.width / 2,
+    y: rect.top - 8,
+    badges,
+    type,
+  };
+};
+
+const hideTooltip = () => {
+  tooltip.value.visible = false;
+};
+</script>
+
 <template>
   <div class="page">
     <section class="section">
       <div class="section-header">
         <div>
-          <h1 class="section-title">OBED Worship 비전</h1>
+          <h1 class="section-title">비전</h1>
           <p class="section-subtitle">
-            순종과 경외로 주님과 소통하는 예배 공동체의 비전과 팀원들을 소개합니다.
+            순종과 경외로 주님과 소통하는 예배 공동체의 비전과 팀원들을
+            소개합니다.
           </p>
         </div>
       </div>
@@ -13,7 +453,8 @@
       <div class="bible-verse">
         <blockquote>
           <p>
-            "너희는 너희 하나님 여호와를 순종하며, 그를 경외하며 그 명령을 지키며<br />
+            "너희는 너희 하나님 여호와를 순종하며, 그를 경외하며 그 명령을
+            지키며<br />
             그 목소리를 청종하며, 그를 섬기며 그에게 부종하고"
           </p>
           <cite>- 신명기 13:4 -</cite>
@@ -22,21 +463,68 @@
 
       <div class="team-description">
         <div class="highlight-box">
-          빠르게 변화해가는 세상 속에서 주님을 향해 두려움을 내려놓고 목소리로 주님과 소통하는 찬양팀
+          빠르게 변화해가는 세상 속에서 주님을 향해 두려움을 내려놓고 목소리로
+          주님과 소통하는 예배
         </div>
         <div class="highlight-box">
-          청중들과 함께 소통하며 예배의 중심이 주님께 내려놓는 찬양팀
+          청중들과 함께 소통하며 예배의 중심이 주님께 내려놓는 예배
         </div>
         <div class="highlight-box">
-          집회를 준비하는 과정에서 역할에 따라 무엇이 중요한지 고민하며, 다음 세대를 위로하고 함께 성장하기 위함
+          집회를 준비하는 과정에서 역할에 따라 무엇이 중요한지 고민하며, 다음
+          세대를 위로하고 함께 성장하기 위한는 예배
         </div>
         <div class="highlight-box">
-          주님의 사랑을 잊고 살아가는 사람들에게 "너희는 잊어도 그리스도이신 주님께서는 아직도 우릴 찾고 있다"는 것을 다시금 깨닫게 하기 위해
+          주님의 사랑을 잊고 살아가는 사람들에게 "너희는 잊어도 그리스도이신
+          주님께서는 아직도 우릴 찾고 있다"는 것을 다시금 깨닫게 하기 위한 예배
         </div>
       </div>
 
       <div class="team-member-section">
-        <h2 class="section-title-sub">팀원 소개</h2>
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+          "
+        >
+          <h2 class="section-title-sub">팀원 소개</h2>
+
+          <!-- Toggle administrator mode (admins only) -->
+          <button
+            v-if="isAdmin"
+            @click="adminModeEnabled = !adminModeEnabled"
+            class="btn small admin-toggle"
+          >
+            {{ adminModeEnabled ? "👤 관리자 모드 OFF" : "🔒 관리자 모드 ON" }}
+          </button>
+        </div>
+
+        <!-- Administrator mode: Add new member button -->
+        <div v-if="isAdmin && adminModeEnabled" style="margin-bottom: 1rem">
+          <button
+            @click="openAddModal"
+            style="
+              padding: 0.75rem 1.5rem;
+              background: #4caf50;
+              color: white;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+              font-weight: bold;
+              font-size: 1rem;
+              transition: background 0.2s;
+            "
+            @mouseenter="
+              ($event.target as HTMLElement).style.background = '#45a049'
+            "
+            @mouseleave="
+              ($event.target as HTMLElement).style.background = '#4caf50'
+            "
+          >
+            ➕ 새 멤버 추가
+          </button>
+        </div>
 
         <div class="position-filter">
           <button
@@ -152,7 +640,9 @@
           </button>
         </div>
 
-        <div class="member-grid">
+        <div v-if="loading" class="loading">로딩 중...</div>
+
+        <div v-else class="member-grid">
           <div
             v-for="member in filteredMembers"
             :key="member.id"
@@ -164,60 +654,136 @@
               class="member-photo"
             />
             <div class="member-info">
-              <h3 class="member-name">{{ member.name }}</h3>
-              
+              <div class="member-name-row">
+                <h3 class="member-name">{{ member.name }}</h3>
+                <div
+                  class="member-social-text"
+                  v-if="member.instagram_url || member.youtube_url"
+                >
+                  <a
+                    v-if="member.instagram_url"
+                    :href="member.instagram_url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="social-text-link instagram"
+                  >
+                    Instagram
+                  </a>
+                  <a
+                    v-if="member.youtube_url"
+                    :href="member.youtube_url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="social-text-link youtube"
+                  >
+                    YouTube
+                  </a>
+                </div>
+              </div>
+
               <span class="affiliation-badge">{{ member.affiliation }}</span>
-              
+
               <div v-if="member.roles.length > 0" class="member-roles">
-                <span v-for="role in member.roles" :key="role" class="role-badge">
+                <span
+                  v-for="role in member.roles"
+                  :key="role"
+                  class="role-badge"
+                >
                   {{ role }}
                 </span>
               </div>
-              
-              <div class="member-positions">
-                <template v-if="filter === 'all'">
-                  <span v-for="pos in member.worship_positions" :key="pos" class="position-badge worship">
-                    {{ pos }}
-                  </span>
-                  <span v-for="pos in member.step_positions" :key="pos" class="position-badge step">
-                    {{ pos }}
-                  </span>
-                </template>
-                
-                <template v-else-if="filter === 'worship'">
-                  <span v-for="pos in member.worship_positions" :key="pos" class="position-badge worship">
-                    {{ pos }}
-                  </span>
-                </template>
-                
-                <template v-else-if="filter === 'step'">
-                  <span v-for="pos in member.step_positions" :key="pos" class="position-badge step">
-                    {{ pos }}
-                  </span>
-                </template>
+
+              <!-- Worship Positions -->
+              <div
+                v-if="member.worship_positions.length > 0"
+                class="member-positions-group"
+              >
+                <div class="position-badges">
+                  <template v-if="member.worship_positions.length >= 3">
+                    <span
+                      v-for="pos in member.worship_positions.slice(0, 2)"
+                      :key="pos"
+                      class="position-badge worship"
+                    >{{ pos }}</span>
+                    <span
+                      class="position-badge-more"
+                      @mouseenter="showTooltip($event, member.worship_positions.slice(2), 'worship')"
+                      @mouseleave="hideTooltip"
+                    >+{{ member.worship_positions.length - 2 }}</span>
+                  </template>
+                  <template v-else>
+                    <span
+                      v-for="pos in member.worship_positions"
+                      :key="pos"
+                      class="position-badge worship"
+                    >{{ pos }}</span>
+                  </template>
+                </div>
               </div>
-              
-              <div class="social-links">
-                <a
-                  v-if="member.instagram_url"
-                  :href="member.instagram_url"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="icon-link"
-                  title="Instagram"
+
+              <!-- Step Positions -->
+              <div
+                v-if="member.step_positions.length > 0"
+                class="member-positions-group"
+              >
+                <div class="position-badges">
+                  <template v-if="member.step_positions.length >= 3">
+                    <span
+                      v-for="pos in member.step_positions.slice(0, 2)"
+                      :key="pos"
+                      class="position-badge step"
+                    >{{ pos }}</span>
+                    <span
+                      class="position-badge-more"
+                      @mouseenter="showTooltip($event, member.step_positions.slice(2), 'step')"
+                      @mouseleave="hideTooltip"
+                    >+{{ member.step_positions.length - 2 }}</span>
+                  </template>
+                  <template v-else>
+                    <span
+                      v-for="pos in member.step_positions"
+                      :key="pos"
+                      class="position-badge step"
+                    >{{ pos }}</span>
+                  </template>
+                </div>
+              </div>
+
+              <!-- Administrator mode: Edit/Delete button -->
+              <div
+                v-if="isAdmin && adminModeEnabled"
+                style="margin-top: 1rem; display: flex; gap: 0.5rem"
+              >
+                <button
+                  @click="openEditModal(member)"
+                  style="
+                    flex: 1;
+                    padding: 0.5rem;
+                    background: #4a7c59;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 0.85rem;
+                  "
                 >
-                  <img :src="instagramIcon" alt="Instagram" class="social-icon" />
-                </a>
-                <a
-                  v-if="member.youtube_url"
-                  :href="member.youtube_url"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="icon-link"
-                  title="YouTube"
+                  ✏️ 수정
+                </button>
+                <button
+                  @click="deleteMemberConfirm(member)"
+                  style="
+                    flex: 1;
+                    padding: 0.5rem;
+                    background: #c0392b;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 0.85rem;
+                  "
                 >
-                  <img :src="youtubeIcon" alt="YouTube" class="social-icon" />
-                </a>
+                  🗑️ 삭제
+                </button>
               </div>
             </div>
           </div>
@@ -228,403 +794,28 @@
         </div>
       </div>
     </section>
+
+    <!-- Member Edit Modal -->
+    <MemberEditModal
+      :is-open="isModalOpen"
+      :member="selectedMember"
+      @close="closeModal"
+      @success="handleMemberSaved"
+    />
   </div>
+
+  <!-- Position badge tooltip (Teleported to body to escape overflow:hidden) -->
+  <Teleport to="body">
+    <div
+      v-if="tooltip.visible"
+      class="position-badge-tooltip-fixed"
+      :style="{ left: tooltip.x + 'px', top: tooltip.y + 'px' }"
+    >
+      <span
+        v-for="pos in tooltip.badges"
+        :key="pos"
+        :class="['position-badge', tooltip.type]"
+      >{{ pos }}</span>
+    </div>
+  </Teleport>
 </template>
-
-<script setup lang="ts">
-import { computed, ref } from 'vue'
-import '../styles/Vision.css'
-import logo from '@/assets/image/LOGO.JPG'
-import photoGiin from '@/assets/people/Giin.jpeg'
-import photoMijung from '@/assets/people/mijung.jpeg'
-import photoInho from '@/assets/people/inho.JPG'
-import photoDrumWook from '@/assets/people/DrumWook.jpeg'
-import photoJungsuk from '@/assets/people/jungsuk.jpeg'
-import photoOnnew from '@/assets/people/onnew.jpeg'
-import photoJongeon from '@/assets/people/Jongeon.jpeg'
-import photoYesol from '@/assets/people/yesol.jpeg'
-import instagramIcon from '@/assets/icons/Instargram.png'
-import youtubeIcon from '@/assets/icons/Youtube.png'
-
-type Member = {
-  id: number
-  name: string
-  affiliation: string
-  photo_url: string
-  instagram_url: string | null
-  youtube_url: string | null
-  roles: string[]
-  worship_positions: string[]
-  step_positions: string[]
-  description: string
-}
-
-const filter = ref<'all' | 'leader' | 'worship' | 'step'>('all')
-const worshipFilter = ref<string>('')
-const stepFilter = ref<string>('')
-
-const members = ref<Member[]>([
-  {
-    id: 1,
-    name: '박훈 목사',
-    affiliation: '목사',
-    photo_url: logo,
-    instagram_url: 'https://www.instagram.com/holyforest.jpg',
-    youtube_url: null,
-    roles: ['Pastor'],
-    worship_positions: [],
-    step_positions: [],
-    description: 'OBED 영적 총감독, 초청 간사/목사 섭외'
-  },
-  {
-    id: 2,
-    name: '이기인 장로',
-    affiliation: '장년부',
-    photo_url: photoGiin,
-    instagram_url: 'https://www.instagram.com/somanja59',
-    youtube_url: null,
-    roles: ['Elder'],
-    worship_positions: ['Acoustic Guitar'],
-    step_positions: [],
-    description: '찬양위원회, 어쿠스틱'
-  },
-  {
-    id: 3,
-    name: '김미정',
-    affiliation: '장년부',
-    photo_url: photoMijung,
-    instagram_url: 'https://www.instagram.com/cat0925_',
-    youtube_url: null,
-    roles: ['Accounting Leader'],
-    worship_positions: [],
-    step_positions: ['Accounting Team'],
-    description: '재정 담당, 예배 인력 섭외, 운영 지원'
-  },
-  {
-    id: 4,
-    name: '엄인호',
-    affiliation: '청년부',
-    photo_url: photoInho,
-    instagram_url: 'https://www.instagram.com/djsy_01',
-    youtube_url: 'https://www.youtube.com/@djsy01',
-    roles: ['Worship Team Leader', 'Lead Singer'],
-    worship_positions: ['Vocal', 'Acoustic Guitar', 'Lead Guitar', 'Backing Guitar'],
-    step_positions: ['Preproduction', 'Mix Engineer', 'Music Producer', 'Video Editor', 'Master Engineer'],
-    description: 'OBED Worship 팀장 + 인도자 + 기타 + 프리프로덕션 + 마스터링 + 믹싱 + 영상편집 + 음악 프로듀싱'
-  },
-  {
-    id: 5,
-    name: '박상욱',
-    affiliation: '청년부',
-    photo_url: photoDrumWook,
-    instagram_url: 'https://www.instagram.com/drum_wook02',
-    youtube_url: 'https://youtube.com/channel/UC_vv_fm_8e3O8xTb5TbPKrg',
-    roles: ['Media Leader'],
-    worship_positions: ['Drum'],
-    step_positions: ['Camera Operator', 'Video Editor', 'Mix Engineer', 'Music Producer'],
-    description: '드럼 + 영상팀장(촬영 및 편집) + 후반 믹싱'
-  },
-  {
-    id: 6,
-    name: '전예원',
-    affiliation: '청년부',
-    photo_url: logo,
-    instagram_url: 'https://www.instagram.com/winnie_the_ron_02',
-    youtube_url: null,
-    roles: [],
-    worship_positions: ['Vocal'],
-    step_positions: ['Prayer Team'],
-    description: '싱어 + 기도팀'
-  },
-  {
-    id: 7,
-    name: '김온유',
-    affiliation: '청년부',
-    photo_url: photoOnnew,
-    instagram_url: 'https://www.instagram.com/onyourmusic',
-    youtube_url: 'https://www.youtube.com/@onyourmusic',
-    roles: [],
-    worship_positions: ['Vocal'],
-    step_positions: ['Stage Designer', 'Lighting Operator'],
-    description: '싱어'
-  },
-  {
-    id: 8,
-    name: '김정석',
-    affiliation: '청년부',
-    photo_url: photoJungsuk,
-    instagram_url: 'https://www.instagram.com/_kjs_1127',
-    youtube_url: null,
-    roles: [],
-    worship_positions: ['Bass Guitar'],
-    step_positions: ['Lighting Operator'],
-    description: '베이스기타 + 조명팀'
-  },
-  {
-    id: 9,
-    name: '마승빈',
-    affiliation: '청년부',
-    photo_url: logo,
-    instagram_url: 'https://www.instagram.com/z.sbbxn_',
-    youtube_url: null,
-    roles: [],
-    worship_positions: ['Drum'],
-    step_positions: ['Planning Team'],
-    description: '드럼 + 홍보팀'
-  },
-  {
-    id: 10,
-    name: '박소라',
-    affiliation: '장년부',
-    photo_url: logo,
-    instagram_url: null,
-    youtube_url: null,
-    roles: ['Session Leader'],
-    worship_positions: ['Synthesizer'],
-    step_positions: ['Planning Team'],
-    description: '세션팀장 + 세컨건반 + 홍보팀'
-  },
-  {
-    id: 11,
-    name: '신예솔',
-    affiliation: '고등부',
-    photo_url: photoYesol,
-    instagram_url: 'https://www.instagram.com/yz_sol5',
-    youtube_url: 'https://youtube.com/channel/UCvyHxOBm7RDwCo62pFBwVSA',
-    roles: [],
-    worship_positions: ['Vocal'],
-    step_positions: ['Media Team'],
-    description: '싱어 + 미디어팀(유튜브 채널 관리)'
-  },
-  {
-    id: 12,
-    name: '신지은',
-    affiliation: '청년부',
-    photo_url: logo,
-    instagram_url: 'https://www.instagram.com/_wldms.3',
-    youtube_url: null,
-    roles: [],
-    worship_positions: ['Piano', 'Synthesizer'],
-    step_positions: ['Planning Team'],
-    description: '메인건반 + 세컨건반 + 홍보팀'
-  },
-  {
-    id: 13,
-    name: '오종언',
-    affiliation: '청년부',
-    photo_url: photoJongeon,
-    instagram_url: 'https://www.instagram.com/5_bells_05',
-    youtube_url: null,
-    roles: ['Singer Leader', 'Lead Singer'],
-    worship_positions: ['Vocal'],
-    step_positions: ['Live Engineer', 'Audio Setup', 'Stage Designer'],
-    description: '인도자 + 싱어팀장+ 싱어 + 무대구상 + 음향 설계'
-  },
-  {
-    id: 14,
-    name: '오현명',
-    affiliation: '장년부',
-    photo_url: logo,
-    instagram_url: 'https://www.instagram.com/5rosy_n_5lira',
-    youtube_url: null,
-    roles: ['Stage Leader'],
-    worship_positions: ['Piano'],
-    step_positions: ['Audio Setup', 'Stage Designer'],
-    description: '메인건반 + 음향 설계 보조 + 무대구상'
-  },
-  {
-    id: 15,
-    name: '유근서',
-    affiliation: '청년부',
-    photo_url: logo,
-    instagram_url: null,
-    youtube_url: null,
-    roles: [],
-    worship_positions: ['Lead Guitar', 'Bass Guitar'],
-    step_positions: ['Prayer Team'],
-    description: '리드기타 + 베이스기타 + 기도팀'
-  },
-  {
-    id: 16,
-    name: '지용민',
-    affiliation: '장년부',
-    photo_url: logo,
-    instagram_url: null,
-    youtube_url: null,
-    roles: ['Lead Singer'],
-    worship_positions: ['Vocal'],
-    step_positions: ['Accounting Team'],
-    description: '인도자 + 싱어 + 회계팀'
-  },
-  {
-    id: 17,
-    name: '최영',
-    affiliation: '장년부',
-    photo_url: logo,
-    instagram_url: 'https://www.instagram.com/breeze2174',
-    youtube_url: null,
-    roles: ['Prayer Leader'],
-    worship_positions: ['Vocal'],
-    step_positions: [],
-    description: '싱어(화음) + 기도팀장'
-  }
-])
-
-const filteredMembers = computed(() => {
-  let filtered = members.value
-
-  if (filter.value === 'leader') {
-    filtered = filtered.filter(m => m.roles.length > 0)
-  } else if (filter.value === 'worship') {
-    filtered = filtered.filter(m => m.worship_positions.length > 0)
-  } else if (filter.value === 'step') {
-    filtered = filtered.filter(m => m.step_positions.length > 0)
-  }
-
-  if (filter.value === 'worship' && worshipFilter.value) {
-    if (worshipFilter.value === 'Piano') {
-      filtered = filtered.filter(m =>
-        m.worship_positions.some(p => ['Piano', 'Synthesizer'].includes(p))
-      )
-    } else if (worshipFilter.value === 'Guitar') {
-      filtered = filtered.filter(m =>
-        m.worship_positions.some(p =>
-          ['Acoustic Guitar', 'Lead Guitar', 'Backing Guitar', 'Bass Guitar'].includes(p)
-        )
-      )
-    } else {
-      filtered = filtered.filter(m =>
-        m.worship_positions.includes(worshipFilter.value)
-      )
-    }
-  }
-
-  if (filter.value === 'step' && stepFilter.value) {
-    if (stepFilter.value === 'Accounting Team') {
-      filtered = filtered.filter(m =>
-        m.step_positions.includes('Accounting Team') ||
-        m.roles.includes('Accounting Leader')
-      )
-    } else if (stepFilter.value === 'Planning Team') {
-      filtered = filtered.filter(m =>
-        m.step_positions.includes('Planning Team') || 
-        m.step_positions.includes('Instagram Manager') || 
-        m.step_positions.includes('Poster Designer') || 
-        m.step_positions.includes('Guidebook Designer') ||
-        m.roles.includes('Planning Leader')
-      )
-    } else if (stepFilter.value === 'Media Team') {
-      filtered = filtered.filter(m =>
-        m.step_positions.includes('Media Team') ||
-        m.step_positions.includes('Camera Operator') ||
-        m.step_positions.includes('Video Editor') ||
-        m.step_positions.includes('YouTube Manager') ||
-        m.step_positions.includes('Mix Engineer') ||
-        m.step_positions.includes('Master Engineer') ||
-        m.step_positions.includes('Music Producer') ||
-        m.roles.includes('Media Leader')
-      )
-    } else if (stepFilter.value === 'Stage Team') {
-      filtered = filtered.filter(m =>
-        m.step_positions.includes('Stage Team') ||
-        m.step_positions.includes('Live Engineer') ||
-        m.step_positions.includes('Stage Designer') ||
-        m.step_positions.includes('Lighting Operator') ||
-        m.step_positions.includes('Audio Setup') ||
-        m.step_positions.includes('Preproduction') ||
-        m.roles.includes('Stage Leader')
-      )
-    } else if (stepFilter.value === 'Prayer Team') {
-      filtered = filtered.filter(m =>
-        m.step_positions.includes('Prayer Team') ||
-        m.roles.includes('Prayer Leader')
-      )
-    }
-  }
-
-  if (filter.value === 'leader') {
-    filtered.sort((a, b) => {
-      const roleOrder: { [key: string]: number } = {
-        'Pastor': 1,
-        'Elder': 2,
-        'Worship Team Leader': 3,
-        'Accounting Leader': 4,
-        'Lead Singer': 5,
-        'Singer Leader': 6,
-        'Session Leader': 7,
-        'Planning Leader': 8,
-        'Media Leader': 9,
-        'Stage Leader': 10,
-        'Prayer Leader': 11
-      }
-
-      const getMinOrder = (roles: string[]) => {
-        const orders = roles.map(r => roleOrder[r] || 99)
-        return Math.min(...orders)
-      }
-
-      const orderA = getMinOrder(a.roles)
-      const orderB = getMinOrder(b.roles)
-
-      if (orderA !== orderB) {
-        return orderA - orderB
-      }
-
-      return a.name.localeCompare(b.name, 'ko-KR')
-    })
-  }
-
-  if (filter.value === 'worship') {
-    filtered.sort((a, b) => {
-      const getPriority = (member: Member) => {
-        if (member.roles.includes('Worship Team Leader')) return 1
-        if (member.roles.includes('Lead Singer')) return 2
-        if (member.roles.includes('Singer Leader')) return 3
-        if (member.roles.includes('Session Leader')) return 4
-        return 5
-      }
-
-      const priorityA = getPriority(a)
-      const priorityB = getPriority(b)
-
-      if (priorityA !== priorityB) {
-        return priorityA - priorityB
-      }
-
-      const positionOrder: { [key: string]: number } = {
-        'Vocal': 1,
-        'Piano': 2,
-        'Synthesizer': 3,
-        'Acoustic Guitar': 4,
-        'Lead Guitar': 5,
-        'Backing Guitar': 6,
-        'Bass Guitar': 7,
-        'Drum': 8
-      }
-
-      const getPositionOrder = (positions: string[]) => {
-        if (positions.length === 0) return 99
-        const orders = positions.map(p => positionOrder[p] || 99)
-        return Math.min(...orders)
-      }
-
-      const posOrderA = getPositionOrder(a.worship_positions)
-      const posOrderB = getPositionOrder(b.worship_positions)
-
-      if (posOrderA !== posOrderB) {
-        return posOrderA - posOrderB
-      }
-
-      return a.name.localeCompare(b.name, 'ko-KR')
-    })
-  }
-
-  return filtered
-})
-
-const handleMainFilter = (value: 'all' | 'leader' | 'worship' | 'step') => {
-  filter.value = value
-  worshipFilter.value = ''
-  stepFilter.value = ''
-}
-</script>
