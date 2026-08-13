@@ -37,7 +37,7 @@ curl -X GET "http://{SERVER_URL}/assets?category=home"
     "asset_key": "home_team_photo",
     "asset_type": "image",
     "category": "home",
-    "file_url": "https://storage.googleapis.com/.../assets/home/xxx.jpg",
+    "file_url": "/files/13",
     "file_name": "team.jpg",
     "file_size": 204800,
     "mime_type": "image/jpeg",
@@ -135,7 +135,7 @@ curl -X POST http://{SERVER_URL}/assets \
         "asset_key": "home_team_photo",
         "asset_type": "image",
         "category": "home",
-        "file_url": "https://storage.googleapis.com/.../assets/home/xxx.jpg"
+        "file_url": "/files/13"
       }'
 ```
 

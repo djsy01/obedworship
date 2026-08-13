@@ -45,6 +45,13 @@
   - `admin`, `operator` = 관리자 권한
   - `member`, `user` = 일반 권한
 
+> **관리자로 접속하려면**: 백엔드 인증이 아직 구현 전이라(`client/src/composables/useAuth.ts`), `/login` 페이지에서 아래 Mock 계정으로 로그인하면 관리자 권한(`isAdmin`)이 부여됩니다.
+>
+> - `admin@obed.com` / `admin123` → admin
+> - `operator@obed.com` / `operator123` → operator (admin과 동일 권한)
+>
+> 로그인 후 Vision/Home 등 각 페이지에 "관리자 모드 ON" 같은 버튼이 나타나면서 편집 기능이 열립니다.
+
 ### ⚙️ 관리자 기능
 
 - 집회 추가/수정/삭제
@@ -68,20 +75,21 @@
 
 > 자세한 내용은 문서를 눌러 각 항목의 세부사항을 확인할 수 있습니다
 
-| 항목                                      | 기술                      |
-| ----------------------------------------- | ------------------------- |
-| [Front-End](./client/README.md)           | Vue 3 + TypeScript + Vite |
-| Back-End                                  | 담당자(승훈) 개발 예정    |
-| [Test Server](./test-server/README.md)    | NestJS (테스트용)         |
-| [Database](./database/database.md)        | MySQL (Railway)           |
-| [Storage](./docs/GOOGLE_CLOUD_STORAGE.md) | Google Cloud Storage      |
-| [Plans](./docs/plans.md)                  | 월별 개발 계획            |
+| 항목 | 기술 |
+| --- | --- |
+| [Front-End](./client/README.md) | Vue 3 + TypeScript + Vite |
+| Back-End | Express (`server/`, 승훈 개발 — 실제 프로덕션 백엔드) |
+| [Database](./docs/ORACLE_DEPLOYMENT.md) | MySQL (Oracle Cloud 자체 호스팅) |
+| Storage | DB `files` 테이블 (2026-08-13부터, 디스크/GCS에서 전환) |
+| [Plans](./docs/plans.md) | 월별 개발 계획 |
 
 ### ⚠️ 백엔드 관련 참고사항
 
-- 실제 프로덕션 백엔드는 승훈이 별도로 개발할 예정입니다
-- 테스트 서버는 API 엔드포인트 예시로 참고할 수 있습니다
-- ORM은 Prisma를 사용했지만, 실제 백엔드는 다른 ORM/라이브러리 사용 가능합니다
+- **`server/`(Express)가 실제 프로덕션 백엔드입니다** (승훈 개발, `mysql2`/`bcrypt`/`jsonwebtoken`/GCS 사용). `test-server/`(NestJS)는 인호가 API 명세 검증용으로 만든 별도 구현체이며 배포 대상이 아닙니다.
+- DB는 기존 Railway MySQL에서 Oracle Cloud 인스턴스의 자체 호스팅 MySQL로 이전했습니다. 데이터(멤버/집회기록 등)와 업로드 파일 실물 모두 이관 완료했습니다. `server/`도 같은 DB(`obedworship`)에 연결하면 됩니다 — 자세한 내용은 [docs/ORACLE_DEPLOYMENT.md](./docs/ORACLE_DEPLOYMENT.md) 참고.
+- `test-server/`에서는 업로드 파일을 디스크/GCS 대신 DB `files` 테이블에 바이너리로 저장하는 방식으로 전환하는 작업을 했습니다(코드까지 완료). 다만 이건 `test-server`(NestJS) 기준 작업이라 `server/`(Express)에는 아직 반영되지 않았습니다 — `server/`에 이 방식을 적용할지는 별도 논의가 필요합니다.
+- `test-server/`, `server/.env`는 `.gitignore`에 등록돼 있어 이 저장소에는 커밋되지 않습니다.
+- `test-server`의 ORM은 Prisma, `server/`는 `mysql2` raw query를 사용합니다.
 
 ---
 
@@ -130,17 +138,36 @@ npm run dev
 
 ### Back-End
 
-> 담당자 진행 예정
+```bash
+cd server
+npm install
+node app.js
+```
+
+> `server/.env`에 DB 접속 정보(`DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME`, `DB_PORT`)를 오라클 DB 기준으로 맞춰야 합니다. `.env`는 git에 커밋되지 않습니다.
+
+#### (참고) test-server — 인호 개인 테스트용, 배포 대상 아님
+
+```bash
+cd test-server
+npm install
+npx prisma generate
+npm run start:dev
+```
+
+> `test-server/`는 git에 커밋되지 않는 폴더입니다(`.gitignore`). 로컬에 없다면 인호에게 요청하세요.
 
 ### Database
 
-- Railway MySQL: 환경변수 `DATABASE_URL` 설정 필요
+- Oracle Cloud 인스턴스에 자체 호스팅한 MySQL 사용
+- `server/`는 `DB_HOST`/`DB_USER`/`DB_PASS`/`DB_NAME`/`DB_PORT`, `test-server`는 `DATABASE_URL` 환경변수로 접속
+- 로컬 개발 시 SSH 터널링 필요: [docs/ORACLE_DEPLOYMENT.md](./docs/ORACLE_DEPLOYMENT.md) 참고
 
 ---
 
 ## 📊 데이터베이스 구조
 
-### MySQL 테이블 (17개)
+### MySQL 테이블 (18개)
 
 - **집회** (5개): worship_logs, worship_songs, worship_videos, worship_photos, worship_scores
 - **집회 신청** (2개): tickets, ticket_applications
@@ -149,6 +176,7 @@ npm run dev
 - **Q&A** (1개): qna
 - **사용자** (1개): users
 - **자산** (1개): assets
+- **파일** (1개): files — 업로드 파일 바이너리 저장 (2026-08-13 추가, [docs/ORACLE_DEPLOYMENT.md](./docs/ORACLE_DEPLOYMENT.md) 참고)
 
 ### Redis (예정)
 
@@ -177,16 +205,18 @@ npm run dev
 
 ### ✅ 데이터베이스 완료 (인호 담당)
 
-- [x] MySQL 테이블 설계 (17개 테이블)
+- [x] MySQL 테이블 설계 (18개 테이블)
 - [x] 테이블 관계 정의 (CASCADE 설정)
 - [x] 인덱스 최적화
-- [x] Railway MySQL 환경 구축
+- [x] Oracle Cloud 자체 호스팅 MySQL 환경 구축 (Railway에서 이전)
+- [x] 업로드 파일 DB 저장 구조 설계 및 실물 파일 마이그레이션
 
-### 🚧 백엔드 진행 예정 (승훈 담당)
+### 🚧 백엔드 진행 중 (승훈 담당)
 
-- [ ] 실제 백엔드 API 개발
-- [ ] JWT 인증 시스템 구현
-- [ ] API 연동
+- [x] `server/`(Express) 라우터 구현 (auth, members, assets, worship 등 전체 도메인)
+- [x] JWT 기반 인증 라우터 작성 (`server/routes/auth.js`)
+- [ ] 프론트엔드 API 연동 확인
+- [ ] Oracle DB(`obedworship`) 연결 설정 (`server/.env` 갱신 필요)
 
 ### 📝 예정
 

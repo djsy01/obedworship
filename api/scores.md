@@ -99,7 +99,7 @@ curl -X GET "http://{SERVER_URL}/scores?search=은혜"
     "song_key": "C",
     "bpm": 72,
     "category": "경배와찬양",
-    "file_url": "/uploads/scores/xxx.pdf",
+    "file_url": "/files/9",
     "filename": "은혜.pdf",
     "file_size": 204800,
     "thumbnail_url": null,
@@ -211,7 +211,7 @@ curl -X POST http://{SERVER_URL}/scores \
         "song_key": "C",
         "bpm": 72,
         "category": "경배와찬양",
-        "file_url": "/uploads/scores/xxx.pdf",
+        "file_url": "/files/9",
         "filename": "은혜.pdf"
       }'
 ```

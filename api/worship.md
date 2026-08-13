@@ -41,7 +41,7 @@ curl -X GET "http://{SERVER_URL}/worship?year=2026"
     "worship_team": "Worship팀",
     "guest": null,
     "description": "집회 소개",
-    "poster_url": "https://storage.googleapis.com/.../posters/xxx.jpg",
+    "poster_url": "/files/17",
     "comments": null,
     "entry_time": "18:00",
     "start_time": "19:00",
@@ -156,7 +156,7 @@ curl -X POST http://{SERVER_URL}/worship \
 ```bash
 curl -X PATCH http://{SERVER_URL}/worship/1 \
   -H "Content-Type: application/json" \
-  -d '{ "poster_url": "https://storage.googleapis.com/.../posters/xxx.jpg" }'
+  -d '{ "poster_url": "/files/17" }'
 ```
 
 | 메서드 | 요청 URL |

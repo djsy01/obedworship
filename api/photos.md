@@ -1,6 +1,10 @@
 # Photos API
 
-범용 이미지 업로드 엔드포인트. `scores`와 마찬가지로 GCS가 아닌 **서버 로컬 디스크**(`uploads/photos/`)에 저장합니다. 다른 도메인의 GCS 업로드(`assets`, `members`, `worship-photos`)와 저장 방식이 다르므로 용도가 겹치지 않도록 주의가 필요합니다. DB 테이블/서비스가 없는 순수 업로드 유틸리티 컨트롤러입니다. 표기 규칙은 [README](./README.md#표기-규칙) 참고.
+범용 이미지 업로드 엔드포인트. **서버 로컬 디스크**(`uploads/photos/`)에 저장합니다. DB 테이블/서비스가 없는 순수 업로드 유틸리티 컨트롤러입니다.
+
+> ⚠️ 2026-08-13부로 다른 도메인(`assets`, `members`, `scores`, `worship-photos`, `worship-scores`)은 DB `files` 테이블 저장 방식으로 전환됐지만(`[README](./README.md#파일-저장-방식-2026-08-13-변경)` 참고), 이 `photos` 엔드포인트는 아직 마이그레이션 대상에 포함되지 않아 로컬 디스크 방식 그대로입니다. 용도가 겹치지 않도록 주의가 필요합니다.
+
+표기 규칙은 [README](./README.md#표기-규칙) 참고.
 
 ---
 

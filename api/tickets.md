@@ -35,7 +35,7 @@ curl -X GET "http://{SERVER_URL}/tickets?status=OPEN&year=2026"
     "title": "2026 여름 청년집회",
     "date": "2026-08-15",
     "year": 2026,
-    "poster_url": "https://storage.googleapis.com/.../posters/xxx.jpg",
+    "poster_url": "/files/17",
     "place": "예수인교회",
     "preacher": "홍길동 목사",
     "description": null,

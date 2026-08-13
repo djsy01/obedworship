@@ -264,7 +264,7 @@ curl -X GET http://{SERVER_URL}/mypage/1/downloads
       "song_key": "C",
       "bpm": 72,
       "thumbnail_url": null,
-      "file_url": "/uploads/scores/xxx.pdf"
+      "file_url": "/files/9"
     }
   }
 ]

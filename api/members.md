@@ -1,6 +1,6 @@
 # Members API
 
-팀원(멤버) 정보와 직책/포지션을 관리합니다. Vision 페이지(`/vision`)가 사용하는 핵심 API입니다. 파일 업로드는 GCS(`StorageService`)를 사용합니다. 표기 규칙은 [README](./README.md#표기-규칙) 참고.
+팀원(멤버) 정보와 직책/포지션을 관리합니다. Vision 페이지(`/vision`)가 사용하는 핵심 API입니다. 파일 업로드는 DB `files` 테이블에 저장합니다 (2026-08-13부터, [README의 파일 저장 방식](./README.md#파일-저장-방식-2026-08-13-변경) 참고). 표기 규칙은 [README](./README.md#표기-규칙) 참고.
 
 ---
 
@@ -39,7 +39,7 @@ curl -X GET "http://{SERVER_URL}/members?active=true"
     "id": 1,
     "name": "홍길동",
     "affiliation": "청년부",
-    "photo_url": "https://storage.googleapis.com/.../members/xxx.jpg",
+    "photo_url": "/files/12",
     "instagram_url": null,
     "youtube_url": null,
     "is_active": true,
@@ -111,7 +111,7 @@ curl -X POST http://{SERVER_URL}/members \
   -d '{
         "name": "홍길동",
         "affiliation": "청년부",
-        "photo_url": "https://storage.googleapis.com/.../members/xxx.jpg"
+        "photo_url": "/files/12"
       }'
 ```
 
@@ -146,7 +146,7 @@ curl -X POST http://{SERVER_URL}/members \
 
 ## 멤버 사진 업로드
 
-GCS `members/` 폴더에 업로드만 수행합니다. DB 반영은 별도로 [멤버 수정](#멤버-수정)에서 `photo_url`을 지정해야 합니다.
+`files` 테이블에 업로드만 수행합니다(`/files/{id}` 반환). DB 반영은 별도로 [멤버 수정](#멤버-수정)에서 `photo_url`을 지정해야 합니다.
 
 ### Request Syntax
 
@@ -176,7 +176,7 @@ curl -X POST http://{SERVER_URL}/members/upload-photo \
 #### Response Syntax
 
 ```json
-{ "photo_url": "https://storage.googleapis.com/.../members/xxx.jpg" }
+{ "photo_url": "/files/12" }
 ```
 
 #### Response Elements
@@ -198,7 +198,7 @@ curl -X POST http://{SERVER_URL}/members/upload-photo \
 ```bash
 curl -X PATCH http://{SERVER_URL}/members/1 \
   -H "Content-Type: application/json" \
-  -d '{ "photo_url": "https://storage.googleapis.com/.../members/xxx.jpg" }'
+  -d '{ "photo_url": "/files/12" }'
 ```
 
 | 메서드 | 요청 URL |
@@ -229,7 +229,7 @@ curl -X PATCH http://{SERVER_URL}/members/1 \
 
 ## 멤버 삭제
 
-`photo_url`이 있으면 GCS에서도 파일을 함께 삭제합니다(파일 삭제 실패해도 멤버 삭제는 진행).
+`photo_url`이 있으면 `files` 테이블에서도 레코드를 함께 삭제합니다(삭제 실패해도 멤버 삭제는 진행).
 
 ### Request Syntax
 

@@ -1,6 +1,6 @@
 # Worship Media API
 
-집회(worship) 상세에 딸린 하위 리소스: 사진, 악보, 찬양(곡 리스트), 영상. WorshipDetail(`/worship-log/:id`) 페이지가 사용합니다. 사진/악보 업로드는 GCS(`StorageService`)를 사용합니다. 표기 규칙은 [README](./README.md#표기-규칙) 참고.
+집회(worship) 상세에 딸린 하위 리소스: 사진, 악보, 찬양(곡 리스트), 영상. WorshipDetail(`/worship-log/:id`) 페이지가 사용합니다. 사진/악보 업로드는 DB `files` 테이블에 저장합니다 (2026-08-13부터, [README의 파일 저장 방식](./README.md#파일-저장-방식-2026-08-13-변경) 참고). 표기 규칙은 [README](./README.md#표기-규칙) 참고.
 
 ---
 
@@ -8,7 +8,7 @@
 
 ### WorshipPhoto 사진 업로드 (단일)
 
-GCS `worship-photos/` 폴더에 업로드만 수행합니다. DB 반영은 별도로 `POST /worship-photos`를 호출해야 합니다.
+`files` 테이블에 업로드만 수행합니다(`/files/{id}` 반환). DB 반영은 별도로 `POST /worship-photos`를 호출해야 합니다.
 
 **Request Syntax**
 
@@ -36,7 +36,7 @@ curl -X POST http://{SERVER_URL}/worship-photos/upload \
 **Response Syntax**
 
 ```json
-{ "photo_url": "https://storage.googleapis.com/.../worship-photos/xxx.jpg" }
+{ "photo_url": "/files/17" }
 ```
 
 **에러**: 파일 없음 또는 이미지가 아니면 `400 Bad Request`
@@ -73,8 +73,8 @@ curl -X POST http://{SERVER_URL}/worship-photos/upload-multiple \
 {
   "count": 2,
   "photos": [
-    { "photo_url": "https://storage.googleapis.com/.../worship-photos/xxx1.jpg" },
-    { "photo_url": "https://storage.googleapis.com/.../worship-photos/xxx2.jpg" }
+    { "photo_url": "/files/17" },
+    { "photo_url": "/files/18" }
   ]
 }
 ```
@@ -90,7 +90,7 @@ curl -X POST http://{SERVER_URL}/worship-photos \
   -H "Content-Type: application/json" \
   -d '{
         "worship_id": 1,
-        "photo_url": "https://storage.googleapis.com/.../worship-photos/xxx.jpg",
+        "photo_url": "/files/17",
         "file_name": "xxx.jpg",
         "photo_order": 1
       }'
@@ -150,7 +150,7 @@ curl -X POST http://{SERVER_URL}/worship-scores \
   -d '{
         "worship_id": 1,
         "filename": "찬양악보.pdf",
-        "file_url": "https://storage.googleapis.com/.../worship-scores/xxx.pdf"
+        "file_url": "/files/11"
       }'
 ```
 
