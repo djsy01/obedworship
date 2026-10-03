@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
 import { qnaApi, type Qna, type CreateQnaDto } from "@/api/axios";
-import "../styles/qna.css";
+import "../styles/Qna.css";
 
 // State Management
 const qnaList = ref<Qna[]>([]);
