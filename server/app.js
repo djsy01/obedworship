@@ -12,10 +12,14 @@ const port = process.env.PORT || 3000;
 // 2. 공통 미들웨어 (Middleware)
 // ====================================
 // 프론트엔드의 접근 허용 (CORS 에러 방지)
+// CORS_ORIGIN: 쉼표로 여러 origin 지정 가능 (예: "https://obed.example.com,https://www.obed.example.com")
+const corsOrigin = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim())
+    : 'http://localhost:5173'; // 프론트엔드 Vue(Vite) 로컬 개발 주소
 app.use(cors({
-    origin: 'http://localhost:5173', // 프론트엔드 Vue(Vite) 로컬 개발 주소
+    origin: corsOrigin,
     credentials: true // JWT 토큰 및 쿠키를 주고받기 위해 필수
-})); 
+}));
 
 // 클라이언트가 보내는 JSON 및 URL-encoded 데이터를 파싱
 app.use(express.json()); 
@@ -37,7 +41,7 @@ app.use('/mypage', require('./routes/mypage'));       // 마이페이지 대시�
 // 3-2. 악보 및 집회 신청(티켓) 라우터
 app.use('/scores', require('./routes/scores'));       // 전체 악보 관리 및 다운로드
 app.use('/tickets', require('./routes/tickets'));     // 집회 신청용 티켓(행사) 관리
-app.use('/ticket-applications', require('./routes/ticket-applications')); // 유저의 티켓 신청 내역 관리
+// app.use('/ticket-applications', require('./routes/ticket-applications')); // 유저의 티켓 신청 내역 관리 — 프론트 미사용 + 문법 오류(routes/ticket-applications.js:60)로 임시 비활성
 
 // 3-3. 특정 예배(worship_logs) 종속 미디어 라우터
 app.use('/worship-videos', require('./routes/worship-videos')); 

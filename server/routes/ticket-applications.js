@@ -57,7 +57,7 @@ router.get('/stats/:ticketId', async (req, res) => {
         `;
         const [rows] = await db.query(query, [ticketId]);
         
-        const stats = { total: 0, confirmed: 0, pending: 0, cancelled: 0 };[cite: 13]
+        const stats = { total: 0, confirmed: 0, pending: 0, cancelled: 0 };
         
         rows.forEach(row => {
             stats.total += row.count;
