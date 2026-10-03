@@ -4,10 +4,27 @@ const db = require('../config/db');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken'); // JWT 라이브러리 추가
+const rateLimit = require('express-rate-limit');
+
+// 무차별 대입(brute-force) 공격 방지: IP당 15분에 10회로 제한
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, message: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' },
+});
 
 const SALT_ROUNDS = 10;
-// 환경 변수가 없을 경우를 대비한 기본값 (실제 배포시엔 반드시 .env 사용)
-const JWT_SECRET = process.env.JWT_SECRET || 'obedworship_super_secret_jwt_key_2026!';
+
+// JWT_SECRET은 반드시 .env로 주입해야 합니다.
+// 과거 코드에 'obedworship_super_secret_jwt_key_2026!'라는 기본값이 하드코딩돼 있었는데,
+// 이 레포가 public이라 그 값이 그대로 노출되어 있었습니다(누구나 토큰 위조 가능).
+// 환경변수가 없으면 약한 기본값으로 조용히 fallback하지 않고 서버 기동을 막습니다.
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET 환경변수가 설정되지 않았습니다. .env에 JWT_SECRET을 추가해주세요.');
+}
 
 /**
  * DB의 사용자 레코드를 프론트엔드 User 인터페이스에 맞게 필터링 및 변환
@@ -48,7 +65,7 @@ const authenticateToken = (req, res, next) => {
 // ==========================================
 // 1. [POST] 회원가입 (register)
 // ==========================================
-router.post('/register', async (req, res) => {
+router.post('/register', authLimiter, async (req, res) => {
     try {
         const { email, password, name, phone } = req.body;
 
@@ -80,7 +97,7 @@ router.post('/register', async (req, res) => {
 // ==========================================
 // 2. [POST] 로그인 (login) - JWT 발급
 // ==========================================
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -207,7 +224,7 @@ router.post('/change-password', authenticateToken, async (req, res) => {
 // ==========================================
 // 7. [POST] 비밀번호 초기화 요청 (forgotPassword)
 // ==========================================
-router.post('/forgot-password', async (req, res) => {
+router.post('/forgot-password', authLimiter, async (req, res) => {
     try {
         const { email } = req.body;
         const [users] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
@@ -220,8 +237,12 @@ router.post('/forgot-password', async (req, res) => {
         const tokenExpires = new Date(Date.now() + 3600000); // 1시간 후 만료
 
         await db.query('UPDATE users SET reset_token = ?, reset_token_expires = ? WHERE email = ?', [resetToken, tokenExpires, email]);
-        
-        console.log(`[Email Mock] ${email}로 토큰 발송: ${resetToken}`);
+
+        // ⚠️ 실제 이메일 발송 연동 전까지 임시로 콘솔에만 출력 (운영 로그에 토큰이 남지 않도록 production에서는 출력하지 않음)
+        // TODO: 실제 메일 발송 서비스(nodemailer 등) 연동 필요 — 현재는 비밀번호 재설정이 실제로 동작하지 않습니다.
+        if (process.env.NODE_ENV !== 'production') {
+            console.log(`[Email Mock] ${email}로 토큰 발송: ${resetToken}`);
+        }
 
         res.status(200).json({ success: true, message: '입력하신 이메일로 비밀번호 재설정 링크를 발송했습니다.' });
     } catch (error) {
@@ -233,7 +254,7 @@ router.post('/forgot-password', async (req, res) => {
 // ==========================================
 // 8. [POST] 비밀번호 재설정 수행 (resetPassword)
 // ==========================================
-router.post('/reset-password', async (req, res) => {
+router.post('/reset-password', authLimiter, async (req, res) => {
     try {
         const { email, resetToken, newPassword } = req.body;
 

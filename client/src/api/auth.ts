@@ -2,14 +2,14 @@ import axios from "./axios";
 
 // ==========================================
 // Definition of authentication-related types
-// Need to be modified to match the actual response after completing the backend API
+// Mirrors server/routes/auth.js response shape (success/message/token/data)
 // ==========================================
 
 export interface User {
   id: number;
   email: string;
   name: string;
-  role: "admin" | "member" | "user";
+  role: "admin" | "operator" | "member" | "user";
   phone?: string;
   is_active: boolean;
   email_verified: boolean;
@@ -37,6 +37,7 @@ export interface ChangePasswordRequest {
 export interface AuthResponse {
   success: boolean;
   message: string;
+  token?: string;
   data?: User;
 }
 
@@ -46,14 +47,14 @@ export interface SessionResponse {
   data: {
     userId: number;
     email: string;
-    role: "admin" | "member" | "user";
+    role: "admin" | "operator" | "member" | "user";
     name: string;
   } | null;
 }
 
 // ==========================================
 // Authentication API client
-// Uncomment and use after completing the backend API
+// VITE_BASE_URL(client/.env)이 실제 백엔드 주소로 설정되어 있어야 동작합니다.
 // ==========================================
 
 export const authApi = {

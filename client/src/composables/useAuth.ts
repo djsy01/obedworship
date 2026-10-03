@@ -1,8 +1,11 @@
 /**
  * useAuth.ts - Authentication Composable for OBED Worship
  *
- * IMPORTANT: This file currently uses MOCK authentication for frontend development.
- * Backend developer should implement actual authentication and uncomment the API calls.
+ * 실제 백엔드(server/routes/auth.js)를 우선 호출합니다.
+ * 아래의 admin@obed.com 등 하드코딩 계정은 "로컬 개발 중 백엔드가 아직 안 붙었을 때"를 위한
+ * 폴백이며, import.meta.env.DEV(로컬 dev 서버)에서만 동작합니다.
+ * 프로덕션 빌드에서는 이 폴백이 완전히 비활성화되어, VITE_BASE_URL이 잘못 설정되어 있어도
+ * 공개된 계정 정보로 관리자 권한을 얻을 수 없습니다.
  *
  * Role System (4 roles):
  * - admin: Full administrator access
@@ -14,18 +17,13 @@
  * - isAdmin: admin OR operator (can manage content)
  * - isMember: Any logged in user (can access member features)
  *
- * Mock Test Accounts (for development):
+ * [DEV ONLY] Mock Test Accounts — 로컬 개발(`npm run dev`)에서만 사용 가능:
  * - admin@obed.com / admin123 -> admin role
  * - operator@obed.com / operator123 -> operator role
  * - member@obed.com / member123 -> member role
- * - Any other email/password -> user role
- *
- * Backend Integration:
- * - Uncomment authApi imports and calls when backend is ready
- * - API endpoints needed: login, register, logout, checkSession, changePassword
  */
 import { computed, ref } from "vue";
-// import { authApi, type User } from '@/api/auth' // TODO: Uncomment when backend is ready
+import { authApi } from "@/api/auth";
 
 // ==========================================
 // TYPE DEFINITIONS
@@ -104,109 +102,60 @@ export function useAuth() {
   const error = computed(() => errorRef.value);
 
   // ==========================================
-  //login
-  // TODO: Change to actual API call after completing the backend
+  // login — 실제 백엔드 우선 호출, 실패 시 [DEV ONLY] mock 폴백
   // ==========================================
   const login = async (email: string, password: string): Promise<boolean> => {
     loadingRef.value = true;
     errorRef.value = null;
 
     try {
-      // ========== Backend integration code (uncomment and use) ==========
-      // const response = await authApi.login({ email, password })
-      // if (response.data.success && response.data.data) {
-      //   const user = response.data.data
-      //   isLoggedInRef.value = true
-      //   userRef.value = {
-      //     id: user.id,
-      //     email: user.email,
-      //     name: user.name,
-      //     role: user.role,
-      //   }
-      //   localStorage.setItem('userRole', user.role)
-      //   localStorage.setItem('userName', user.name)
-      //   localStorage.setItem('userEmail', user.email)
-      //   return true
-      // }
-      // return false
-      // ========================================================
-
-      // ========== Mock login (used until backend completion) ==========
-      await new Promise((resolve) => setTimeout(resolve, 500)); // API call simulation
-
-      // Administrator account
-      if (email === "admin@obed.com" && password === "admin123") {
+      const response = await authApi.login({ email, password });
+      if (response.data.success && response.data.data) {
+        const user = response.data.data;
         isLoggedInRef.value = true;
-        userRef.value = { id: 1, email, name: "관리자", role: "admin" };
-        localStorage.setItem("token", "mock-admin-token");
+        userRef.value = {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+        };
+        if (response.data.token) {
+          localStorage.setItem("token", response.data.token);
+        }
         localStorage.setItem(
           "user",
-          JSON.stringify({
-            userId: "1",
-            email,
-            name: "관리자",
-            role: "admin",
-          }),
+          JSON.stringify({ userId: String(user.id), email: user.email, name: user.name, role: user.role }),
         );
         return true;
       }
-
-      // Administrator account (same privileges as administrator)
-      if (email === "operator@obed.com" && password === "operator123") {
-        isLoggedInRef.value = true;
-        userRef.value = { id: 2, email, name: "운영자", role: "operator" };
-        localStorage.setItem("token", "mock-operator-token");
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            userId: "2",
-            email,
-            name: "운영자",
-            role: "operator",
-          }),
-        );
-        return true;
-      }
-
-      // member account
-      if (email === "member@obed.com" && password === "member123") {
-        isLoggedInRef.value = true;
-        userRef.value = { id: 3, email, name: "멤버", role: "member" };
-        localStorage.setItem("token", "mock-member-token");
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            userId: "3",
-            email,
-            name: "멤버",
-            role: "member",
-          }),
-        );
-        return true;
-      }
-
-      // Regular user (any other email/password)
-      if (email && password) {
-        isLoggedInRef.value = true;
-        userRef.value = { id: 4, email, name: "홍길동", role: "user" };
-        localStorage.setItem("token", "mock-user-token");
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            userId: "4",
-            email,
-            name: "홍길동",
-            role: "user",
-          }),
-        );
-        return true;
-      }
-
-      errorRef.value = "이메일 또는 비밀번호가 일치하지 않습니다.";
+      errorRef.value = response.data.message || "로그인에 실패했습니다.";
       return false;
-      // ========================================================
     } catch (err: any) {
-      errorRef.value = err.response?.data?.message || "로그인에 실패했습니다.";
+      // [DEV ONLY] 백엔드(VITE_BASE_URL)가 아직 로컬에 안 붙어있을 때만 쓰는 폴백.
+      // 프로덕션 빌드에서는 import.meta.env.DEV가 false라 이 블록이 아예 실행되지 않는다 —
+      // 즉 admin@obed.com 같은 계정은 배포된 사이트에서는 통하지 않는다.
+      if (import.meta.env.DEV) {
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
+        const mockAccounts: Record<string, { id: number; name: string; role: "admin" | "operator" | "member" }> = {
+          "admin@obed.com:admin123": { id: 1, name: "관리자", role: "admin" },
+          "operator@obed.com:operator123": { id: 2, name: "운영자", role: "operator" },
+          "member@obed.com:member123": { id: 3, name: "멤버", role: "member" },
+        };
+        const mock = mockAccounts[`${email}:${password}`];
+        if (mock) {
+          isLoggedInRef.value = true;
+          userRef.value = { id: mock.id, email, name: mock.name, role: mock.role };
+          localStorage.setItem("token", "mock-dev-only-token");
+          localStorage.setItem(
+            "user",
+            JSON.stringify({ userId: String(mock.id), email, name: mock.name, role: mock.role }),
+          );
+          return true;
+        }
+      }
+
+      errorRef.value = err.response?.data?.message || "이메일 또는 비밀번호가 일치하지 않습니다.";
       return false;
     } finally {
       loadingRef.value = false;
@@ -214,8 +163,7 @@ export function useAuth() {
   };
 
   // ==========================================
-  // Sign up
-  // TODO: Change to actual API call after completing the backend
+  // Sign up — 실제 백엔드 호출
   // ==========================================
   const register = async (
     email: string,
@@ -227,29 +175,14 @@ export function useAuth() {
     errorRef.value = null;
 
     try {
-      // ========== Backend integration code (uncomment and use) ==========
-      // const response = await authApi.register({ email, password, name, phone })
-      // if (response.data.success) {
-      //   return true
-      // }
-      // errorRef.value = response.data.message || 'Registration failed.'
-      // return false
-      // ========================================================
-
-      // ========== Mock membership registration (used until backend completion) ==========
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      if (email && password && name) {
-        console.log("Registration success (Mock):", { email, name, phone });
+      const response = await authApi.register({ email, password, name, phone });
+      if (response.data.success) {
         return true;
       }
-
-      errorRef.value = "Please fill in all required fields.";
+      errorRef.value = response.data.message || "회원가입에 실패했습니다.";
       return false;
-      // ========================================================
     } catch (err: any) {
-      errorRef.value =
-        err.response?.data?.message || "Registration failed.";
+      errorRef.value = err.response?.data?.message || "회원가입에 실패했습니다.";
       return false;
     } finally {
       loadingRef.value = false;
@@ -258,13 +191,10 @@ export function useAuth() {
 
   // ==========================================
   // logout
-  // TODO: Change to actual API call after completing the backend
   // ==========================================
   const logout = async (): Promise<void> => {
     try {
-      // ========== Backend integration code (uncomment and use) ==========
-      // await authApi.logout()
-      // ========================================================
+      await authApi.logout();
     } catch (err) {
       console.error("Logout API failed:", err);
     } finally {
@@ -282,39 +212,35 @@ export function useAuth() {
 
   // ==========================================
   // Check session (check authentication status when page refresh)
-  // TODO: Change to actual API call after completing the backend
   // ==========================================
   const checkSession = async (): Promise<boolean> => {
     try {
-      // ========== Backend integration code (uncomment and use) ==========
-      // const response = await authApi.checkSession()
-      // if (response.data.authenticated && response.data.data) {
-      //   isLoggedInRef.value = true
-      //   userRef.value = {
-      //     id: response.data.data.userId,
-      //     email: response.data.data.email,
-      //     name: response.data.data.name,
-      //     role: response.data.data.role,
-      //   }
-      //   return true
-      // }
-      // // Reset local state when session expires
-      // await logout()
-      // return false
-      // ========================================================
-
-      // ========== Check Mock session (used until backend completion) ==========
-      return isLoggedInRef.value;
-      // ========================================================
+      const response = await authApi.checkSession();
+      if (response.data.authenticated && response.data.data) {
+        isLoggedInRef.value = true;
+        userRef.value = {
+          id: response.data.data.userId,
+          email: response.data.data.email,
+          name: response.data.data.name,
+          role: response.data.data.role,
+        };
+        return true;
+      }
+      // Reset local state when session expires
+      await logout();
+      return false;
     } catch (err) {
       console.error("Session check failed:", err);
+      // [DEV ONLY] 백엔드가 아직 안 붙어있으면 로컬에 저장된 mock 상태를 유지한다.
+      if (import.meta.env.DEV) {
+        return isLoggedInRef.value;
+      }
       return false;
     }
   };
 
   // ==========================================
-  // change password
-  // TODO: Change to actual API call after completing the backend
+  // change password — 실제 백엔드 호출
   // ==========================================
   const changePassword = async (
     currentPassword: string,
@@ -324,23 +250,14 @@ export function useAuth() {
     errorRef.value = null;
 
     try {
-      // ========== Backend integration code (uncomment and use) ==========
-      // const response = await authApi.changePassword({ currentPassword, newPassword })
-      // if (response.data.success) {
-      //   return true
-      // }
-      // errorRef.value = response.data.message
-      // return false
-      // ========================================================
-
-      // ========== Mock (used until backend completion) ==========
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      console.log("Password changed (Mock)");
-      return true;
-      // ========================================================
+      const response = await authApi.changePassword({ currentPassword, newPassword });
+      if (response.data.success) {
+        return true;
+      }
+      errorRef.value = response.data.message || "비밀번호 변경에 실패했습니다.";
+      return false;
     } catch (err: any) {
-      errorRef.value =
-        err.response?.data?.message || "Failed to change password.";
+      errorRef.value = err.response?.data?.message || "비밀번호 변경에 실패했습니다.";
       return false;
     } finally {
       loadingRef.value = false;

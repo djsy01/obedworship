@@ -13,6 +13,7 @@ import login from '@/components/Login.vue';
 import register from '@/components/Register.vue';
 import FindId from '@/components/Find-ID.vue';
 import ResetPassword from '@/components/Reset-Password.vue';
+import { useAuth } from '@/composables/useAuth';
 
 const routes: RouteRecordRaw[] = [
     { path: '/', name: 'home', component: HomeView },
@@ -27,8 +28,8 @@ const routes: RouteRecordRaw[] = [
     { path: '/tickets', name: 'tickets', component: TicketsView },
     { path: '/qna', name: 'qna', component: QnaView },
     { path: '/map', name: 'map', component: MapView },
-    { path: '/mypage', name: 'mypage', component: MyPageView },
-    { path: '/admin', name: 'admin', component: AdminView },
+    { path: '/mypage', name: 'mypage', component: MyPageView, meta: { requiresAuth: true } },
+    { path: '/admin', name: 'admin', component: AdminView, meta: { requiresAdmin: true } },
     { path: '/login', name: 'login', component: login },
     { path: '/register', name: 'register', component: register },
     { path: '/find-id', name: 'find-id', component: FindId },
@@ -41,6 +42,20 @@ const router = createRouter({
     scrollBehavior() {
         return { top: 0 };
     },
+});
+
+// 라우터 레벨 가드: /admin은 AdminView 내부 체크에만 맡기지 않고 네비게이션 단계에서 먼저 막는다.
+router.beforeEach((to) => {
+    if (to.meta.requiresAdmin || to.meta.requiresAuth) {
+        const { isLoggedIn, isAdmin } = useAuth();
+        if (to.meta.requiresAdmin && !isAdmin.value) {
+            return { name: 'home' };
+        }
+        if (to.meta.requiresAuth && !isLoggedIn.value) {
+            return { name: 'login' };
+        }
+    }
+    return true;
 });
 
 export default router;
