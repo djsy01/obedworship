@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import soundcloudIcon from '@/assets/icons/Soundcloud.png';
-import instagramIcon from '@/assets/icons/Instagram.png';
-import youtubeIcon from '@/assets/icons/youtube.png';
+import soundcloudIcon from '@/assets/icons/soundcloud.png';
+import instagramIcon from '@/assets/icons/instagram.png';
+import youtubeIcon from '@/assets/icons/Youtube.png';
 </script>
 
 <template>
