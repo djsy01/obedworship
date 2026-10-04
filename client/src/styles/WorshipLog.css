@@ -1,6 +1,4 @@
-/* WorshipLog.css - 집회 안내 페이지 전용 스타일 */
-
-/* 섹션 헤더 스타일 - Vision 페이지처럼 */
+/* Section header style */
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -17,12 +15,12 @@
   font-size: 1.6rem;
   font-weight: 700;
   margin: 0 0 0.5rem;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
 }
 
 .section-subtitle {
   font-size: 0.95rem;
-  color: #666;
+  color: var(--ow-text-muted);
   line-height: 1.6;
   margin: 0;
 }
@@ -41,42 +39,23 @@
 }
 
 .log-card {
-  background: #fff;
+  background: var(--ow-surface);
   border-radius: 0.75rem;
   padding: 1.2rem 1.3rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 10px 25px var(--ow-shadow-soft-2), inset 0 0 0 transparent;
   cursor: pointer;
-  transition: all 0.25s ease-out;
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  position: relative;
-  overflow: hidden;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  border: 1px solid var(--ow-border-subtle);
 }
 
 .log-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 15px 35px rgba(74, 31, 47, 0.12);
-  border-color: rgba(74, 31, 47, 0.2);
-}
-
-.log-card::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background: linear-gradient(90deg, #4a1f2f, #8a4b4b);
-  transform: scaleX(0);
-  transition: transform 0.3s ease-out;
-}
-
-.log-card:hover::after {
-  transform: scaleX(1);
+  box-shadow: 0 12px 32px var(--ow-shadow), inset 0 -3px 0 var(--ow-accent);
 }
 
 .log-date {
   font-size: 0.85rem;
-  color: #8a4b4b;
+  color: var(--ow-accent-2);
   margin-bottom: 0.4rem;
   font-weight: 500;
 }
@@ -85,12 +64,12 @@
   margin: 0 0 0.5rem;
   font-size: 1.3rem;
   font-weight: 700;
-  color: #2b1a20;
+  color: var(--ow-text-strong);
 }
 
 .log-meta {
   font-size: 0.85rem;
-  color: #666;
+  color: var(--ow-text-muted);
   margin: 0 0 0.8rem;
   line-height: 1.5;
 }
@@ -98,7 +77,7 @@
 .log-desc {
   font-size: 0.95rem;
   line-height: 1.6;
-  color: #444;
+  color: var(--ow-text);
   margin-bottom: 1rem;
 }
 
@@ -110,7 +89,7 @@
 
 .log-arrow span {
   font-size: 0.85rem;
-  color: #4a1f2f;
+  color: var(--ow-accent);
   font-weight: 600;
   transition: transform 0.2s ease-out;
   display: inline-block;
@@ -120,7 +99,7 @@
   transform: translateX(4px);
 }
 
-/* 관리자 카드 액션 버튼 */
+/* Administrator card action button */
 .admin-card-actions {
   position: absolute;
   top: 0.75rem;
@@ -141,11 +120,11 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease-out;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px var(--ow-shadow);
 }
 
 .btn-icon.edit {
-  background: #fff;
+  background: var(--ow-surface);
 }
 
 .btn-icon.edit:hover {
@@ -154,7 +133,7 @@
 }
 
 .btn-icon.delete {
-  background: #fff;
+  background: var(--ow-surface);
 }
 
 .btn-icon.delete:hover {
@@ -166,8 +145,35 @@
   grid-column: 1 / -1;
   font-size: 0.9rem;
   text-align: center;
-  color: #888;
+  color: var(--ow-text-faint);
   padding: 2rem;
+}
+
+/* Loading state */
+.loading {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.1rem;
+  color: var(--ow-text-muted);
+}
+
+/* Error state */
+.error-message {
+  text-align: center;
+  padding: 3rem;
+  background: var(--ow-danger-bg);
+  border-radius: 0.75rem;
+  border: 1px solid var(--ow-danger-border);
+}
+
+.error-message p {
+  font-size: 1.1rem;
+  color: var(--ow-danger);
+  margin-bottom: 1rem;
+}
+
+.error-message .btn {
+  margin-top: 0.5rem;
 }
 
 @media (max-width: 768px) {
@@ -175,11 +181,11 @@
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .log-card {
     padding: 1rem 1.1rem;
   }
-  
+
   .log-title {
     font-size: 1.1rem;
   }

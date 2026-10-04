@@ -9,9 +9,9 @@
   width: 100%;
   border-radius: 0.75rem;
   overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  background: #f0f0f0;
+  box-shadow: 0 10px 25px var(--ow-shadow-soft-2);
+  border: 1px solid var(--ow-border);
+  background: var(--ow-surface-3);
 }
 
 .map-container iframe {
@@ -31,13 +31,13 @@
 .map-address-label {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #333;
+  color: var(--ow-text);
 }
 
 .map-mapping {
   font-size: 0.95rem;
   font-weight: 500;
-  color: #4a1f2f;
+  color: var(--ow-accent);
 }
 
 .map-links {
@@ -55,19 +55,36 @@
   border-radius: 999px;
   font-size: 0.9rem;
   text-decoration: none;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  background: #fff;
-  color: #8a4b4b;
+  border: 1px solid var(--ow-border-strong);
+  background: var(--ow-surface);
+  color: var(--ow-accent-2);
   font-weight: 500;
   transition: all 0.2s ease-out;
 }
 
 .map-links a:hover {
-  background: #4a1f2f;
-  color: #fff;
-  border-color: #4a1f2f;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(74, 31, 47, 0.15);
+  background: var(--ow-accent);
+  color: var(--ow-surface);
+  border-color: var(--ow-accent);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px var(--ow-shadow);
+}
+
+/* 구글지도 강조 스타일 */
+.map-links a.map-link-primary {
+  background: linear-gradient(135deg, var(--ow-accent) 0%, var(--ow-accent-2) 100%);
+  color: var(--ow-surface);
+  border-color: var(--ow-accent);
+  font-weight: 600;
+  padding: 0.6rem 1.5rem;
+  font-size: 1rem;
+  box-shadow: 0 4px 16px var(--ow-shadow);
+}
+
+.map-links a.map-link-primary:hover {
+  background: linear-gradient(135deg, var(--ow-accent-dark) 0%, var(--ow-accent) 100%);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px var(--ow-shadow-strong);
 }
 
 @media (max-width: 720px) {

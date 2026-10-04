@@ -91,3 +91,14 @@ app/expo-debug.log
 local.properties
 *.keystore
 
+# Test
+/test-server/
+
+# Claude/AI
+.claude/
+
+# SSH / Oracle Cloud key
+ssh-key-*.key
+ssh-key-*.key.pub
+.ssh-key-*.key
+.ssh-key-*.key.pub
