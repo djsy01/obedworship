@@ -32,7 +32,7 @@ const loadMembers = async () => {
     loading.value = true;
     members.value = (await memberApi.getAll()).data
       .filter((m) => isAdmin.value || adminModeEnabled.value || m.is_active !== false)
-      .map((m) => ({ id: m.id, name: m.name, affiliation: m.affiliation, photo_url: m.photo_url || logo.value, instagram_url: m.instagram_url || null, youtube_url: m.youtube_url || null, roles: m.member_roles?.map((r) => toEnum(r.role_type)) || [], worship_positions: m.member_worship_positions?.map((p) => toEnum(p.position_type)) || [], step_positions: m.member_step_positions?.map((p) => toEnum(p.position_type)) || [], description: m.description || "" }));
+      .map((m) => ({ id: m.id, name: m.name, affiliation: m.affiliation, photo_url: m.photo_url ? toAbsoluteFileUrl(m.photo_url) : logo.value, instagram_url: m.instagram_url || null, youtube_url: m.youtube_url || null, roles: m.member_roles?.map((r) => toEnum(r.role_type)) || [], worship_positions: m.member_worship_positions?.map((p) => toEnum(p.position_type)) || [], step_positions: m.member_step_positions?.map((p) => toEnum(p.position_type)) || [], description: m.description || "" }));
   } catch { alert("멤버 정보를 불러오는데 실패했습니다."); }
   finally { loading.value = false; }
 };
@@ -80,7 +80,7 @@ const handleMemberSaved = async () => {
   try {
     const updated = (await memberApi.getOne(selectedMember.value.id)).data;
     const i = members.value.findIndex((m) => m.id === updated.id);
-    if (i !== -1) members.value[i] = { id: updated.id, name: updated.name, affiliation: updated.affiliation, photo_url: updated.photo_url || logo.value, instagram_url: updated.instagram_url || null, youtube_url: updated.youtube_url || null, roles: updated.member_roles?.map((r) => toEnum(r.role_type)) || [], worship_positions: updated.member_worship_positions?.map((p) => toEnum(p.position_type)) || [], step_positions: updated.member_step_positions?.map((p) => toEnum(p.position_type)) || [], description: updated.description || "" };
+    if (i !== -1) members.value[i] = { id: updated.id, name: updated.name, affiliation: updated.affiliation, photo_url: updated.photo_url ? toAbsoluteFileUrl(updated.photo_url) : logo.value, instagram_url: updated.instagram_url || null, youtube_url: updated.youtube_url || null, roles: updated.member_roles?.map((r) => toEnum(r.role_type)) || [], worship_positions: updated.member_worship_positions?.map((p) => toEnum(p.position_type)) || [], step_positions: updated.member_step_positions?.map((p) => toEnum(p.position_type)) || [], description: updated.description || "" };
   } catch { loadMembers(); }
 };
 const deleteMemberConfirm = (member: Member) => {
