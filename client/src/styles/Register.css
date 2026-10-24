@@ -109,3 +109,31 @@
   margin-left: 0.5rem;
   font-weight: 500;
 }
+
+.password-strength {
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.password-strength.danger {
+  color: #c0392b;
+}
+
+.password-strength.normal {
+  color: #d68910;
+}
+
+.password-strength.strong {
+  color: #1e8449;
+}
+
+.password-strength.very-strong {
+  color: #117a65;
+}
+
+.field-error {
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  color: #c0392b;
+}

@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 const bcrypt = require('bcrypt');
-const crypto = require('crypto');
 const jwt = require('jsonwebtoken'); // JWT 라이브러리 추가
 const rateLimit = require('express-rate-limit');
+const { sendVerificationEmail } = require('../utils/mailer');
+const verificationStore = require('../utils/verificationStore');
 
 // 무차별 대입(brute-force) 공격 방지: IP당 15분에 10회로 제한
 const authLimiter = rateLimit({
@@ -63,11 +64,62 @@ const authenticateToken = (req, res, next) => {
 };
 
 // ==========================================
+// 0. [POST] 회원가입용 이메일 인증번호 발송 (sendVerification)
+// ==========================================
+router.post('/send-verification', authLimiter, async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ success: false, message: '이메일을 입력해주세요.' });
+        }
+
+        const [existingUsers] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
+        if (existingUsers.length > 0) {
+            return res.status(400).json({ success: false, message: '이미 가입된 이메일입니다.' });
+        }
+
+        const code = verificationStore.setCode('register', email);
+        await sendVerificationEmail(email, code);
+
+        res.status(200).json({ success: true, message: '인증번호를 발송했습니다.' });
+    } catch (error) {
+        console.error('인증번호 발송 에러:', error);
+        res.status(500).json({ success: false, message: '인증번호 발송 중 에러가 발생했습니다.' });
+    }
+});
+
+// ==========================================
+// 0-1. [POST] 회원가입용 이메일 인증번호 확인 (verifyCode)
+// ==========================================
+router.post('/verify-code', authLimiter, async (req, res) => {
+    try {
+        const { email, code } = req.body;
+        if (!email || !code) {
+            return res.status(400).json({ success: false, message: '이메일과 인증번호를 입력해주세요.' });
+        }
+
+        const ok = verificationStore.verifyCode('register', email, code);
+        if (!ok) {
+            return res.status(400).json({ success: false, message: '인증번호가 올바르지 않거나 만료되었습니다.' });
+        }
+
+        res.status(200).json({ success: true, message: '이메일 인증이 완료되었습니다.' });
+    } catch (error) {
+        console.error('인증번호 확인 에러:', error);
+        res.status(500).json({ success: false, message: '인증번호 확인 중 에러가 발생했습니다.' });
+    }
+});
+
+// ==========================================
 // 1. [POST] 회원가입 (register)
 // ==========================================
 router.post('/register', authLimiter, async (req, res) => {
     try {
         const { email, password, name, phone } = req.body;
+
+        if (!verificationStore.isVerified('register', email)) {
+            return res.status(400).json({ success: false, message: '이메일 인증을 먼저 완료해주세요.' });
+        }
 
         const [existingUsers] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
         if (existingUsers.length > 0) {
@@ -77,11 +129,12 @@ router.post('/register', authLimiter, async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
         const insertQuery = `
-            INSERT INTO users (email, password_hash, name, phone, role, is_active, email_verified) 
-            VALUES (?, ?, ?, ?, 'user', true, false)
+            INSERT INTO users (email, password_hash, name, phone, role, is_active, email_verified)
+            VALUES (?, ?, ?, ?, 'user', true, true)
         `;
         const [result] = await db.query(insertQuery, [email, hashedPassword, name, phone || null]);
         const [newUser] = await db.query('SELECT * FROM users WHERE id = ?', [result.insertId]);
+        verificationStore.consumeVerified('register', email);
 
         res.status(201).json({
             success: true,
@@ -228,26 +281,39 @@ router.post('/forgot-password', authLimiter, async (req, res) => {
     try {
         const { email } = req.body;
         const [users] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
-        
-        if (users.length === 0) {
-            return res.status(200).json({ success: true, message: '입력하신 이메일로 비밀번호 재설정 링크를 발송했습니다.' });
+
+        // 가입 여부를 응답으로 노출하지 않기 위해 존재하지 않아도 동일하게 응답한다.
+        if (users.length > 0) {
+            const code = verificationStore.setCode('reset', email);
+            await sendVerificationEmail(email, code);
         }
 
-        const resetToken = crypto.randomBytes(32).toString('hex');
-        const tokenExpires = new Date(Date.now() + 3600000); // 1시간 후 만료
-
-        await db.query('UPDATE users SET reset_token = ?, reset_token_expires = ? WHERE email = ?', [resetToken, tokenExpires, email]);
-
-        // ⚠️ 실제 이메일 발송 연동 전까지 임시로 콘솔에만 출력 (운영 로그에 토큰이 남지 않도록 production에서는 출력하지 않음)
-        // TODO: 실제 메일 발송 서비스(nodemailer 등) 연동 필요 — 현재는 비밀번호 재설정이 실제로 동작하지 않습니다.
-        if (process.env.NODE_ENV !== 'production') {
-            console.log(`[Email Mock] ${email}로 토큰 발송: ${resetToken}`);
-        }
-
-        res.status(200).json({ success: true, message: '입력하신 이메일로 비밀번호 재설정 링크를 발송했습니다.' });
+        res.status(200).json({ success: true, message: '입력하신 이메일로 인증번호를 발송했습니다.' });
     } catch (error) {
         console.error('비밀번호 초기화 요청 에러:', error);
         res.status(500).json({ success: false, message: '요청 처리 중 에러가 발생했습니다.' });
+    }
+});
+
+// ==========================================
+// 7-1. [POST] 비밀번호 재설정용 인증번호 확인 (verifyResetCode)
+// ==========================================
+router.post('/verify-reset-code', authLimiter, async (req, res) => {
+    try {
+        const { email, code } = req.body;
+        if (!email || !code) {
+            return res.status(400).json({ success: false, message: '이메일과 인증번호를 입력해주세요.' });
+        }
+
+        const ok = verificationStore.verifyCode('reset', email, code);
+        if (!ok) {
+            return res.status(400).json({ success: false, message: '인증번호가 올바르지 않거나 만료되었습니다.' });
+        }
+
+        res.status(200).json({ success: true, message: '이메일 인증이 완료되었습니다.' });
+    } catch (error) {
+        console.error('인증번호 확인 에러:', error);
+        res.status(500).json({ success: false, message: '인증번호 확인 중 에러가 발생했습니다.' });
     }
 });
 
@@ -256,17 +322,20 @@ router.post('/forgot-password', authLimiter, async (req, res) => {
 // ==========================================
 router.post('/reset-password', authLimiter, async (req, res) => {
     try {
-        const { email, resetToken, newPassword } = req.body;
+        const { email, newPassword } = req.body;
 
-        const [users] = await db.query('SELECT id FROM users WHERE email = ? AND reset_token = ? AND reset_token_expires > CURRENT_TIMESTAMP', [email, resetToken]);
-        
+        if (!verificationStore.isVerified('reset', email)) {
+            return res.status(400).json({ success: false, message: '이메일 인증을 먼저 완료해주세요.' });
+        }
+
+        const [users] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
         if (users.length === 0) {
-            return res.status(400).json({ success: false, message: '유효하지 않거나 만료된 토큰입니다.' });
+            return res.status(400).json({ success: false, message: '사용자를 찾을 수 없습니다.' });
         }
 
         const hashedNewPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
-        
-        await db.query('UPDATE users SET password_hash = ?, reset_token = NULL, reset_token_expires = NULL WHERE id = ?', [hashedNewPassword, users[0].id]);
+        await db.query('UPDATE users SET password_hash = ? WHERE id = ?', [hashedNewPassword, users[0].id]);
+        verificationStore.consumeVerified('reset', email);
 
         res.status(200).json({ success: true, message: '비밀번호가 성공적으로 재설정되었습니다. 새 비밀번호로 로그인해주세요.' });
     } catch (error) {

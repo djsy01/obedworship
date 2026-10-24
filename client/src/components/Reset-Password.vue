@@ -1,63 +1,87 @@
 <script setup lang="ts">
-import { reactive, ref, computed } from "vue";
+import { computed, reactive, ref, toRef } from "vue";
 import { useRouter } from "vue-router";
+import { authApi } from "@/api/auth";
+import {
+  usePasswordStrength,
+  PASSWORD_STRENGTH_LABEL,
+} from "@/composables/usePasswordStrength";
 import "../styles/Login.css";
 import "../styles/Register.css";
 
 const router = useRouter();
-// 1: Authentication, 2: Change password
+// 1: 이메일 인증, 2: 비밀번호 변경
 const step = ref(1);
 const isEmailVerified = ref(false);
-// Mock authentication code
-const mockEmailCode = "222222";
+const isSendingCode = ref(false);
+const isSubmitting = ref(false);
 
 const formData = reactive({
   email: "",
-  name: "",
-  phoneNumber: "",
   verificationCode: "",
   newPassword: "",
   confirmNewPassword: "",
 });
 
-// Mock API: Send email authentication number
+const { passwordStrength, passwordError, confirmPasswordError, isPasswordStrongEnough } =
+  usePasswordStrength(toRef(formData, "newPassword"), toRef(formData, "confirmNewPassword"));
+
+const canSubmit = computed(
+  () =>
+    isPasswordStrongEnough.value &&
+    confirmPasswordError.value === null &&
+    formData.confirmNewPassword.length > 0,
+);
+
 const handleSendEmail = async () => {
-  if (!formData.email || !formData.name || !formData.phoneNumber) {
-    alert("이메일, 이름, 전화번호를 모두 입력해주세요.");
+  if (!formData.email) {
+    alert("이메일을 입력해주세요.");
     return;
   }
 
-  // Actual implementation: Server API call (verifies user with input information and sends authentication number)
-  alert(
-    `[Mock] 인증번호(${mockEmailCode})가 ${formData.email}로 발송되었습니다. (사용자 정보 확인 완료 가정)`,
-  );
+  isSendingCode.value = true;
+  try {
+    await authApi.forgotPassword(formData.email);
+    alert("입력하신 이메일로 인증번호가 발송되었습니다.");
+  } catch (error: any) {
+    alert(error.response?.data?.message || "인증번호 발송에 실패했습니다.");
+  } finally {
+    isSendingCode.value = false;
+  }
 };
 
-// Mock API: Check email authentication number
-const handleVerifyEmail = () => {
-  if (formData.verificationCode === mockEmailCode) {
-    alert("이메일 인증이 완료되었습니다. 다음 단계로 이동합니다.");
+const handleVerifyEmail = async () => {
+  if (!formData.verificationCode) {
+    alert("인증번호를 입력해주세요.");
+    return;
+  }
+
+  try {
+    await authApi.verifyResetCode(formData.email, formData.verificationCode);
+    alert("이메일 인증이 완료되었습니다. 새 비밀번호를 입력해주세요.");
     isEmailVerified.value = true;
-    // Go to password change step
     step.value = 2;
-  } else {
-    alert("인증번호가 일치하지 않습니다.");
+  } catch (error: any) {
+    alert(error.response?.data?.message || "인증번호가 일치하지 않습니다.");
   }
 };
 
-// Mock API: Reset final password
 const handleSubmit = async () => {
-  if (formData.newPassword !== formData.confirmNewPassword) {
-    alert("새 비밀번호가 일치하지 않습니다.");
+  if (!canSubmit.value) {
+    alert("비밀번호 조건을 확인해주세요.");
     return;
   }
 
-  // Actual implementation: Server API call
-  // Assuming the password reset was successful
-  alert(
-    "비밀번호 재설정이 완료되었습니다! 새로운 비밀번호로 로그인해주세요. (프론트엔드 테스트)",
-  );
-  router.push("/login");
+  isSubmitting.value = true;
+  try {
+    await authApi.resetPassword(formData.email, formData.newPassword);
+    alert("비밀번호 재설정이 완료되었습니다! 새로운 비밀번호로 로그인해주세요.");
+    router.push("/login");
+  } catch (error: any) {
+    alert(error.response?.data?.message || "비밀번호 재설정에 실패했습니다.");
+  } finally {
+    isSubmitting.value = false;
+  }
 };
 </script>
 
@@ -82,9 +106,7 @@ const handleSubmit = async () => {
 
       <form class="login-form" @submit.prevent="handleSubmit">
         <div v-if="step === 1">
-          <p class="section-subtitle">
-            등록된 이메일과 사용자 정보를 입력해주세요.
-          </p>
+          <p class="section-subtitle">가입하신 이메일로 인증번호를 받아 확인합니다.</p>
           <div class="input-group">
             <label htmlFor="email">이메일</label>
             <input
@@ -94,28 +116,6 @@ const handleSubmit = async () => {
               required
               :disabled="isEmailVerified"
               placeholder="example@email.com"
-            />
-          </div>
-          <div class="input-group">
-            <label htmlFor="name">이름</label>
-            <input
-              type="text"
-              id="name"
-              v-model="formData.name"
-              required
-              :disabled="isEmailVerified"
-              placeholder="name"
-            />
-          </div>
-          <div class="input-group">
-            <label htmlFor="phoneNumber">전화번호</label>
-            <input
-              type="tel"
-              id="phoneNumber"
-              v-model="formData.phoneNumber"
-              placeholder="010-0000-0000"
-              required
-              :disabled="isEmailVerified"
             />
           </div>
 
@@ -134,9 +134,9 @@ const handleSubmit = async () => {
                 type="button"
                 class="btn primary"
                 @click="handleSendEmail"
-                :disabled="isEmailVerified"
+                :disabled="isEmailVerified || isSendingCode"
               >
-                인증 발송
+                {{ isSendingCode ? "발송 중..." : "인증 발송" }}
               </button>
             </div>
           </div>
@@ -165,6 +165,14 @@ const handleSubmit = async () => {
               v-model="formData.newPassword"
               required
             />
+            <p
+              v-if="passwordStrength"
+              class="password-strength"
+              :class="passwordStrength"
+            >
+              비밀번호 강도: {{ PASSWORD_STRENGTH_LABEL[passwordStrength] }}
+            </p>
+            <p v-if="passwordError" class="field-error">{{ passwordError }}</p>
           </div>
           <div class="input-group">
             <label htmlFor="confirmNewPassword">새 비밀번호 확인</label>
@@ -174,9 +182,16 @@ const handleSubmit = async () => {
               v-model="formData.confirmNewPassword"
               required
             />
+            <p v-if="confirmPasswordError" class="field-error">
+              {{ confirmPasswordError }}
+            </p>
           </div>
-          <button type="submit" class="btn primary login-btn">
-            비밀번호 재설정
+          <button
+            type="submit"
+            class="btn primary login-btn"
+            :disabled="!canSubmit || isSubmitting"
+          >
+            {{ isSubmitting ? "처리 중..." : "비밀번호 재설정" }}
           </button>
         </div>
       </form>

@@ -58,6 +58,14 @@ export interface SessionResponse {
 // ==========================================
 
 export const authApi = {
+  // send email verification code (register)
+  sendVerification: (email: string) =>
+    axios.post<AuthResponse>("/auth/send-verification", { email }),
+
+  // verify email verification code (register)
+  verifyCode: (email: string, code: string) =>
+    axios.post<AuthResponse>("/auth/verify-code", { email, code }),
+
   // join the membership
   register: (data: RegisterRequest) =>
     axios.post<AuthResponse>("/auth/register", data),
@@ -78,15 +86,18 @@ export const authApi = {
   changePassword: (data: ChangePasswordRequest) =>
     axios.post<AuthResponse>("/auth/change-password", data),
 
-  // Password reset request (send email)
+  // Password reset request (send verification code email)
   forgotPassword: (email: string) =>
     axios.post<AuthResponse>("/auth/forgot-password", { email }),
 
-  // reset password
-  resetPassword: (email: string, token: string, newPassword: string) =>
+  // verify password reset verification code
+  verifyResetCode: (email: string, code: string) =>
+    axios.post<AuthResponse>("/auth/verify-reset-code", { email, code }),
+
+  // reset password (verifyResetCode must succeed first)
+  resetPassword: (email: string, newPassword: string) =>
     axios.post<AuthResponse>("/auth/reset-password", {
       email,
-      resetToken: token,
       newPassword,
     }),
 };
