@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Worship } from "@/api/worship";
+import { toAbsoluteFileUrl } from "@/config/env";
 defineProps<{ worship: Worship; editMode: boolean }>();
 const emit = defineEmits<{ 'upload-poster': []; 'remove-poster': []; 'open-fullscreen': [] }>();
 </script>
@@ -14,14 +15,14 @@ const emit = defineEmits<{ 'upload-poster': []; 'remove-poster': []; 'open-fulls
       <button v-if="worship.poster_url" class="btn small ghost" @click="emit('remove-poster')">포스터 삭제</button>
     </div>
     <div v-if="worship.poster_url && !editMode" class="poster-image clickable-poster" @click="emit('open-fullscreen')">
-      <img :src="worship.poster_url" :alt="`${worship.title} 포스터`" />
+      <img :src="toAbsoluteFileUrl(worship.poster_url)" :alt="`${worship.title} 포스터`" />
       <div class="poster-overlay">
         <div class="poster-overlay-icon">🔍</div>
         <p>클릭하여 크게 보기</p>
       </div>
     </div>
     <div v-else-if="worship.poster_url && editMode" class="poster-preview">
-      <img :src="worship.poster_url" :alt="`${worship.title} 포스터`" />
+      <img :src="toAbsoluteFileUrl(worship.poster_url)" :alt="`${worship.title} 포스터`" />
     </div>
   </div>
 </template>
