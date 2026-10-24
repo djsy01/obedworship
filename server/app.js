@@ -41,6 +41,7 @@ app.use('/assets', require('./routes/assets'));       // 정적 자산(로고 �
 app.use('/worship', require('./routes/worship'));     // 예배 기본 정보 관리
 app.use('/qna', require('./routes/qna'));             // Q&A 게시판 관리
 app.use('/mypage', require('./routes/mypage'));       // 마이페이지 대시보드 및 내역
+app.use('/files', require('./routes/files'));         // DB files 테이블에 저장된 바이너리(사진/음원/포스터 등) 서빙
 
 // 3-2. 악보 및 집회 신청(티켓) 라우터
 app.use('/scores', require('./routes/scores'));       // 전체 악보 관리 및 다운로드
