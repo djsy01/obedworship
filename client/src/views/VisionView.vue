@@ -31,7 +31,7 @@ const loadMembers = async () => {
   try {
     loading.value = true;
     members.value = (await memberApi.getAll()).data
-      .filter((m) => isAdmin.value || adminModeEnabled.value || m.is_active !== false)
+      .filter((m) => isAdmin.value || adminModeEnabled.value || Boolean(m.is_active))
       .map((m) => ({ id: m.id, name: m.name, affiliation: m.affiliation, photo_url: m.photo_url ? toAbsoluteFileUrl(m.photo_url) : logo.value, instagram_url: m.instagram_url || null, youtube_url: m.youtube_url || null, roles: m.member_roles?.map((r) => toEnum(r.role_type)) || [], worship_positions: m.member_worship_positions?.map((p) => toEnum(p.position_type)) || [], step_positions: m.member_step_positions?.map((p) => toEnum(p.position_type)) || [], description: m.description || "" }));
   } catch { alert("멤버 정보를 불러오는데 실패했습니다."); }
   finally { loading.value = false; }
