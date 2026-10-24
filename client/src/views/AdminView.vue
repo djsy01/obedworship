@@ -4,6 +4,7 @@ import { RouterLink } from "vue-router";
 import { useAuth } from "@/composables/useAuth";
 import { worshipApi, type Worship } from "@/api/worship";
 import { assetApi, type Asset } from "@/api/assets";
+import { toAbsoluteFileUrl } from "@/config/env";
 import "../styles/Admin.css";
 
 const { isAdmin } = useAuth();
@@ -153,7 +154,7 @@ const handleTeamPhotoChange = async (event: Event) => {
       "메인 페이지 단체 사진",
     );
 
-    currentTeamPhoto.value = response.data.file_url;
+    currentTeamPhoto.value = toAbsoluteFileUrl(response.data.file_url);
     teamPhotoStatus.value = "업로드 완료! 페이지를 새로고침하세요.";
 
     setTimeout(() => {
@@ -189,7 +190,7 @@ const handleLogoChange = async (event: Event) => {
       "메인 로고",
     );
 
-    currentLogo.value = response.data.file_url;
+    currentLogo.value = toAbsoluteFileUrl(response.data.file_url);
     logoStatus.value = "업로드 완료! 페이지를 새로고침하세요.";
 
     setTimeout(() => {
@@ -260,14 +261,14 @@ onMounted(() => {
 onMounted(async () => {
   try {
     const teamPhotoAsset = await assetApi.getByKey("home_team_photo");
-    currentTeamPhoto.value = teamPhotoAsset.data.file_url;
+    currentTeamPhoto.value = toAbsoluteFileUrl(teamPhotoAsset.data.file_url);
   } catch (error) {
     console.log("Team photo not found in assets");
   }
 
   try {
     const logoAsset = await assetApi.getByKey("home_logo");
-    currentLogo.value = logoAsset.data.file_url;
+    currentLogo.value = toAbsoluteFileUrl(logoAsset.data.file_url);
   } catch (error) {
     console.log("Logo not found in assets");
   }
@@ -399,7 +400,7 @@ onMounted(async () => {
                       </p>
                       <audio
                         v-if="song.file_url"
-                        :src="song.file_url"
+                        :src="toAbsoluteFileUrl(song.file_url)"
                         controls
                       />
                     </div>

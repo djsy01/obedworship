@@ -3,6 +3,7 @@ import { computed, ref, onMounted } from "vue";
 import { useAuth } from "@/composables/useAuth";
 import { memberApi, type Member as ApiMember } from "@/api/members";
 import { assetApi } from "@/api/assets";
+import { toAbsoluteFileUrl } from "@/config/env";
 import MemberEditModal from "@/components/MemberEditModal.vue";
 import MemberFilters from "@/components/vision/MemberFilters.vue";
 import MemberCard from "@/components/vision/MemberCard.vue";
@@ -93,7 +94,7 @@ const showTooltip = (event: MouseEvent, badges: string[], type: string) => {
 };
 
 onMounted(async () => {
-  try { const r = await assetApi.getByKey("home_logo"); if (r.data.file_url) logo.value = r.data.file_url; } catch {}
+  try { const r = await assetApi.getByKey("home_logo"); if (r.data.file_url) logo.value = toAbsoluteFileUrl(r.data.file_url); } catch {}
   await loadMembers();
 });
 </script>

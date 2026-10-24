@@ -10,6 +10,7 @@ import ImageUploadModal from "@/components/worship-detail/ImageUploadModal.vue";
 import ScoreUploadModal from "@/components/worship-detail/ScoreUploadModal.vue";
 import FullscreenModal from "@/components/worship-detail/FullscreenModal.vue";
 import PdfPreviewModal from "@/components/worship-detail/PdfPreviewModal.vue";
+import { toAbsoluteFileUrl } from "@/config/env";
 import "../styles/WorshipDetail.css";
 
 const router = useRouter();
@@ -44,7 +45,7 @@ const currentPdfUrl = ref("");
 const lightboxOpen = ref(false);
 const currentPhotoIndex = ref(0);
 
-const currentPhoto = computed(() => photos.value[currentPhotoIndex.value]?.photo_url || "");
+const currentPhoto = computed(() => toAbsoluteFileUrl(photos.value[currentPhotoIndex.value]?.photo_url));
 
 const fetchWorship = async () => {
   loading.value = true;
@@ -136,7 +137,7 @@ const downloadWorshipScore = () => {
   if (!isLoggedIn.value) { alert("로그인이 필요합니다."); return; }
   if (!scores.value.length) { alert("다운로드할 악보가 없습니다."); return; }
   const link = document.createElement("a");
-  link.href = scores.value[0].file_url; link.download = scores.value[0].filename;
+  link.href = toAbsoluteFileUrl(scores.value[0].file_url); link.download = scores.value[0].filename;
   document.body.appendChild(link); link.click(); document.body.removeChild(link);
 };
 
@@ -220,7 +221,7 @@ onMounted(fetchWorship);
       <ScoreUploadModal :show="scoreUploadOpen" :uploading="uploading" @close="scoreUploadOpen = false" @upload="handleScoreUpload" />
       <ImageUploadModal :show="thumbnailUploadOpen" title="악보 포스터 업로드" :uploading="uploading" @close="thumbnailUploadOpen = false" @upload="handleThumbnailUpload" />
       <ImageUploadModal :show="posterUploadOpen" title="집회 포스터 업로드" :uploading="uploading" @close="posterUploadOpen = false" @upload="handlePosterUpload" />
-      <FullscreenModal v-if="worship" :show="posterFullscreenOpen" :src="worship.poster_url || ''" :alt="`${worship.title} 포스터`" @close="posterFullscreenOpen = false" />
+      <FullscreenModal v-if="worship" :show="posterFullscreenOpen" :src="toAbsoluteFileUrl(worship.poster_url)" :alt="`${worship.title} 포스터`" @close="posterFullscreenOpen = false" />
       <FullscreenModal :show="scorePosterFullscreenOpen" :src="scorePosterUrl" alt="악보 포스터" @close="scorePosterFullscreenOpen = false" />
     </section>
   </div>

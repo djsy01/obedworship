@@ -3,6 +3,7 @@ import { ref, computed, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
 import { assetApi } from '@/api/assets';
+import { toAbsoluteFileUrl } from '@/config/env';
 import AppHeader from '@/components/layout/AppHeader.vue';
 import MobileMenu from '@/components/layout/MobileMenu.vue';
 import AppFooter from '@/components/layout/AppFooter.vue';
@@ -33,14 +34,14 @@ const userName = computed(() => {
 const loadAssets = async () => {
   try {
     const logoRes = await assetApi.getByKey('home_logo');
-    if (logoRes.data.file_url) logo.value = logoRes.data.file_url;
+    if (logoRes.data.file_url) logo.value = toAbsoluteFileUrl(logoRes.data.file_url);
   } catch {}
   try {
     const songsRes = await assetApi.getByCategory('songs');
     if (Array.isArray(songsRes.data) && songsRes.data.length > 0) {
       playlist.value = songsRes.data
         .slice().sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
-        .filter((s) => s.file_url).map((s) => s.file_url as string);
+        .filter((s) => s.file_url).map((s) => toAbsoluteFileUrl(s.file_url));
     }
   } catch {}
 };
