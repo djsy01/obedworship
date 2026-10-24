@@ -5,9 +5,10 @@ const db = require('../config/db');
 // 전체 조회[cite: 17]
 router.get('/', async (req, res) => {
     try {
-        const [scores] = await db.query('SELECT * FROM worship_scores ORDER BY created_at DESC');
+        const [scores] = await db.query('SELECT * FROM worship_scores ORDER BY uploaded_at DESC');
         res.status(200).json(scores);
     } catch (error) {
+        console.error('악보 목록 조회 에러:', error);
         res.status(500).json({ message: '악보 목록 조회 실패' });
     }
 });
@@ -15,9 +16,10 @@ router.get('/', async (req, res) => {
 // 특정 집회(worship_id)의 악보 목록 조회[cite: 17]
 router.get('/worship/:worshipId', async (req, res) => {
     try {
-        const [scores] = await db.query('SELECT * FROM worship_scores WHERE worship_id = ? ORDER BY created_at DESC', [req.params.worshipId]);
+        const [scores] = await db.query('SELECT * FROM worship_scores WHERE worship_id = ? ORDER BY uploaded_at DESC', [req.params.worshipId]);
         res.status(200).json(scores);
     } catch (error) {
+        console.error('집회 악보 조회 에러:', error);
         res.status(500).json({ message: '집회 악보 조회 실패' });
     }
 });
@@ -29,6 +31,7 @@ router.get('/:id', async (req, res) => {
         if (scores.length === 0) return res.status(404).json({ message: '악보를 찾을 수 없습니다.' });
         res.status(200).json(scores[0]);
     } catch (error) {
+        console.error('단일 악보 조회 에러:', error);
         res.status(500).json({ message: '단일 악보 조회 실패' });
     }
 });
@@ -44,6 +47,7 @@ router.post('/', async (req, res) => {
         const [newScore] = await db.query('SELECT * FROM worship_scores WHERE id = ?', [result.insertId]);
         res.status(201).json(newScore[0]);
     } catch (error) {
+        console.error('악보 연결 생성 에러:', error);
         res.status(500).json({ message: '악보 연결 생성 실패' });
     }
 });
@@ -62,6 +66,7 @@ router.patch('/:id', async (req, res) => {
         const [updatedScore] = await db.query('SELECT * FROM worship_scores WHERE id = ?', [req.params.id]);
         res.status(200).json(updatedScore[0]);
     } catch (error) {
+        console.error('악보 연결 수정 에러:', error);
         res.status(500).json({ message: '악보 연결 수정 실패' });
     }
 });
@@ -72,6 +77,7 @@ router.delete('/:id', async (req, res) => {
         await db.query('DELETE FROM worship_scores WHERE id = ?', [req.params.id]);
         res.status(204).send();
     } catch (error) {
+        console.error('악보 연결 삭제 에러:', error);
         res.status(500).json({ message: '악보 연결 삭제 실패' });
     }
 });
