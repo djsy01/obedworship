@@ -8,6 +8,10 @@ const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Nginx 리버스 프록시 뒤에서 실행되므로, X-Forwarded-For를 신뢰해야
+// express-rate-limit이 실제 클라이언트 IP를 올바르게 식별한다.
+app.set('trust proxy', 1);
+
 // ====================================
 // 2. 공통 미들웨어 (Middleware)
 // ====================================
