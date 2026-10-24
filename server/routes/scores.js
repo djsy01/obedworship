@@ -2,27 +2,11 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 const multer = require('multer');
-const path = require('path'); // 파일 확장자 추출용
 const jwt = require('jsonwebtoken'); // 토큰 해독용
 
-// 💡 GCS 대신 서버 로컬 디스크(uploads/scores/) 저장 설정
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/scores/');
-    },
-    filename: (req, file, cb) => {
-        // 한글 파일명 인코딩 보정
-        file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8');
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = path.extname(file.originalname);
-        const basename = path.basename(file.originalname, ext);
-        cb(null, `${basename}-${uniqueSuffix}${ext}`);
-    }
-});
-
-// PDF 파일만 허용 및 최대 10MB 제한 (scores.md 명세 반영)
-const upload = multer({ 
-    storage: storage,
+// 메모리에 임시 저장 후 DB files 테이블에 바이너리로 저장
+const upload = multer({
+    storage: multer.memoryStorage(),
     limits: { fileSize: 10 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
         if (file.mimetype === 'application/pdf') {
@@ -90,19 +74,27 @@ router.get('/:id', async (req, res) => {
 });
 
 // ==========================================
-// [POST] 악보 파일 업로드 (로컬 디스크)
+// [POST] 악보 파일 업로드 (DB files 테이블)
 // ==========================================
 router.post('/upload', upload.single('file'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ message: '파일이 제공되지 않았습니다.' });
 
+        // 한글 파일명 인코딩 보정
+        const originalName = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
+
+        const [result] = await db.query(
+            'INSERT INTO files (filename, mime_type, size, data) VALUES (?, ?, ?, ?)',
+            [originalName, req.file.mimetype, req.file.size, req.file.buffer]
+        );
+
         // scores.md 명세의 Response Syntax 규격에 맞춤
         const responseData = {
-            filename: req.file.originalname,
-            savedFilename: req.file.filename,
+            filename: originalName,
+            savedFilename: originalName,
             size: req.file.size,
             mimetype: req.file.mimetype,
-            url: `/uploads/scores/${req.file.filename}`
+            url: `/files/${result.insertId}`
         };
 
         res.status(200).json(responseData);
@@ -169,22 +161,28 @@ router.delete('/:id', async (req, res) => {
 router.get('/download/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        const [scores] = await db.query('SELECT filename FROM scores WHERE id = ?', [id]);
-        
-        if (scores.length === 0 || !scores[0].filename) {
+        const [scores] = await db.query('SELECT filename, file_url FROM scores WHERE id = ?', [id]);
+
+        if (scores.length === 0 || !scores[0].file_url) {
             return res.status(404).json({ message: '파일을 찾을 수 없습니다.' });
         }
 
-        // 다운로드 이력 기록 (score_downloads 테이블)[cite: 12]
+        const fileIdMatch = scores[0].file_url.match(/\/files\/(\d+)$/);
+        if (!fileIdMatch) return res.status(404).json({ message: '파일을 찾을 수 없습니다.' });
+
+        const [files] = await db.query('SELECT mime_type, data FROM files WHERE id = ?', [fileIdMatch[1]]);
+        if (files.length === 0) return res.status(404).json({ message: '파일을 찾을 수 없습니다.' });
+
+        // 다운로드 이력 기록 (score_downloads 테이블)
         await db.query('INSERT INTO score_downloads (score_id, user_id) VALUES (?, ?)', [id, req.user.id]);
         // 다운로드 횟수 증가
         await db.query('UPDATE scores SET download_count = download_count + 1 WHERE id = ?', [id]);
 
-        // GCS 파일 스트림 파이핑
-        const remoteFile = bucket.file(scores[0].filename);
-        res.setHeader('Content-Disposition', `attachment; filename="${scores[0].filename.split('/').pop()}"`);
-        remoteFile.createReadStream().pipe(res);
+        res.setHeader('Content-Type', files[0].mime_type);
+        res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(scores[0].filename)}"`);
+        res.send(files[0].data);
     } catch (error) {
+        console.error('악보 다운로드 에러:', error);
         res.status(500).json({ message: '다운로드 처리 실패' });
     }
 });

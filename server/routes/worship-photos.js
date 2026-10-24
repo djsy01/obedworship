@@ -2,38 +2,30 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 const multer = require('multer');
-const { Storage } = require('@google-cloud/storage');
 
 const upload = multer({ storage: multer.memoryStorage() });
-const gcs = new Storage();
-const bucketName = process.env.GCS_BUCKET_NAME || 'obedworship-assets-bucket';
-const bucket = gcs.bucket(bucketName);
 
-// [POST] 사진 파일 업로드 (GCS)[cite: 16]
+// [POST] 사진 파일 업로드 (DB files 테이블)
 router.post('/upload', upload.single('file'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ message: '파일이 제공되지 않았습니다.' });
 
         const originalName = req.file.originalname;
-        const savedFilename = `photos/${Date.now()}-${originalName}`;
-        const blob = bucket.file(savedFilename);
-        
-        const blobStream = blob.createWriteStream({ resumable: false, contentType: req.file.mimetype });
+        const [result] = await db.query(
+            'INSERT INTO files (filename, mime_type, size, data) VALUES (?, ?, ?, ?)',
+            [originalName, req.file.mimetype, req.file.size, req.file.buffer]
+        );
 
-        blobStream.on('error', (err) => res.status(500).json({ message: '사진 업로드 에러' }));
-        blobStream.on('finish', () => {
-            const publicUrl = `https://storage.googleapis.com/${bucketName}/${blob.name}`;
-            res.status(200).json({
-                filename: originalName,
-                savedFilename: blob.name,
-                size: req.file.size,
-                mimetype: req.file.mimetype,
-                url: publicUrl
-            });
+        res.status(200).json({
+            filename: originalName,
+            savedFilename: originalName,
+            size: req.file.size,
+            mimetype: req.file.mimetype,
+            url: `/files/${result.insertId}`
         });
-        blobStream.end(req.file.buffer);
     } catch (error) {
-        res.status(500).json({ message: '서버 에러' });
+        console.error('사진 업로드 에러:', error);
+        res.status(500).json({ message: '사진 업로드 에러' });
     }
 });
 
@@ -44,17 +36,21 @@ router.post('/upload-multiple', upload.array('photos', 100), async (req, res) =>
             return res.status(400).json({ message: '파일이 제공되지 않았습니다.' });
         }
 
-        const uploadedPhotos = req.files.map(file => {
-            const savedFilename = `worship-photos/${Date.now()}-${file.originalname}`;
-            // (GCS 또는 로컬 환경에 맞춰 URL 생성 방식 적용)
-            return { photo_url: `https://storage.googleapis.com/${bucketName}/${savedFilename}` };
-        });
+        const uploadedPhotos = [];
+        for (const file of req.files) {
+            const [result] = await db.query(
+                'INSERT INTO files (filename, mime_type, size, data) VALUES (?, ?, ?, ?)',
+                [file.originalname, file.mimetype, file.size, file.buffer]
+            );
+            uploadedPhotos.push({ photo_url: `/files/${result.insertId}`, file_name: file.originalname });
+        }
 
         res.status(200).json({
             count: uploadedPhotos.length,
             photos: uploadedPhotos
         });
     } catch (error) {
+        console.error('다중 사진 업로드 에러:', error);
         res.status(500).json({ message: '다중 사진 업로드 실패' });
     }
 });

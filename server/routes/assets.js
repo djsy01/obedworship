@@ -2,16 +2,15 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 const multer = require('multer');
-const { Storage } = require('@google-cloud/storage'); // npm install @google-cloud/storage 필요
 
-// 메모리에 파일을 임시 저장 (GCS로 스트리밍 업로드하기 위함)
+// 메모리에 파일을 임시 저장 (DB files 테이블에 저장하기 위함)
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Google Cloud Storage 설정
-// 실제 운영 시 process.env.GOOGLE_APPLICATION_CREDENTIALS 환경 변수에 서비스 계정 키 경로가 세팅되어야 합니다.
-const gcs = new Storage();
-const bucketName = process.env.GCS_BUCKET_NAME || 'obedworship-assets-bucket';
-const bucket = gcs.bucket(bucketName);
+// file_url("/files/15")에서 files 테이블 id만 추출
+const extractFileId = (fileUrl) => {
+    const match = fileUrl && fileUrl.match(/\/files\/(\d+)$/);
+    return match ? Number(match[1]) : null;
+};
 
 /**
  * MimeType을 기반으로 asset_type을 추론하는 헬퍼 함수
@@ -162,12 +161,12 @@ router.delete('/:id', async (req, res) => {
         
         // DB에서 레코드 조회
         const [assets] = await db.query('SELECT * FROM assets WHERE id = ?', [id]);
-        if (assets.length > 0 && assets[0].file_name) {
-            // GCS에서도 실제 파일 삭제 시도
+        const fileId = assets.length > 0 ? extractFileId(assets[0].file_url) : null;
+        if (fileId) {
             try {
-                await bucket.file(assets[0].file_name).delete();
-            } catch (gcsError) {
-                console.error('GCS 파일 삭제 실패 (무시됨):', gcsError.message);
+                await db.query('DELETE FROM files WHERE id = ?', [fileId]);
+            } catch (fileError) {
+                console.error('files 테이블 파일 삭제 실패 (무시됨):', fileError.message);
             }
         }
 
@@ -190,78 +189,62 @@ router.post('/upload', upload.single('file'), async (req, res) => {
         if (!asset_key || !category) return res.status(400).json({ message: 'asset_key와 category는 필수입니다.' });
 
         const originalName = req.file.originalname;
-        const gcsFileName = `${Date.now()}-${originalName}`;
-        const blob = bucket.file(gcsFileName);
-        
+
         // 1. 기존 동일한 asset_key가 있는지 확인
         const [existingAssets] = await db.query('SELECT * FROM assets WHERE asset_key = ?', [asset_key]);
         const exists = existingAssets.length > 0;
 
-        if (exists && existingAssets[0].file_name) {
-            // 명세: 기존 키 존재 시 GCS 파일 삭제
-            try {
-                await bucket.file(existingAssets[0].file_name).delete();
-            } catch (err) {
-                console.log('기존 파일 삭제 무시됨:', err.message);
+        if (exists) {
+            // 기존 키 존재 시 files 테이블의 실물 파일도 함께 삭제
+            const oldFileId = extractFileId(existingAssets[0].file_url);
+            if (oldFileId) {
+                try {
+                    await db.query('DELETE FROM files WHERE id = ?', [oldFileId]);
+                } catch (err) {
+                    console.log('기존 파일 삭제 무시됨:', err.message);
+                }
             }
         }
 
-        // 2. 새 파일을 GCS에 업로드
-        const blobStream = blob.createWriteStream({
-            resumable: false,
-            contentType: req.file.mimetype,
-        });
+        // 2. 새 파일을 files 테이블에 저장
+        const [fileResult] = await db.query(
+            'INSERT INTO files (filename, mime_type, size, data) VALUES (?, ?, ?, ?)',
+            [originalName, req.file.mimetype, req.file.size, req.file.buffer]
+        );
+        const fileUrl = `/files/${fileResult.insertId}`;
+        const assetType = getAssetType(req.file.mimetype);
 
-        blobStream.on('error', (err) => {
-            console.error('GCS 업로드 에러:', err);
-            res.status(500).json({ message: '파일 업로드 실패' });
-        });
+        const fileData = {
+            file_url: fileUrl,
+            file_name: originalName,
+            file_size: req.file.size,
+            mime_type: req.file.mimetype,
+            asset_type: assetType,
+            category,
+            title: title || originalName,
+            description: description || ''
+        };
 
-        blobStream.on('finish', async () => {
-            const publicUrl = `https://storage.googleapis.com/${bucketName}/${blob.name}`;
-            const assetType = getAssetType(req.file.mimetype);
+        if (exists) {
+            // 명세: 존재하면 레코드 덮어쓰기 (Update)
+            const id = existingAssets[0].id;
+            const setClause = Object.keys(fileData).map(k => `${k} = ?`).join(', ');
+            const values = [...Object.values(fileData), id];
 
-            const fileData = {
-                file_url: publicUrl,
-                file_name: blob.name,
-                file_size: req.file.size,
-                mime_type: req.file.mimetype,
-                asset_type: assetType,
-                category,
-                title: title || originalName,
-                description: description || ''
-            };
+            await db.query(`UPDATE assets SET ${setClause} WHERE id = ?`, values);
+            const [updated] = await db.query('SELECT * FROM assets WHERE id = ?', [id]);
+            res.status(200).json(updated[0]);
+        } else {
+            // 명세: 존재하지 않으면 새로 생성 (Create)
+            const insertData = { ...fileData, asset_key };
+            const keys = Object.keys(insertData).join(', ');
+            const placeholders = Object.keys(insertData).map(() => '?').join(', ');
+            const values = Object.values(insertData);
 
-            try {
-                if (exists) {
-                    // 명세: 존재하면 레코드 덮어쓰기 (Update)[cite: 3]
-                    const id = existingAssets[0].id;
-                    const setClause = Object.keys(fileData).map(k => `${k} = ?`).join(', ');
-                    const values = [...Object.values(fileData), id];
-                    
-                    await db.query(`UPDATE assets SET ${setClause} WHERE id = ?`, values);
-                    const [updated] = await db.query('SELECT * FROM assets WHERE id = ?', [id]);
-                    res.status(200).json(updated[0]);
-                } else {
-                    // 명세: 존재하지 않으면 새로 생성 (Create)[cite: 3]
-                    const insertData = { ...fileData, asset_key };
-                    const keys = Object.keys(insertData).join(', ');
-                    const placeholders = Object.keys(insertData).map(() => '?').join(', ');
-                    const values = Object.values(insertData);
-
-                    const [result] = await db.query(`INSERT INTO assets (${keys}) VALUES (${placeholders})`, values);
-                    const [created] = await db.query('SELECT * FROM assets WHERE id = ?', [result.insertId]);
-                    res.status(201).json(created[0]);
-                }
-            } catch (dbError) {
-                console.error('DB 저장 에러:', dbError);
-                res.status(500).json({ message: '데이터베이스 기록 실패' });
-            }
-        });
-
-        // 버퍼 스트림 실행
-        blobStream.end(req.file.buffer);
-
+            const [result] = await db.query(`INSERT INTO assets (${keys}) VALUES (${placeholders})`, values);
+            const [created] = await db.query('SELECT * FROM assets WHERE id = ?', [result.insertId]);
+            res.status(201).json(created[0]);
+        }
     } catch (error) {
         console.error('업로드 로직 에러:', error);
         res.status(500).json({ message: '파일 업로드 중 서버 에러가 발생했습니다.' });

@@ -3,8 +3,8 @@ const router = express.Router();
 const db = require('../config/db'); // 기존 DB 풀 연결 유지[cite: 2]
 const multer = require('multer');
 
-// 파일 업로드를 위한 Multer 설정 (기본 디스크 스토리지 예시)
-const upload = multer({ dest: 'uploads/members/' });
+// 메모리에 임시 저장 후 DB files 테이블에 바이너리로 저장
+const upload = multer({ storage: multer.memoryStorage() });
 
 /**
  * 멤버의 역할과 포지션을 가져오는 헬퍼 함수
@@ -147,17 +147,19 @@ router.delete('/:id', async (req, res) => {
 // =================================
 // 6. [POST] 사진 파일 업로드 API
 // =================================
-router.post('/upload-photo', upload.single('photo'), (req, res) => {
+router.post('/upload-photo', upload.single('photo'), async (req, res) => {
     try {
-        // req.file 에 업로드된 파일 정보가 담깁니다.
-        // 클라우드 스토리지(S3 등)를 쓴다면 업로드 후 URL을 반환하도록 수정해야 합니다.
         if (!req.file) {
             return res.status(400).json({ message: '파일이 업로드되지 않았습니다.' });
         }
-        
+
+        const [result] = await db.query(
+            'INSERT INTO files (filename, mime_type, size, data) VALUES (?, ?, ?, ?)',
+            [req.file.originalname, req.file.mimetype, req.file.size, req.file.buffer]
+        );
+
         // 프론트엔드가 요구하는 반환 형식: { photo_url: string }
-        const photoUrl = `/uploads/members/${req.file.filename}`;
-        res.status(200).json({ photo_url: photoUrl });
+        res.status(200).json({ photo_url: `/files/${result.insertId}` });
     } catch (error) {
         console.error('사진 업로드 에러: ', error);
         res.status(500).json({ message: '사진 업로드 중 에러가 발생했습니다.' });

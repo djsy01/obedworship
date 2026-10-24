@@ -212,17 +212,10 @@ const handleSubmit = async () => {
         // 3. Update roles and positions (using member-roles API)
         uploadMessage.value = '역할 및 포지션 업데이트 중...';
 
-        // Convert spaces to underscores for Prisma enum compatibility
-        const convertToEnum = (value: string) => value.replace(/ /g, '_');
-
-        // Update roles
-        await memberApi.updateRoles(memberId, selectedRoles.value.map(convertToEnum));
-
-        // Update worship positions
-        await memberApi.updateWorshipPositions(memberId, selectedWorshipPositions.value.map(convertToEnum));
-
-        // Update step positions
-        await memberApi.updateStepPositions(memberId, selectedStepPositions.value.map(convertToEnum));
+        // DB ENUM 값이 공백을 그대로 쓰므로(예: 'Accounting Leader') 변환 없이 그대로 전송
+        await memberApi.updateRoles(memberId, selectedRoles.value);
+        await memberApi.updateWorshipPositions(memberId, selectedWorshipPositions.value);
+        await memberApi.updateStepPositions(memberId, selectedStepPositions.value);
 
         uploadMessage.value = '완료!';
 

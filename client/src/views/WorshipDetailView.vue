@@ -73,11 +73,12 @@ const saveWorship = async () => {
   loading.value = true;
   try {
     const toArr = (text: string) => text.split("\n").map((s) => s.trim()).filter(Boolean);
+    const { opening_songs_text, celebration_songs_text, excluded_songs_text, ...rest } = editForm.value;
     await worshipApi.update(worshipId.value, {
-      ...editForm.value,
-      opening_songs: toArr(editForm.value.opening_songs_text),
-      celebration_songs: toArr(editForm.value.celebration_songs_text),
-      excluded_songs: toArr(editForm.value.excluded_songs_text),
+      ...rest,
+      opening_songs: toArr(opening_songs_text),
+      celebration_songs: toArr(celebration_songs_text),
+      excluded_songs: toArr(excluded_songs_text),
     });
     alert("집회 정보가 저장되었습니다!"); editMode.value = false; await fetchWorship();
   } catch { alert("저장에 실패했습니다"); }
