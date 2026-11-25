@@ -1,0 +1,7 @@
+{
+  "name": "obedworship",
+  "private": true,
+  "scripts": {
+    "test": "node scripts/check.mjs"
+  }
+}

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { BASE_URL } from "@/config/env";
+import { clearSession, mockToken, sessionToken } from "@/composables/session";
 
 const instance = axios.create({
   baseURL: BASE_URL,
@@ -11,8 +12,8 @@ const instance = axios.create({
 
 instance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
+    const token = sessionToken();
+    if (token && config.url !== "/auth/login") {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -23,8 +24,11 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      console.error("인증 에러");
+    const token = sessionToken();
+    const authorization = error.config?.headers?.get("Authorization");
+    if (error.response?.status === 401 && token && authorization === `Bearer ${token}` &&
+        !(import.meta.env.DEV && token === mockToken)) {
+      clearSession(token, true);
     }
     return Promise.reject(error);
   },

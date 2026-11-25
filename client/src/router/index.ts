@@ -13,17 +13,15 @@ import login from '@/components/Login.vue';
 import register from '@/components/Register.vue';
 import FindId from '@/components/Find-ID.vue';
 import ResetPassword from '@/components/Reset-Password.vue';
-import { useAuth } from '@/composables/useAuth';
+import { watch } from 'vue';
+import { checkSession } from '@/composables/auth-session';
+import { isAdmin, sessionExpired, sessionToken } from '@/composables/session';
 
 const routes: RouteRecordRaw[] = [
     { path: '/', name: 'home', component: HomeView },
     { path: '/vision', name: 'vision', component: VisionView },
     { path: '/worship-log', name: 'worship-log', component: WorshipLogView },
-    {
-        path: '/worship-log/:id',
-        name: 'worship-detail',
-        component: WorshipDetailView,
-    },
+    { path: '/worship-log/:id', name: 'worship-detail', component: WorshipDetailView },
     { path: '/scores', name: 'scores', component: ScoresView },
     { path: '/tickets', name: 'tickets', component: TicketsView },
     { path: '/qna', name: 'qna', component: QnaView },
@@ -39,23 +37,24 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({
     history: createWebHistory(),
     routes,
-    scrollBehavior() {
-        return { top: 0 };
-    },
+    scrollBehavior: () => ({ top: 0 }),
 });
 
-// 라우터 레벨 가드: /admin은 AdminView 내부 체크에만 맡기지 않고 네비게이션 단계에서 먼저 막는다.
-router.beforeEach((to) => {
-    if (to.meta.requiresAdmin || to.meta.requiresAuth) {
-        const { isLoggedIn, isAdmin } = useAuth();
-        if (to.meta.requiresAdmin && !isAdmin.value) {
-            return { name: 'home' };
-        }
-        if (to.meta.requiresAuth && !isLoggedIn.value) {
-            return { name: 'login' };
-        }
+router.beforeEach(async (to, from) => {
+    const protectedRoute = to.meta.requiresAdmin || to.meta.requiresAuth;
+    if (!protectedRoute && from.name) return true;
+
+    const hadToken = Boolean(sessionToken());
+    const authenticated = hadToken && await checkSession();
+    if (protectedRoute && !authenticated) {
+        return { name: 'login', query: hadToken && !sessionToken() ? { expired: '1' } : {} };
     }
+    if (to.meta.requiresAdmin && !isAdmin.value) return { name: 'home' };
     return true;
+});
+
+watch(sessionExpired, expired => {
+    if (expired) router.replace({ name: 'login', query: { expired: '1' } });
 });
 
 export default router;

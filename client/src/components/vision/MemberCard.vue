@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import MemberPhoto from "./MemberPhoto.vue";
 type Member = {
   id: number; name: string; affiliation: string; photo_url: string;
   instagram_url: string | null; youtube_url: string | null;
@@ -13,10 +14,9 @@ const emit = defineEmits<{
   'hide-tooltip': [];
 }>();
 </script>
-
 <template>
   <div class="member-card">
-    <img :src="member.photo_url" :alt="member.name" class="member-photo" />
+    <MemberPhoto :url="member.photo_url" :name="member.name" :can-preview="isAdmin" />
     <div class="member-info">
       <div class="member-name-row">
         <h3 class="member-name">{{ member.name }}</h3>

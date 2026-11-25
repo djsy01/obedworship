@@ -10,12 +10,13 @@ const sendVerificationEmail = async (to, code) => {
         throw new Error('RESEND_API_KEY 환경변수가 설정되지 않았습니다.');
     }
 
-    await resend.emails.send({
+    const { error } = await resend.emails.send({
         from: EMAIL_FROM,
         to,
         subject: `[OBED Worship] 인증번호 ${code}`,
         html: `<p>요청하신 인증번호입니다. 10분 이내에 입력해주세요.</p><h2>${code}</h2>`,
     });
+    if (error) throw new Error("인증 메일을 발송하지 못했습니다.");
 };
 
 module.exports = { sendVerificationEmail };

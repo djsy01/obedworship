@@ -42,6 +42,7 @@ export const worshipScoreApi = {
     formData.append("file", file);
     return axios.post<UploadResponse>("/scores/upload", formData, {
       headers: { "Content-Type": "multipart/form-data" },
+      timeout: 300000,
     });
   },
 

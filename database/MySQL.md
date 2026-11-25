@@ -31,6 +31,7 @@ CREATE TABLE worship_logs (
   entry_time VARCHAR(50) DEFAULT NULL,
   start_time VARCHAR(50) DEFAULT NULL,
   location VARCHAR(255) DEFAULT NULL,
+  poster_url VARCHAR(500) DEFAULT NULL,
   location_link VARCHAR(500) DEFAULT NULL,
   parking TEXT DEFAULT NULL,
   seating TEXT DEFAULT NULL,
@@ -190,7 +191,7 @@ CREATE TABLE users (
   email VARCHAR(255) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
   name VARCHAR(100) NOT NULL,
-  role ENUM('admin', 'member', 'user') NOT NULL DEFAULT 'user',
+  role ENUM('admin', 'operator', 'member', 'user') NOT NULL DEFAULT 'user',
   is_active BOOLEAN DEFAULT TRUE,
   email_verified BOOLEAN DEFAULT FALSE,
   phone VARCHAR(20) DEFAULT NULL,
@@ -441,6 +442,42 @@ CREATE TABLE ticket_applications (
   INDEX idx_created_at (created_at),
   FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+---
+
+### 7. 에셋 및 파일
+
+```sql
+CREATE TABLE files (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  filename VARCHAR(255) NOT NULL,
+  mime_type VARCHAR(100) NOT NULL,
+  size INT NOT NULL,
+  data LONGBLOB NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_mime_type (mime_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE assets (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  asset_key VARCHAR(100) NOT NULL UNIQUE,
+  asset_type ENUM('image', 'audio', 'video', 'document') NOT NULL,
+  category VARCHAR(50) NOT NULL,
+  file_url VARCHAR(500) NOT NULL,
+  file_name VARCHAR(255) NOT NULL,
+  file_size INT DEFAULT NULL,
+  mime_type VARCHAR(100) DEFAULT NULL,
+  title VARCHAR(200) DEFAULT NULL,
+  description TEXT DEFAULT NULL,
+  display_order INT DEFAULT 0,
+  is_active BOOLEAN DEFAULT TRUE,
+  uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_asset_type (asset_type),
+  INDEX idx_asset_category (category),
+  INDEX idx_asset_active (is_active)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 

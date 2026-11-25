@@ -1,39 +1,36 @@
-// 이메일 인증번호(6자리)를 메모리에 저장하는 임시 저장소.
-// PM2가 단일 인스턴스(fork mode)로만 돌아가는 걸 전제로 한다 — 다중 인스턴스/재시작 시 유효하지 않음.
-const codes = new Map(); // key: `${purpose}:${email}` -> { code, expiresAt }
-const verified = new Map(); // key: `${purpose}:${email}` -> expiresAt (인증 완료 플래그)
+const { randomBytes, randomInt, createHash } = require('node:crypto');
+const challenges = new Map();
+const grants = new Map();
+const digest = value => createHash('sha256').update(value).digest('hex');
 
-const CODE_TTL_MS = 10 * 60 * 1000; // 10분
-const VERIFIED_TTL_MS = 30 * 60 * 1000; // 인증 완료 후 register/reset 수행까지 30분 유예
-
-const generateCode = () => String(Math.floor(100000 + Math.random() * 900000));
-
-const setCode = (purpose, email) => {
-    const code = generateCode();
-    codes.set(`${purpose}:${email}`, { code, expiresAt: Date.now() + CODE_TTL_MS });
+function setCode(purpose, email) {
+    const key = purpose + ':' + email;
+    const code = String(randomInt(100000, 1000000));
+    grants.delete(key);
+    challenges.set(key, { code, attempts: 0, until: Date.now() + 600000 });
     return code;
-};
-
-const verifyCode = (purpose, email, code) => {
-    const key = `${purpose}:${email}`;
-    const entry = codes.get(key);
-    if (!entry || entry.expiresAt < Date.now() || entry.code !== code) {
-        return false;
+}
+function verifyCode(purpose, email, code) {
+    const key = purpose + ':' + email;
+    const entry = challenges.get(key);
+    if (!entry || entry.until <= Date.now()) return null;
+    entry.attempts++;
+    if (entry.attempts >= 5 || entry.code === code) challenges.delete(key);
+    if (entry.code !== code) return null;
+    const proof = randomBytes(32).toString('hex');
+    grants.set(key, { hash: digest(proof), until: Date.now() + 1800000 });
+    return proof;
+}
+function consume(purpose, email, proof) {
+    const key = purpose + ':' + email;
+    const grant = grants.get(key);
+    if (!grant || grant.until <= Date.now() || typeof proof !== 'string' || digest(proof) !== grant.hash) return false;
+    grants.delete(key);
+    return true;
+}
+setInterval(() => {
+    for (const store of [challenges, grants]) {
+        for (const [key, entry] of store) if (entry.until <= Date.now()) store.delete(key);
     }
-    codes.delete(key);
-    verified.set(key, Date.now() + VERIFIED_TTL_MS);
-    return true;
-};
-
-const isVerified = (purpose, email) => {
-    const key = `${purpose}:${email}`;
-    const expiresAt = verified.get(key);
-    if (!expiresAt || expiresAt < Date.now()) return false;
-    return true;
-};
-
-const consumeVerified = (purpose, email) => {
-    verified.delete(`${purpose}:${email}`);
-};
-
-module.exports = { setCode, verifyCode, isVerified, consumeVerified };
+}, 600000).unref();
+module.exports = { setCode, verifyCode, consume };

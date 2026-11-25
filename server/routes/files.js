@@ -1,22 +1,45 @@
-const express = require('express');
-const router = express.Router();
-const db = require('../config/db');
+const router = require('express').Router();
+const { one } = require('../utils/sql');
+const { authorizeFile } = require('../security/file-access');
+const { fileTag, matchesTag, formatFile, transferFile } = require('../utils/file-delivery');
 
-// [GET] DB(files 테이블)에 저장된 바이너리를 mime_type에 맞게 스트리밍
 router.get('/:id', async (req, res) => {
-    try {
-        const [rows] = await db.query('SELECT filename, mime_type, data FROM files WHERE id = ?', [req.params.id]);
-        if (rows.length === 0) return res.status(404).json({ message: '파일을 찾을 수 없습니다.' });
-
-        const file = rows[0];
-        res.set('Content-Type', file.mime_type);
-        res.set('Content-Disposition', `inline; filename="${encodeURIComponent(file.filename)}"`);
-        res.set('Cache-Control', 'public, max-age=31536000, immutable');
-        res.send(file.data);
-    } catch (error) {
-        console.error('파일 서빙 에러:', error);
-        res.status(500).json({ message: '파일을 불러오지 못했습니다.' });
+    res.set('Cache-Control', 'private, no-store');
+    const rawId = req.params.id;
+    const id = /^0*[1-9]\d{0,9}$/.test(rawId) ? Number(rawId) : rawId;
+    const access = await authorizeFile(id, req.user);
+    const file = await one('SELECT filename, mime_type, size, created_at FROM files WHERE id = ?', [id]);
+    const tag = fileTag(id, file);
+    if (access === 'public' && !req.get('Authorization')) {
+        res.set('Cache-Control', 'public, no-cache');
+        res.set('ETag', tag);
+        if (matchesTag(req.get('If-None-Match'), tag)) return res.status(304).end();
     }
-});
 
+    let start = 0;
+    let end = file.size - 1;
+    const ifRange = req.get('If-Range');
+    const range = ifRange && ifRange !== tag ? undefined : req.range(file.size);
+    if (req.method === 'GET' && range === -1) {
+        return res.status(416).set('Content-Range', 'bytes */' + file.size).end();
+    }
+    if (req.method === 'GET' && range?.type === 'bytes' && range.length === 1) {
+        [{ start, end }] = range;
+        res.status(206).set('Content-Range', `bytes ${start}-${end}/${file.size}`);
+    }
+
+    const { type, data } = await formatFile(id, file);
+    const inline = !['application/pdf', 'application/octet-stream'].includes(type);
+    const encoded = encodeURIComponent(file.filename).replace(/['()*]/g, char => '%' + char.charCodeAt(0).toString(16));
+    res.set({
+        'X-Content-Type-Options': 'nosniff',
+        'Content-Security-Policy': "sandbox; default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'",
+        'Content-Type': type,
+        'Content-Disposition': (inline ? 'inline' : 'attachment') + "; filename*=UTF-8''" + encoded,
+        'Content-Length': String(end - start + 1),
+        'Accept-Ranges': 'bytes',
+    });
+    if (req.method === 'HEAD') return res.end();
+    await transferFile(res, id, start, end, data);
+});
 module.exports = router;

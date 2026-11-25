@@ -29,6 +29,8 @@ out/
 
 # 📦 패키지 매니저
 package-lock.json
+!/client/package-lock.json
+!/server/package-lock.json
 yarn.lock
 pnpm-lock.yaml
 

@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test"
   },
   "keywords": [],
   "author": "",
@@ -17,9 +17,11 @@
     "express": "^5.2.1",
     "express-rate-limit": "^8.7.0",
     "express-session": "^1.19.0",
+    "file-type": "21.3.4",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.2.0",
     "mysql2": "^3.16.2",
-    "resend": "^6.32.0"
+    "resend": "^6.32.0",
+    "sax": "1.6.1"
   }
 }

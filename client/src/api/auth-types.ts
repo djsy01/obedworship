@@ -1,0 +1,46 @@
+export interface User {
+  id: number;
+  email: string;
+  name: string;
+  role: "admin" | "operator" | "member" | "user";
+  phone?: string;
+  is_active: boolean;
+  email_verified: boolean;
+  created_at?: string;
+  last_login_at?: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  name: string;
+  phone?: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  message: string;
+  token?: string;
+  data?: User;
+}
+
+export interface SessionResponse {
+  success: boolean;
+  authenticated: boolean;
+  data: {
+    userId: number;
+    email: string;
+    role: "admin" | "operator" | "member" | "user";
+    name: string;
+  } | null;
+}

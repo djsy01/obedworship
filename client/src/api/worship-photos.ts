@@ -40,6 +40,7 @@ export const worshipPhotoApi = {
     formData.append("file", file);
     return axios.post<UploadResponse>("/photos/upload", formData, {
       headers: { "Content-Type": "multipart/form-data" },
+      timeout: 300000,
     });
   },
 
