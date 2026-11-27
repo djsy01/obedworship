@@ -18,9 +18,12 @@ export function useWorshipDetail(id: number) {
     const date = worship.value?.date;
     return Boolean(date && new Date(date).getTime() < Date.now());
   });
-  const showGallery = computed(() => isAdmin.value ||
-    (passed.value && Boolean(media.videos.value.length || media.photos.value.length)));
-  const showScores = computed(() => isAdmin.value || (passed.value && Boolean(media.scores.value.length)));
+  const showEmptyTabs = computed(() => isAdmin.value && editor.editing.value);
+  const canViewMedia = computed(() => isAdmin.value || passed.value);
+  const showGallery = computed(() => showEmptyTabs.value ||
+    (canViewMedia.value && Boolean(media.videos.value.length || media.photos.value.length)));
+  const showScores = computed(() => showEmptyTabs.value ||
+    (canViewMedia.value && Boolean(media.scores.value.length)));
 
   async function reload() {
     try {
