@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 
-module.exports = async function ticketCases(t, request, { user, member, operator }) {
+module.exports = async function ticketCases(t, request, { user, other, operator }) {
     await t.test('ticket applications are scoped to the account and staff controls', async () => {
         const created = await request('/tickets', { method: 'POST', token: operator.token,
             body: { title: 'Test event', date: '2026-11-26', year: 2026, max_capacity: 2 } });
@@ -12,13 +12,13 @@ module.exports = async function ticketCases(t, request, { user, member, operator
         const record = await response.json();
         assert.equal(record.user_id, user.id);
         const path = '/ticket-applications/' + record.id;
-        assert.equal((await request(path, { token: member.token })).status, 404);
+        assert.equal((await request(path, { token: other.token })).status, 404);
         assert.equal((await request(path, { token: user.token })).status, 200);
         assert.equal((await request(path, { token: operator.token })).status, 200);
         const confirm = token => request(path + '/status', { method: 'PATCH', token, body: { status: 'CONFIRMED' } });
         assert.equal((await confirm(user.token)).status, 403);
         assert.equal((await confirm(operator.token)).status, 200);
-        const full = await request('/ticket-applications', { method: 'POST', token: member.token, body: application });
+        const full = await request('/ticket-applications', { method: 'POST', token: other.token, body: application });
         assert.equal(full.status, 409);
     });
 };

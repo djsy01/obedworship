@@ -2,7 +2,7 @@ import { isAxiosError } from "axios";
 import { ref } from "vue";
 import { authApi } from "@/api/auth";
 import { checkSession, login as authenticate } from "./auth-session";
-import { clearSession, currentUser, isAdmin, isLoggedIn, sessionToken } from "./session";
+import { clearSession, currentUser, isAdmin, isLoggedIn, isSuperAdmin, sessionToken } from "./session";
 
 const loading = ref(false);
 const error = ref<string | null>(null);
@@ -49,6 +49,6 @@ async function changePassword(currentPassword: string, newPassword: string) {
 }
 
 export function useAuth() {
-  return { isLoggedIn, isAdmin, isMember: isLoggedIn, currentUser, loading, error,
+  return { isLoggedIn, isAdmin, isSuperAdmin, isMember: isLoggedIn, currentUser, loading, error,
     login, register, logout, checkSession, changePassword, clearError: () => { error.value = null; } };
 }

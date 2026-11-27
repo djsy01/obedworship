@@ -15,7 +15,7 @@ test('recognizes current and legacy numeric Q&A owner IDs', () => {
 });
 
 test('hides the author ID from public and other regular readers', () => {
-    for (const viewer of [undefined, { id: 77, role: 'member' }]) {
+    for (const viewer of [undefined, { id: 77, role: 'user' }]) {
         const view = presentQuestion({ id: 1, user_id: '42' }, viewer);
         assert.equal(Object.hasOwn(view, 'user_id'), false);
         assert.equal(view.author_label, '익명');

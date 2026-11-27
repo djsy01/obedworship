@@ -42,5 +42,10 @@ function staffWrites(req, res, next) {
     if (['GET', 'HEAD'].includes(req.method)) return next();
     return staff(req, res, next);
 }
+function adminOnly(req, res, next) {
+    if (!req.user) return res.status(401).json({ success: false, message: '로그인이 필요합니다.' });
+    if (req.user.role !== 'admin') return res.status(403).json({ success: false, message: '관리자 권한이 필요합니다.' });
+    next();
+}
 
-module.exports = { identify, signedIn, staff, staffWrites, isStaff, secret, sessionVersion };
+module.exports = { identify, signedIn, staff, staffWrites, adminOnly, isStaff, secret, sessionVersion };

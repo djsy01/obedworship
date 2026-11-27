@@ -1,8 +1,10 @@
+export type UserRole = "admin" | "operator" | "user";
+
 export interface User {
   id: number;
   email: string;
   name: string;
-  role: "admin" | "operator" | "member" | "user";
+  role: UserRole;
   phone?: string;
   is_active: boolean;
   email_verified: boolean;
@@ -40,7 +42,7 @@ export interface SessionResponse {
   data: {
     userId: number;
     email: string;
-    role: "admin" | "operator" | "member" | "user";
+    role: UserRole;
     name: string;
   } | null;
 }

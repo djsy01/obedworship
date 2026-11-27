@@ -41,14 +41,14 @@
 
 - 로그인 / 회원가입 (이메일 인증)
 - 아이디 찾기 / 비밀번호 재설정
-- 4개 역할 기반 권한 분리
-  - `admin`, `operator` = 관리자 권한
-  - `member`, `user` = 일반 권한
+- 3개 역할 기반 권한 분리
+  - `admin` = 콘텐츠 및 회원 권한 관리, `operator` = 콘텐츠 관리
+  - `user` = 일반 권한
 
 > **관리자로 접속하려면**: 백엔드 인증이 아직 구현 전이라(`client/src/composables/useAuth.ts`), `/login` 페이지에서 아래 Mock 계정으로 로그인하면 관리자 권한(`isAdmin`)이 부여됩니다.
 >
 > - `admin@obed.com` / `admin123` → admin
-> - `operator@obed.com` / `operator123` → operator (admin과 동일 권한)
+> - `operator@obed.com` / `operator123` → operator (콘텐츠 관리)
 >
 > 로그인 후 Vision/Home 등 각 페이지에 "관리자 모드 ON" 같은 버튼이 나타나면서 편집 기능이 열립니다.
 
@@ -197,7 +197,7 @@ npm run start:dev
 - [x] 필터링 및 검색 기능
 - [x] 페이지네이션
 - [x] 라이트박스 및 모달
-- [x] 4개 역할 체계 구현 (admin/operator/member/user)
+- [x] 3개 역할 체계 구현 (admin/operator/user)
 - [x] 탭 가시성 로직 (영상/사진/악보 조건부 표시)
 - [x] 마이페이지 UI
 - [x] 집회 신청 UI

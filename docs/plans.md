@@ -84,7 +84,7 @@ UI/UX:    ██████████████████ 100%
 - ✅ CASCADE 설정 완료
 - ✅ Railway 환경 구축 완료
 - ✅ worship_applications 테이블 추가
-- ✅ users_role enum 업데이트 (admin/operator/member/user)
+- ✅ users_role enum 업데이트
 
 ---
 

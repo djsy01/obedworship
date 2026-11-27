@@ -191,7 +191,7 @@ CREATE TABLE users (
   email VARCHAR(255) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
   name VARCHAR(100) NOT NULL,
-  role ENUM('admin', 'operator', 'member', 'user') NOT NULL DEFAULT 'user',
+  role ENUM('admin', 'operator', 'user') NOT NULL DEFAULT 'user',
   is_active BOOLEAN DEFAULT TRUE,
   email_verified BOOLEAN DEFAULT FALSE,
   phone VARCHAR(20) DEFAULT NULL,

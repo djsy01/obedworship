@@ -7,7 +7,8 @@ async function accounts(request) {
     const password = 'Local-test1!';
     const passwordHash = await bcrypt.hash(password, 4);
     const users = {};
-    for (const role of ['user', 'member', 'operator', 'admin']) {
+    for (const key of ['user', 'other', 'operator', 'admin']) {
+        const role = key === 'other' ? 'user' : key;
         const email = randomUUID() + '@example.invalid';
         const [result] = await db.execute(
             'INSERT INTO users (email, password_hash, name, role, phone) VALUES (?, ?, ?, ?, ?)',
@@ -17,7 +18,7 @@ async function accounts(request) {
         assert.equal(login.status, 200);
         const data = await login.json();
         assert.equal(data.data.role, role);
-        users[role] = { id: result.insertId, email, token: data.token, password };
+        users[key] = { id: result.insertId, email, token: data.token, password };
     }
     return users;
 }
