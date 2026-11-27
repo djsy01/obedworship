@@ -41,14 +41,14 @@
 
 - 로그인 / 회원가입 (이메일 인증)
 - 아이디 찾기 / 비밀번호 재설정
-- 4개 역할 기반 권한 분리
-  - `admin`, `operator` = 관리자 권한
-  - `member`, `user` = 일반 권한
+- 3개 역할 기반 권한 분리
+  - `admin` = 콘텐츠 및 회원 권한 관리, `operator` = 콘텐츠 관리
+  - `user` = 일반 권한
 
 > **관리자로 접속하려면**: 백엔드 인증이 아직 구현 전이라(`client/src/composables/useAuth.ts`), `/login` 페이지에서 아래 Mock 계정으로 로그인하면 관리자 권한(`isAdmin`)이 부여됩니다.
 >
 > - `admin@obed.com` / `admin123` → admin
-> - `operator@obed.com` / `operator123` → operator (admin과 동일 권한)
+> - `operator@obed.com` / `operator123` → operator (콘텐츠 관리)
 >
 > 로그인 후 Vision/Home 등 각 페이지에 "관리자 모드 ON" 같은 버튼이 나타나면서 편집 기능이 열립니다.
 
@@ -78,16 +78,16 @@
 | 항목 | 기술 |
 | --- | --- |
 | [Front-End](./client/README.md) | Vue 3 + TypeScript + Vite |
-| Back-End | Express (`server/`, 승훈 개발 — 실제 프로덕션 백엔드) |
+| Back-End | Node.js + Express (`server/`, 운영 백엔드) |
 | [Database](./docs/ORACLE_DEPLOYMENT.md) | MySQL (Oracle Cloud 자체 호스팅) |
 | Storage | DB `files` 테이블 (2026-08-13부터, 디스크/GCS에서 전환) |
 | [Plans](./docs/plans.md) | 월별 개발 계획 |
 
 ### ⚠️ 백엔드 관련 참고사항
 
-- **`server/`(Express)가 실제 프로덕션 백엔드입니다** (승훈 개발, `mysql2`/`bcrypt`/`jsonwebtoken`/GCS 사용). `test-server/`(NestJS)는 인호가 API 명세 검증용으로 만든 별도 구현체이며 배포 대상이 아닙니다.
+- **운영 백엔드는 Node.js로 `server/app.js`를 실행합니다.** Express, `mysql2`, `bcrypt`, `jsonwebtoken`을 사용합니다. `test-server/`(NestJS)는 인호가 API 명세 검증용으로 만든 별도 구현체이며 배포 대상이 아닙니다.
 - DB는 기존 Railway MySQL에서 Oracle Cloud 인스턴스의 자체 호스팅 MySQL로 이전했습니다. 데이터(멤버/집회기록 등)와 업로드 파일 실물 모두 이관 완료했습니다. `server/`도 같은 DB(`obedworship`)에 연결하면 됩니다 — 자세한 내용은 [docs/ORACLE_DEPLOYMENT.md](./docs/ORACLE_DEPLOYMENT.md) 참고.
-- `test-server/`에서는 업로드 파일을 디스크/GCS 대신 DB `files` 테이블에 바이너리로 저장하는 방식으로 전환하는 작업을 했습니다(코드까지 완료). 다만 이건 `test-server`(NestJS) 기준 작업이라 `server/`(Express)에는 아직 반영되지 않았습니다 — `server/`에 이 방식을 적용할지는 별도 논의가 필요합니다.
+- 운영 백엔드는 업로드 파일을 MySQL의 `files` 테이블에 저장하고 `/files/:id`로 제공합니다.
 - `test-server/`, `server/.env`는 `.gitignore`에 등록돼 있어 이 저장소에는 커밋되지 않습니다.
 - `test-server`의 ORM은 Prisma, `server/`는 `mysql2` raw query를 사용합니다.
 
@@ -140,8 +140,8 @@ npm run dev
 
 ```bash
 cd server
-npm install
-node app.js
+npm ci
+npm start
 ```
 
 > `server/.env`에 DB 접속 정보(`DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME`, `DB_PORT`)를 오라클 DB 기준으로 맞춰야 합니다. `.env`는 git에 커밋되지 않습니다.
@@ -197,7 +197,7 @@ npm run start:dev
 - [x] 필터링 및 검색 기능
 - [x] 페이지네이션
 - [x] 라이트박스 및 모달
-- [x] 4개 역할 체계 구현 (admin/operator/member/user)
+- [x] 3개 역할 체계 구현 (admin/operator/user)
 - [x] 탭 가시성 로직 (영상/사진/악보 조건부 표시)
 - [x] 마이페이지 UI
 - [x] 집회 신청 UI

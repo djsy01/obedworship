@@ -1,0 +1,58 @@
+name: Checks
+
+on:
+  pull_request:
+    branches: [master, dev]
+  push:
+    branches: [master, dev]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: local-test-root
+          MYSQL_DATABASE: obed_worship
+          MYSQL_USER: obed_test
+          MYSQL_PASSWORD: local-test-db
+        ports:
+          - 3306/tcp
+        options: >-
+          --health-cmd "mysqladmin ping --silent --host=127.0.0.1"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: |
+            client/package-lock.json
+            server/package-lock.json
+      - run: npm --prefix client ci
+      - run: npm --prefix server ci
+      - name: Build, line limits, and Vue types
+        env:
+          CHECK_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: npm test
+      - name: Apply the development schema
+        env:
+          DB_CONTAINER: ${{ job.services.mysql.id }}
+          MYSQL_PWD: local-test-db
+        run: |
+          awk '/^CREATE TABLE / { emit=1 } /^\x60\x60\x60/ { emit=0 } emit' database/MySQL.md |
+            docker exec -i -e MYSQL_PWD "$DB_CONTAINER" mysql --default-character-set=utf8mb4 -h127.0.0.1 -uobed_test obed_worship
+      - name: Authorization and file tests
+        env:
+          OBED_TEST_DB_PORT: ${{ job.services.mysql.ports['3306'] }}
+        run: npm --prefix server test

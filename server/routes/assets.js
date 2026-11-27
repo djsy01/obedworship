@@ -1,254 +1,40 @@
-const express = require('express');
-const router = express.Router();
-const db = require('../config/db');
-const multer = require('multer');
+const router = require('express').Router();
+const { rows, one, insert } = require('../utils/sql');
+const { assets } = require('../utils/fields');
+const { isStaff } = require('../security/access');
+const { upload, media, oneAssetUpload } = require('../security/uploads');
+const { patchAsset, removeAsset, saveAsset } = require('../utils/asset-files');
+const select = 'SELECT * FROM assets WHERE (is_active = 1 OR ?)';
 
-// 메모리에 파일을 임시 저장 (DB files 테이블에 저장하기 위함)
-const upload = multer({ storage: multer.memoryStorage() });
-
-// file_url("/files/15")에서 files 테이블 id만 추출
-const extractFileId = (fileUrl) => {
-    const match = fileUrl && fileUrl.match(/\/files\/(\d+)$/);
-    return match ? Number(match[1]) : null;
-};
-
-/**
- * MimeType을 기반으로 asset_type을 추론하는 헬퍼 함수
- */
-function getAssetType(mimeType) {
-    if (mimeType.startsWith('image/')) return 'image';
-    if (mimeType.startsWith('video/')) return 'video';
-    if (mimeType.startsWith('audio/')) return 'audio';
-    return 'document';
-}
-
-// =================================
-// 1. [GET] 전체 에셋 및 카테고리 필터 조회 API
-// =================================
 router.get('/', async (req, res) => {
-    try {
-        const { category } = req.query;
-        let query = 'SELECT * FROM assets';
-        const params = [];
-
-        if (category) {
-            query += ' WHERE category = ?';
-            params.push(category);
-        }
-
-        const [assets] = await db.query(query, params);
-        res.status(200).json(assets);
-    } catch (error) {
-        console.error('에셋 목록 조회 에러:', error);
-        res.status(500).json({ message: '에셋 데이터를 불러오지 못했습니다.' });
-    }
+    const category = req.query.category;
+    const values = [isStaff(req.user)];
+    if (category) values.push(category);
+    res.json(await rows(select + (category ? ' AND category = ?' : ''), values));
 });
-
-// =================================
-// 2. [GET] 고유 키(key)로 에셋 조회 API
-// =================================
 router.get('/key/:key', async (req, res) => {
-    try {
-        const { key } = req.params;
-        const [assets] = await db.query('SELECT * FROM assets WHERE asset_key = ?', [key]);
-        
-        if (assets.length === 0) {
-            return res.status(404).json({ message: '해당 키를 가진 에셋을 찾을 수 없습니다.' });
-        }
-        res.status(200).json(assets[0]);
-    } catch (error) {
-        console.error('에셋 키 조회 에러:', error);
-        res.status(500).json({ message: '에셋 정보를 불러오는 중 에러가 발생했습니다.' });
-    }
+    res.json(await one(select + ' AND asset_key = ?', [isStaff(req.user), req.params.key]));
 });
-
-// =================================
-// 3. [GET] ID로 단일 에셋 조회 API
-// =================================
 router.get('/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const [assets] = await db.query('SELECT * FROM assets WHERE id = ?', [id]);
-        
-        if (assets.length === 0) {
-            return res.status(404).json({ message: '해당 에셋을 찾을 수 없습니다.' });
-        }
-        res.status(200).json(assets[0]);
-    } catch (error) {
-        console.error('에셋 단일 조회 에러:', error);
-        res.status(500).json({ message: '에셋 정보를 불러오는 중 에러가 발생했습니다.' });
-    }
+    res.json(await one(select + ' AND id = ?', [isStaff(req.user), req.params.id]));
 });
-
-// =================================
-// 4. [POST] 새 에셋 레코드 생성 API (메타데이터만)
-// =================================
-router.post('/', async (req, res) => {
-    try {
-        const { asset_key, asset_type, category, file_url, file_name, file_size, mime_type, title, description, display_order, is_active } = req.body;
-        
-        const insertQuery = `
-            INSERT INTO assets 
-            (asset_key, asset_type, category, file_url, file_name, file_size, mime_type, title, description, display_order, is_active) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `;
-        const values = [asset_key, asset_type, category, file_url, file_name, file_size, mime_type, title, description, display_order || 0, is_active ?? true];
-        
-        const [result] = await db.query(insertQuery, values);
-        const [newAsset] = await db.query('SELECT * FROM assets WHERE id = ?', [result.insertId]);
-        
-        res.status(201).json(newAsset[0]);
-    } catch (error) {
-        console.error('에셋 생성 에러:', error);
-        res.status(500).json({ message: '에셋 생성 중 에러가 발생했습니다.' });
-    }
-});
-
-// =================================
-// 5. [PATCH] ID로 에셋 수정 API
-// =================================
-router.patch('/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const updates = req.body;
-        const keys = Object.keys(updates);
-        
-        if (keys.length === 0) return res.status(400).json({ message: '수정할 데이터가 없습니다.' });
-
-        const setClause = keys.map(k => `${k} = ?`).join(', ');
-        const values = [...Object.values(updates), id];
-
-        await db.query(`UPDATE assets SET ${setClause} WHERE id = ?`, values);
-        
-        const [updatedAsset] = await db.query('SELECT * FROM assets WHERE id = ?', [id]);
-        res.status(200).json(updatedAsset[0]);
-    } catch (error) {
-        console.error('에셋 수정 에러:', error);
-        res.status(500).json({ message: '에셋 수정 중 에러가 발생했습니다.' });
-    }
-});
-
-// =================================
-// 6. [PATCH] 키(key)로 에셋 수정 API
-// =================================
 router.patch('/key/:key', async (req, res) => {
-    try {
-        const { key } = req.params;
-        const updates = req.body;
-        const keysObj = Object.keys(updates);
-        
-        if (keysObj.length === 0) return res.status(400).json({ message: '수정할 데이터가 없습니다.' });
-
-        const setClause = keysObj.map(k => `${k} = ?`).join(', ');
-        const values = [...Object.values(updates), key];
-
-        await db.query(`UPDATE assets SET ${setClause} WHERE asset_key = ?`, values);
-        
-        const [updatedAsset] = await db.query('SELECT * FROM assets WHERE asset_key = ?', [key]);
-        res.status(200).json(updatedAsset[0]);
-    } catch (error) {
-        console.error('키 기반 에셋 수정 에러:', error);
-        res.status(500).json({ message: '에셋 수정 중 에러가 발생했습니다.' });
-    }
+    res.json(await patchAsset('asset_key', req.params.key, req.body));
 });
-
-// =================================
-// 7. [DELETE] 에셋 삭제 API
-// =================================
+router.post('/upload', oneAssetUpload(), ...upload('file', media, 150), async (req, res) => {
+    if (!req.body.asset_key || !req.body.category) return res.sendStatus(400);
+    const { record, status } = await saveAsset(req.file, req.body);
+    res.status(status).json(record);
+});
+router.post('/', async (req, res) => {
+    const id = await insert('assets', req.body, assets);
+    res.status(201).json(await one('SELECT * FROM assets WHERE id = ?', [id]));
+});
+router.patch('/:id', async (req, res) => {
+    res.json(await patchAsset('id', req.params.id, req.body));
+});
 router.delete('/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        
-        // DB에서 레코드 조회
-        const [assets] = await db.query('SELECT * FROM assets WHERE id = ?', [id]);
-        const fileId = assets.length > 0 ? extractFileId(assets[0].file_url) : null;
-        if (fileId) {
-            try {
-                await db.query('DELETE FROM files WHERE id = ?', [fileId]);
-            } catch (fileError) {
-                console.error('files 테이블 파일 삭제 실패 (무시됨):', fileError.message);
-            }
-        }
-
-        await db.query('DELETE FROM assets WHERE id = ?', [id]);
-        res.status(204).send();
-    } catch (error) {
-        console.error('에셋 삭제 에러:', error);
-        res.status(500).json({ message: '에셋 삭제 중 에러가 발생했습니다.' });
-    }
+    await removeAsset(req.params.id);
+    res.sendStatus(204);
 });
-
-// =================================
-// 8. [POST] 파일 업로드 및 자동 레코드 처리 API
-// =================================
-router.post('/upload', upload.single('file'), async (req, res) => {
-    try {
-        if (!req.file) return res.status(400).json({ message: '파일이 제공되지 않았습니다.' });
-
-        const { asset_key, category, title, description } = req.body;
-        if (!asset_key || !category) return res.status(400).json({ message: 'asset_key와 category는 필수입니다.' });
-
-        const originalName = req.file.originalname;
-
-        // 1. 기존 동일한 asset_key가 있는지 확인
-        const [existingAssets] = await db.query('SELECT * FROM assets WHERE asset_key = ?', [asset_key]);
-        const exists = existingAssets.length > 0;
-
-        if (exists) {
-            // 기존 키 존재 시 files 테이블의 실물 파일도 함께 삭제
-            const oldFileId = extractFileId(existingAssets[0].file_url);
-            if (oldFileId) {
-                try {
-                    await db.query('DELETE FROM files WHERE id = ?', [oldFileId]);
-                } catch (err) {
-                    console.log('기존 파일 삭제 무시됨:', err.message);
-                }
-            }
-        }
-
-        // 2. 새 파일을 files 테이블에 저장
-        const [fileResult] = await db.query(
-            'INSERT INTO files (filename, mime_type, size, data) VALUES (?, ?, ?, ?)',
-            [originalName, req.file.mimetype, req.file.size, req.file.buffer]
-        );
-        const fileUrl = `/files/${fileResult.insertId}`;
-        const assetType = getAssetType(req.file.mimetype);
-
-        const fileData = {
-            file_url: fileUrl,
-            file_name: originalName,
-            file_size: req.file.size,
-            mime_type: req.file.mimetype,
-            asset_type: assetType,
-            category,
-            title: title || originalName,
-            description: description || ''
-        };
-
-        if (exists) {
-            // 명세: 존재하면 레코드 덮어쓰기 (Update)
-            const id = existingAssets[0].id;
-            const setClause = Object.keys(fileData).map(k => `${k} = ?`).join(', ');
-            const values = [...Object.values(fileData), id];
-
-            await db.query(`UPDATE assets SET ${setClause} WHERE id = ?`, values);
-            const [updated] = await db.query('SELECT * FROM assets WHERE id = ?', [id]);
-            res.status(200).json(updated[0]);
-        } else {
-            // 명세: 존재하지 않으면 새로 생성 (Create)
-            const insertData = { ...fileData, asset_key };
-            const keys = Object.keys(insertData).join(', ');
-            const placeholders = Object.keys(insertData).map(() => '?').join(', ');
-            const values = Object.values(insertData);
-
-            const [result] = await db.query(`INSERT INTO assets (${keys}) VALUES (${placeholders})`, values);
-            const [created] = await db.query('SELECT * FROM assets WHERE id = ?', [result.insertId]);
-            res.status(201).json(created[0]);
-        }
-    } catch (error) {
-        console.error('업로드 로직 에러:', error);
-        res.status(500).json({ message: '파일 업로드 중 서버 에러가 발생했습니다.' });
-    }
-});
-
 module.exports = router;

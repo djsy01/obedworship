@@ -70,7 +70,7 @@ curl -X POST http://{SERVER_URL}/auth/register \
 | data.id | Integer | 필수 | 사용자 고유 번호 |
 | data.email | String | 필수 | 이메일 |
 | data.name | String | 필수 | 이름 |
-| data.role | String | 필수 | `admin` \| `member` \| `user` |
+| data.role | String | 필수 | `admin` \| `operator` \| `user` |
 | data.phone | String | 선택 | 전화번호 |
 | data.is_active | Boolean | 필수 | 활성 여부 |
 | data.email_verified | Boolean | 필수 | 이메일 인증 여부 |
@@ -119,7 +119,7 @@ curl -X POST http://{SERVER_URL}/auth/login \
     "id": 1,
     "email": "hong@example.com",
     "name": "홍길동",
-    "role": "member",
+    "role": "user",
     "phone": "010-1234-5678",
     "is_active": true,
     "email_verified": true,
@@ -201,7 +201,7 @@ curl -X GET http://{SERVER_URL}/auth/me
     "id": 1,
     "email": "hong@example.com",
     "name": "홍길동",
-    "role": "member",
+    "role": "user",
     "phone": "010-1234-5678",
     "is_active": true,
     "email_verified": true
@@ -247,7 +247,7 @@ curl -X GET http://{SERVER_URL}/auth/session
   "data": {
     "userId": 1,
     "email": "hong@example.com",
-    "role": "member",
+    "role": "user",
     "name": "홍길동"
   }
 }
@@ -272,7 +272,7 @@ curl -X GET http://{SERVER_URL}/auth/session
 | data | Object | 선택 | 비로그인 시 `null` |
 | data.userId | Integer | 필수 | 사용자 고유 번호 |
 | data.email | String | 필수 | 이메일 |
-| data.role | String | 필수 | `admin` \| `member` \| `user` |
+| data.role | String | 필수 | `admin` \| `operator` \| `user` |
 | data.name | String | 필수 | 이름 |
 
 ---

@@ -91,7 +91,7 @@ curl -X GET http://{SERVER_URL}/mypage/1/profile
   "id": 1,
   "email": "hong@example.com",
   "name": "홍길동",
-  "role": "member",
+  "role": "user",
   "phone": "010-1234-5678",
   "profile_photo_url": null,
   "email_verified": true,
@@ -116,7 +116,7 @@ curl -X GET http://{SERVER_URL}/mypage/1/profile
 | id | Integer | 필수 | 사용자 고유 번호 |
 | email | String | 필수 | |
 | name | String | 필수 | |
-| role | String | 필수 | `admin` \| `operator` \| `member` \| `user` |
+| role | String | 필수 | `admin` \| `operator` \| `user` |
 | phone | String | 선택 | |
 | profile_photo_url | String | 선택 | |
 | email_verified | Boolean | 필수 | |

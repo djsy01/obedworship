@@ -9,7 +9,7 @@ export interface WorshipScore {
   file_size?: number;
   thumbnail_url?: string;
   description?: string;
-  created_at?: string;
+  uploaded_at?: string;
 }
 
 export interface CreateWorshipScoreDto {
@@ -42,6 +42,7 @@ export const worshipScoreApi = {
     formData.append("file", file);
     return axios.post<UploadResponse>("/scores/upload", formData, {
       headers: { "Content-Type": "multipart/form-data" },
+      timeout: 300000,
     });
   },
 

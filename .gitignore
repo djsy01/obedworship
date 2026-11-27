@@ -1,10 +1,15 @@
 # ===============================
 # 🌍 OS / 에디터 공통 무시 파일
 # ===============================
-.DS_Store         # macOS
-Thumbs.db         # Windows
-desktop.ini       # Windows
-ehthumbs.db       # Windows
+# macOS
+.DS_Store
+# Windows
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# Python
+__pycache__/
 
 *.log
 *.tmp
@@ -29,6 +34,8 @@ out/
 
 # 📦 패키지 매니저
 package-lock.json
+!/client/package-lock.json
+!/server/package-lock.json
 yarn.lock
 pnpm-lock.yaml
 

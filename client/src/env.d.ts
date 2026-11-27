@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+/// <reference types="node" />
 
 declare module "*.css" {
   const content: { [className: string]: string };

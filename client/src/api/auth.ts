@@ -1,103 +1,42 @@
 import axios from "./axios";
+import type { User, LoginRequest, RegisterRequest, ChangePasswordRequest, AuthResponse, SessionResponse } from "./auth-types";
+export type * from "./auth-types";
 
-// ==========================================
-// Definition of authentication-related types
-// Mirrors server/routes/auth.js response shape (success/message/token/data)
-// ==========================================
-
-export interface User {
-  id: number;
-  email: string;
-  name: string;
-  role: "admin" | "operator" | "member" | "user";
-  phone?: string;
-  is_active: boolean;
-  email_verified: boolean;
-  created_at?: string;
-  last_login_at?: string;
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface RegisterRequest {
-  email: string;
-  password: string;
-  name: string;
-  phone?: string;
-}
-
-export interface ChangePasswordRequest {
-  currentPassword: string;
-  newPassword: string;
-}
-
-export interface AuthResponse {
-  success: boolean;
-  message: string;
-  token?: string;
-  data?: User;
-}
-
-export interface SessionResponse {
-  success: boolean;
-  authenticated: boolean;
-  data: {
-    userId: number;
-    email: string;
-    role: "admin" | "operator" | "member" | "user";
-    name: string;
-  } | null;
-}
-
-// ==========================================
-// Authentication API client
-// VITE_BASE_URL(client/.env)이 실제 백엔드 주소로 설정되어 있어야 동작합니다.
-// ==========================================
+import { verificationFlow } from "./verification";
+const signup = verificationFlow("/auth/verify-code");
+const reset = verificationFlow("/auth/verify-reset-code");
 
 export const authApi = {
-  // send email verification code (register)
   sendVerification: (email: string) =>
     axios.post<AuthResponse>("/auth/send-verification", { email }),
 
-  // verify email verification code (register)
   verifyCode: (email: string, code: string) =>
-    axios.post<AuthResponse>("/auth/verify-code", { email, code }),
+    signup.verify(email, code),
 
-  // join the membership
   register: (data: RegisterRequest) =>
-    axios.post<AuthResponse>("/auth/register", data),
+    axios.post<AuthResponse>("/auth/register", { ...data, verificationToken: signup.token(data.email) }),
 
-  // log in
   login: (data: LoginRequest) => axios.post<AuthResponse>("/auth/login", data),
 
-  // log out
   logout: () => axios.post<AuthResponse>("/auth/logout"),
 
-  // Check current user information
   getCurrentUser: () => axios.get<{ success: boolean; data: User }>("/auth/me"),
 
-  // Check session (check login status)
   checkSession: () => axios.get<SessionResponse>("/auth/session"),
 
-  // change password
   changePassword: (data: ChangePasswordRequest) =>
     axios.post<AuthResponse>("/auth/change-password", data),
 
-  // Password reset request (send verification code email)
   forgotPassword: (email: string) =>
     axios.post<AuthResponse>("/auth/forgot-password", { email }),
 
-  // verify password reset verification code
   verifyResetCode: (email: string, code: string) =>
-    axios.post<AuthResponse>("/auth/verify-reset-code", { email, code }),
+    reset.verify(email, code),
 
-  // reset password (verifyResetCode must succeed first)
   resetPassword: (email: string, newPassword: string) =>
     axios.post<AuthResponse>("/auth/reset-password", {
       email,
       newPassword,
+      verificationToken: reset.token(email),
     }),
 };

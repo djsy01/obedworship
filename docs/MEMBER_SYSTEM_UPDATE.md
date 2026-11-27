@@ -19,7 +19,7 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     name VARCHAR(100) NOT NULL,
-    role ENUM('admin', 'member', 'user') NOT NULL DEFAULT 'user',
+    role ENUM('admin', 'operator', 'user') NOT NULL DEFAULT 'user',
     is_active BOOLEAN DEFAULT TRUE,
     email_verified BOOLEAN DEFAULT FALSE,
     phone VARCHAR(20),
@@ -32,7 +32,7 @@ CREATE TABLE users (
 
 #### 역할(Role) 설명
 - `admin`: 관리자 - 모든 기능 접근 가능
-- `member`: 멤버 - OBED 팀원, 자신의 정보 수정 가능
+- `operator`: 운영자 - 콘텐츠 관리
 - `user`: 일반 사용자 - 열람만 가능
 
 ### 2. Members 테이블 업데이트
@@ -112,7 +112,7 @@ model users {
 
 enum users_role {
   admin
-  member
+  operator
   user
 }
 ```
@@ -271,7 +271,7 @@ VALUES (
   'inho@obedworship.com',
   '$2b$10$hashed_password_here',  -- bcrypt 해시 사용
   '엄인호',
-  'member'
+  'user'
 );
 ```
 

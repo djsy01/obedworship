@@ -1,77 +1,39 @@
-// ====================================
-// 1. 환경 변수 및 모듈 로드
-// ====================================
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const multer = require('multer');
+const { identify, staffWrites } = require('./security/access');
 
 const app = express();
-const port = process.env.PORT || 3000;
-
-// Nginx 리버스 프록시 뒤에서 실행되므로, X-Forwarded-For를 신뢰해야
-// express-rate-limit이 실제 클라이언트 IP를 올바르게 식별한다.
 app.set('trust proxy', 1);
-
-// ====================================
-// 2. 공통 미들웨어 (Middleware)
-// ====================================
-// 프론트엔드의 접근 허용 (CORS 에러 방지)
-// CORS_ORIGIN: 쉼표로 여러 origin 지정 가능 (예: "https://obed.example.com,https://www.obed.example.com")
-const corsOrigin = process.env.CORS_ORIGIN
-    ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim())
-    : 'http://localhost:5173'; // 프론트엔드 Vue(Vite) 로컬 개발 주소
-app.use(cors({
-    origin: corsOrigin,
-    credentials: true // JWT 토큰 및 쿠키를 주고받기 위해 필수
-}));
-
-// 클라이언트가 보내는 JSON 및 URL-encoded 데이터를 파싱
-app.use(express.json()); 
-app.use(express.urlencoded({ extended: true }));
-
-// (참고: JWT 방식을 사용하므로 기존 express-session 설정은 삭제되었습니다.)
-
-// ====================================
-// 3. 라우터 연결 (Routes)
-// ====================================
-// 3-1. 핵심 도메인 라우터
-app.use('/auth', require('./routes/auth'));           // 회원가입, 로그인(JWT), 비밀번호 관리
-app.use('/members', require('./routes/members'));     // 멤버 CRUD 및 사진 업로드
-app.use('/assets', require('./routes/assets'));       // 정적 자산(로고 등) 관리
-app.use('/worship', require('./routes/worship'));     // 예배 기본 정보 관리
-app.use('/qna', require('./routes/qna'));             // Q&A 게시판 관리
-app.use('/mypage', require('./routes/mypage'));       // 마이페이지 대시보드 및 내역
-app.use('/files', require('./routes/files'));         // DB files 테이블에 저장된 바이너리(사진/음원/포스터 등) 서빙
-
-// 3-2. 악보 및 집회 신청(티켓) 라우터
-app.use('/scores', require('./routes/scores'));       // 전체 악보 관리 및 다운로드
-app.use('/tickets', require('./routes/tickets'));     // 집회 신청용 티켓(행사) 관리
-// app.use('/ticket-applications', require('./routes/ticket-applications')); // 유저의 티켓 신청 내역 관리 — 프론트 미사용 + 문법 오류(routes/ticket-applications.js:60)로 임시 비활성
-
-// 3-3. 특정 예배(worship_logs) 종속 미디어 라우터
-app.use('/worship-videos', require('./routes/worship-videos')); 
-app.use('/worship-scores', require('./routes/worship-scores')); 
-app.use('/worship-songs', require('./routes/worship-songs')); 
-
-// 🚨 worship-photos의 경우 프론트엔드 명세에 따라 두 가지 엔드포인트를 모두 지원하도록 매핑
-app.use('/worship-photos', require('./routes/worship-photos')); // 일반 CRUD 용
-app.use('/photos', require('./routes/worship-photos'));         // /photos/upload 업로드 통신용
-
-// ====================================
-// 4. Server Health Check (서버 상태 확인용)
-// ====================================
-app.get('/', (req, res) => {
-    res.send('OBED Worship 백엔드 서버가 정상 작동 중입니다! (Port: ' + port + ')');
+const origins = (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',').map(s => s.trim());
+app.use(cors({ origin: origins, credentials: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use((req, res, next) => {
+    res.vary('Authorization');
+    if (req.get('Authorization')) res.set('Cache-Control', 'private, no-store');
+    next();
+});
+app.use('/auth', require('./routes/auth'));
+app.use(identify);
+app.use('/admin/users', require('./routes/admin-users'));
+for (const name of ['members', 'assets', 'worship', 'scores', 'tickets',
+    'worship-videos', 'worship-scores', 'worship-songs', 'worship-photos']) {
+    app.use('/' + name, staffWrites, require('./routes/' + name));
+}
+app.use('/photos', staffWrites, require('./routes/worship-photos'));
+for (const name of ['qna', 'mypage', 'files', 'ticket-applications']) {
+    app.use('/' + name, require('./routes/' + name));
+}
+app.get('/', (req, res) => res.send('OBED Worship API'));
+app.use((err, req, res, next) => {
+    if (res.headersSent) return next(err);
+    if (err instanceof multer.MulterError) return res.status(413).json({ message: '업로드 한도를 초과했습니다.' });
+    if (err.status >= 400 && err.status < 500) return res.status(err.status).json({ message: err.message });
+    console.error('API request failed', err.code || err.name);
+    res.status(500).json({ message: '요청 처리 중 오류가 발생했습니다.' });
 });
 
-// ====================================
-// 5. Server Start
-// ====================================
-app.listen(port, () => {
-    console.log(`=================================`);
-    console.log(`🚀 OBED Worship 메인 서버 시작됨`);
-    console.log(`=================================`);
-    console.log(`▶ Port: ${port}`);
-    console.log(`▶ 대기 중인 주소: http://localhost:${port}`);
-    console.log(`=================================`);
-});
+if (require.main === module) app.listen(process.env.PORT || 3000);
+module.exports = app;

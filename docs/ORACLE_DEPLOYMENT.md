@@ -4,7 +4,7 @@
 
 ## 📋 배경
 
-기존에는 Railway MySQL + Google Cloud Storage(GCS) 조합을 썼으나, 오라클 클라우드(OCI) 컴퓨트 인스턴스를 새로 확보하면서 백엔드(`test-server`, NestJS)와 DB를 같은 인스턴스에서 자체 호스팅하는 방식으로 전환했다. 겸사겸사 업로드 파일도 디스크가 아닌 DB에 저장하는 구조로 바꿨다.
+기존에는 Railway MySQL + Google Cloud Storage(GCS) 조합을 썼으나, 오라클 클라우드(OCI) 컴퓨트 인스턴스로 MySQL과 업로드 파일을 이관했다. 초기 이관과 스키마 검증에는 `test-server/`를 사용했다. 운영 백엔드 배포 대상은 Node.js에서 실행하는 `server/app.js`다.
 
 ## 🖥️ 인스턴스 스펙 및 기본 세팅
 
@@ -80,15 +80,8 @@ model files {
 
 142MB짜리 대용량 wav 파일까지 넣기 위해 MySQL `max_allowed_packet`을 기본 64MB → **256MB**로 상향 조정함 (`/etc/mysql/mysql.conf.d/mysqld.cnf`).
 
-### ⚠️ 코드 쪽에서 아직 안 된 것 (친구 작업 예정)
+## 운영 백엔드 실행
 
-- `GET /files/:id` — DB에서 바이너리를 읽어 `mime_type`으로 스트리밍하는 서빙 엔드포인트 (현재 컨트롤러에 없음, 데이터만 옮겨진 상태)
-- 업로드(POST) 로직을 디스크 저장 대신 `files` 테이블 INSERT로 바꾸는 작업 (assets, members, scores, worship-photos, worship-scores 각 업로드 엔드포인트)
-- `test-server/src/upload/s3.service.ts`, `railway.json`의 uploads 볼륨 설정은 더 이상 쓰이지 않으므로 정리 대상
+서버의 작업 디렉터리를 `server/`로 설정한다. `npm ci`로 의존성을 설치하고 `npm start`를 실행하면 Node.js가 `app.js`를 시작한다. 운영 프로세스를 PM2로 관리하는 경우에도 같은 작업 디렉터리와 진입점을 사용한다.
 
-## 🔜 남은 작업
-
-- [ ] `test-server` 코드를 Oracle 인스턴스에 배포 (git에 안 잡히는 폴더라 별도 전송 방법 필요 — scp 또는 직접 clone 후 rsync 등)
-- [ ] 위 "코드 쪽에서 아직 안 된 것" 구현
-- [ ] PM2로 NestJS 앱 기동 및 `pm2 startup`으로 재부팅 시 자동 실행 설정
-- [ ] 구버전 `server/`(Express) 폴더 정리 여부 결정
+`server/.env`의 DB 연결을 OCI의 MySQL에 맞추고 JWT, 이메일 발송, CORS 설정을 확인한다. DB에 이관한 파일은 `server/routes/files.js`에서 제공한다. 업로드 한도와 보안 변경 배포 시 유의사항은 [서버 실행 문서](../server/README.md)를 참고한다.

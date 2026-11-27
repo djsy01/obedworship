@@ -9,7 +9,7 @@ export interface WorshipPhoto {
   file_name: string;
   file_size?: number;
   photo_order: number;
-  created_at?: string;
+  uploaded_at?: string;
 }
 
 export interface CreateWorshipPhotoDto {
@@ -40,6 +40,7 @@ export const worshipPhotoApi = {
     formData.append("file", file);
     return axios.post<UploadResponse>("/photos/upload", formData, {
       headers: { "Content-Type": "multipart/form-data" },
+      timeout: 300000,
     });
   },
 
