@@ -13,6 +13,10 @@ export const roleLabels: Record<UserRole, string> = {
   operator: "운영자",
   user: "일반 사용자",
 };
+export const staffRoleLabel = computed(() => {
+  const role = currentUser.value?.role;
+  return isAdmin.value && role ? roleLabels[role] : "";
+});
 export const sessionName = computed(() => {
   const user = currentUser.value;
   if (!user) return "";
