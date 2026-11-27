@@ -4,7 +4,6 @@ import { clearSession, isLoggedIn, mockToken, sessionToken, setSession } from ".
 const mockUsers = {
   "admin@obed.com:admin123": { id: 1, name: "관리자", role: "admin" },
   "operator@obed.com:operator123": { id: 2, name: "운영자", role: "operator" },
-  "member@obed.com:member123": { id: 3, name: "멤버", role: "member" },
 } as const;
 
 export async function login(email: string, password: string) {

@@ -37,7 +37,7 @@ curl -X GET "http://{SERVER_URL}/users?email=hong@example.com"
   "id": 1,
   "email": "hong@example.com",
   "name": "홍길동",
-  "role": "member",
+  "role": "user",
   "phone": "010-1234-5678",
   "profile_photo_url": null,
   "is_active": true,
@@ -52,7 +52,7 @@ curl -X GET "http://{SERVER_URL}/users?email=hong@example.com"
 | id | Integer | 필수 | 사용자 고유 번호 |
 | email | String | 필수 | 이메일 |
 | name | String | 필수 | 이름 |
-| role | String | 필수 | `admin` \| `operator` \| `member` \| `user` |
+| role | String | 필수 | `admin` \| `operator` \| `user` |
 | phone | String | 선택 | 전화번호 |
 | profile_photo_url | String | 선택 | 프로필 사진 URL |
 | is_active | Boolean | 필수 | 활성 여부 |

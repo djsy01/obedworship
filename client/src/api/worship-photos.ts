@@ -9,7 +9,7 @@ export interface WorshipPhoto {
   file_name: string;
   file_size?: number;
   photo_order: number;
-  created_at?: string;
+  uploaded_at?: string;
 }
 
 export interface CreateWorshipPhotoDto {

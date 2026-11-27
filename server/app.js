@@ -17,6 +17,7 @@ app.use((req, res, next) => {
 });
 app.use('/auth', require('./routes/auth'));
 app.use(identify);
+app.use('/admin/users', require('./routes/admin-users'));
 for (const name of ['members', 'assets', 'worship', 'scores', 'tickets',
     'worship-videos', 'worship-scores', 'worship-songs', 'worship-photos']) {
     app.use('/' + name, staffWrites, require('./routes/' + name));

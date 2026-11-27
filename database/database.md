@@ -28,9 +28,8 @@
 ### 사용자 역할 (users_role enum)
 
 ```text
-admin     - 관리자 (관리자 권한)
-operator  - 운영자 (관리자 권한)
-member    - 멤버 (일반 권한)
+admin     - 관리자 (콘텐츠 및 회원 권한 관리)
+operator  - 운영자 (콘텐츠 관리)
 user      - 사용자 (일반 권한)
 ```
 

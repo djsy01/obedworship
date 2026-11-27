@@ -1,5 +1,5 @@
 import { computed, ref, shallowRef } from "vue";
-import type { User } from "@/api/auth-types";
+import type { User, UserRole } from "@/api/auth-types";
 
 type SessionUser = Pick<User, "id" | "email" | "name" | "role">;
 const signedInUser = shallowRef<SessionUser | null>(null);
@@ -7,10 +7,22 @@ export const sessionExpired = ref(false);
 export const currentUser = computed(() => signedInUser.value);
 export const isLoggedIn = computed(() => currentUser.value !== null);
 export const isAdmin = computed(() => ["admin", "operator"].some(role => role === currentUser.value?.role));
+export const isSuperAdmin = computed(() => currentUser.value?.role === "admin");
+export const roleLabels: Record<UserRole, string> = {
+  admin: "관리자",
+  operator: "운영자",
+  user: "일반 사용자",
+};
+export const sessionName = computed(() => {
+  const user = currentUser.value;
+  if (!user) return "";
+  return localStorage.getItem("userName") || roleLabels[user.role] || "사용자";
+});
 export const sessionToken = () => localStorage.getItem("token");
 export const mockToken = "mock-dev-only-token";
 
-export function setSession(token: string, { id, email, name, role }: SessionUser) {
+export function setSession(token: string, { id, email, name, role: savedRole }: SessionUser) {
+  const role = savedRole === "admin" || savedRole === "operator" ? savedRole : "user";
   localStorage.setItem("token", token);
   localStorage.setItem("user", JSON.stringify({ userId: String(id), email, name, role }));
   signedInUser.value = { id, email, name, role };

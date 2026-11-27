@@ -3,7 +3,7 @@ const { svg, png, pdf, savedFile, publish, multipart } = require('./file-fixture
 const caching = require('./file-caching.cjs');
 const scoreFiles = require('./score-files.cjs');
 
-module.exports = async function fileCases(t, request, { user, member, operator, admin }) {
+module.exports = async function fileCases(t, request, { user, other, operator, admin }) {
     await t.test('staff can upload valid SVG and legacy SVG is served safely', async () => {
         const db = require('../../config/db');
         const upload = (xml, type) => request('/photos/upload', { method: 'POST', token: operator.token,
@@ -32,7 +32,7 @@ module.exports = async function fileCases(t, request, { user, member, operator, 
         const path = await savedFile(png, 'profile.png', 'image/png');
         await db.execute('UPDATE users SET profile_photo_url = ? WHERE id = ?', [path, user.id]);
         assert.equal((await request(path)).status, 404);
-        assert.equal((await request(path, { token: member.token })).status, 404);
+        assert.equal((await request(path, { token: other.token })).status, 404);
         const profile = await request(path, { token: user.token });
         assert.equal(profile.status, 200);
         assert.match(profile.headers.get('cache-control'), /private, no-store/);
