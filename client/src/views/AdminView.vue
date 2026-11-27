@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useAuth } from "@/composables/useAuth";
+import { staffRoleLabel } from "@/composables/session";
 import MemberRoleManager from "@/components/admin/MemberRoleManager.vue";
 import AdminHomeManager from "@/components/admin/AdminHomeManager.vue";
 import AdminWorshipStatus from "@/components/admin/AdminWorshipStatus.vue";
@@ -14,7 +15,7 @@ const { isAdmin, isSuperAdmin } = useAuth();
       <div class="section-header">
         <div>
           <h1 class="section-title">관리 대시보드</h1>
-          <p class="section-subtitle">Vision과 집회안내에서 관리자 기능으로 수정/삭제/추가를 할 수 있습니다.</p>
+          <p class="section-subtitle">Vision과 집회안내에서 {{ staffRoleLabel }} 기능으로 수정/삭제/추가를 할 수 있습니다.</p>
         </div>
       </div>
       <div class="admin-links">
