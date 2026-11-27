@@ -5,7 +5,7 @@ export interface WorshipVideo {
   worship_id: number;
   video_url: string;
   video_order: number;
-  created_at?: string;
+  uploaded_at?: string;
 }
 
 export interface CreateWorshipVideoDto {

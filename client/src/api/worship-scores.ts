@@ -9,7 +9,7 @@ export interface WorshipScore {
   file_size?: number;
   thumbnail_url?: string;
   description?: string;
-  created_at?: string;
+  uploaded_at?: string;
 }
 
 export interface CreateWorshipScoreDto {
