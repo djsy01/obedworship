@@ -2,7 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
-import { sessionName } from '@/composables/session';
+import { sessionName, staffRoleLabel } from '@/composables/session';
 
 const router = useRouter();
 const { isLoggedIn, isAdmin, logout } = useAuth();
@@ -28,7 +28,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside));
       </div>
       <div v-if="showDropdown" class="dropdown-menu">
         <button class="dropdown-item" @click="navigate('/mypage')">👤 마이페이지</button>
-        <button v-if="isAdmin" class="dropdown-item admin" @click="navigate('/admin')">⚙️ 관리자</button>
+        <button v-if="isAdmin" class="dropdown-item admin" @click="navigate('/admin')">⚙️ {{ staffRoleLabel }}</button>
         <button class="dropdown-item logout" @click="handleLogout">🚪 로그아웃</button>
       </div>
     </div>
